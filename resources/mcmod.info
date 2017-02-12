@@ -1,0 +1,16 @@
+[
+{
+  "modid": "torochess",
+  "name": "ToroChess",
+  "description": "Chess in Minecraft!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["torocraft"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

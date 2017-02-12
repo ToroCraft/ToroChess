@@ -1,0 +1,13 @@
+{
+    "parent": "block/cube",
+    "textures": {
+        "down": "torochess:blocks/chess_control",
+        "up": "torochess:blocks/chess_control",
+        "north": "torochess:blocks/chess_control",
+        "south": "torochess:blocks/chess_control",
+        "east": "torochess:blocks/chess_control",
+        "west": "torochess:blocks/chess_control",
+        "particle": "torochess:blocks/chess_control"
+
+    }
+}
