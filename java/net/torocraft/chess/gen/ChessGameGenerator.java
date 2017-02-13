@@ -1,6 +1,6 @@
 package net.torocraft.chess.gen;
 
-import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -15,44 +15,42 @@ import net.torocraft.chess.enities.queen.EntityQueen;
 import net.torocraft.chess.enities.rook.EntityRook;
 import net.torocraft.chess.items.ItemChessControlWand;
 
-public class ChessGame {
+public class ChessGameGenerator {
 
-	private CheckerBoard board;
+	private CheckerBoardGenerator board;
 	private final World world;
-	private final BlockPos origin;
-	private Random rand = new Random();
+	private final BlockPos a1Pos;
+	private UUID gameId = UUID.randomUUID();
 
-	public ChessGame(World world, BlockPos position) {
-		this.board = new CheckerBoard(world, position);
+	public ChessGameGenerator(World world, BlockPos a1Pos) {
+		if(world == null){
+			throw new NullPointerException("null world");
+		}
+		if(a1Pos == null){
+			throw new NullPointerException("null a1Pos");
+		}
+		this.board = new CheckerBoardGenerator(world, a1Pos);
 		this.world = world;
-		this.origin = position;
+		this.a1Pos = a1Pos;
 	}
 
-	public CheckerBoard getBoard() {
+	public CheckerBoardGenerator getBoard() {
 		if(board == null){
-			board = new CheckerBoard(world, origin);
+			board = new CheckerBoardGenerator(world, a1Pos);
 		}
 		return board;
 	}
-	
-	public String getPositionName(BlockPos pos) {
-		return getBoard().getPositionName(pos);
-	}
-
-	public BlockPos getPosition(String name) {
-		return getBoard().getPosition(name);
-	}
 
 	public void generate() {
+		if(world.isRemote){
+			return;
+		}
 		getBoard().generate();
-
-		int i = 0;
-		addWand(i++);
+		addWand();
 		placePieces();
 	}
 
 	public void placePieces() {
-		addWand(0);
 		placeEntity(new EntityPawn(world), Side.WHITE, "a2");
 		placeEntity(new EntityPawn(world), Side.WHITE, "b2");
 		placeEntity(new EntityPawn(world), Side.WHITE, "c2");
@@ -90,20 +88,21 @@ public class ChessGame {
 		placeEntity(new EntityRook(world), Side.BLACK, "h8");
 	}
 
-	private void addWand(int index) {
-		ItemChessControlWand wand = new ItemChessControlWand();
-		wand.setChessControlBlockPosition(origin);
-		ItemStack stack = new ItemStack(wand, 1);
-		getBoard().getWhiteChest().setInventorySlotContents(index, stack);
+	private void addWand() {
+		//ItemChessControlWand wand = new ItemChessControlWand();
+		//wand.setChessControlBlockPosition(a1Pos);
+		ItemStack stack = new ItemStack(ItemChessControlWand.INSTANCE, 1);
+		getBoard().getWhiteChest().setInventorySlotContents(0, stack);
 	}
 
 	private void placeEntity(EntityChessPiece e, Side side, String position) {
-		int x = board.getA1Position().getX() + rand.nextInt(8);
-		int z = board.getA1Position().getZ() + rand.nextInt(8);
-		
+		int x = a1Pos.getX() + world.rand.nextInt(8);
+		int z = a1Pos.getZ() + world.rand.nextInt(8);
 		e.setChessPosition(position);
-		e.setPosition(x, origin.getY() + 2, z);
+		e.setPosition(x, a1Pos.getY() + 1, z);
 		e.setSide(side);
+		e.setGameId(gameId);
+		e.setA1Pos(a1Pos);
 		world.spawnEntity(e);
 	}
 

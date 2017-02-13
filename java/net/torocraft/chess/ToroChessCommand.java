@@ -5,8 +5,8 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.torocraft.chess.gen.CheckerBoard;
-import net.torocraft.chess.gen.ChessGame;
+import net.torocraft.chess.gen.CheckerBoardGenerator;
+import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class ToroChessCommand extends CommandBase {
 
@@ -34,12 +34,12 @@ public class ToroChessCommand extends CommandBase {
 	@SuppressWarnings("unused")
 	private void createChessBoard(ICommandSender sender) {
 		BlockPos pos = sender.getPosition();
-		new CheckerBoard(sender.getEntityWorld(), pos).generate();
+		new CheckerBoardGenerator(sender.getEntityWorld(), pos).generate();
 	}
 
 	private void createChessGame(ICommandSender sender) {
 		BlockPos pos = sender.getPosition();
-		new ChessGame(sender.getEntityWorld(), pos).generate();
+		new ChessGameGenerator(sender.getEntityWorld(), pos).generate();
 	}
 	
 

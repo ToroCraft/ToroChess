@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
 
-public class CheckerBoard {
+public class CheckerBoardGenerator {
 
 	private final World world;
 
@@ -19,7 +19,6 @@ public class CheckerBoard {
 	 * the coordinates of board position a1
 	 */
 	private final BlockPos a1Pos;
-	private static final BlockPos A1_OFFSET = new BlockPos(-4, 1, -4);
 
 	private static final IBlockState STAIRS_NORTH = stairsBlock(EnumFacing.NORTH);
 	private static final IBlockState STAIRS_SOUTH = stairsBlock(EnumFacing.SOUTH);
@@ -41,12 +40,15 @@ public class CheckerBoard {
 	private boolean blockWasDrawable;
 	private boolean onlyPlaceIfAir = false;
 
-	public CheckerBoard(World world, BlockPos position) {
+	public CheckerBoardGenerator(World world, BlockPos position) {
 		this.world = world;
-		a1Pos = position.add(A1_OFFSET);
+		a1Pos = position;
 	}
 
 	public void generate() {
+		if(world.isRemote){
+			return;
+		}
 		placeCheckerBlocks();
 		placeBorderBlocks();
 		placeBorderStairs();
@@ -54,111 +56,7 @@ public class CheckerBoard {
 		// TODO clear top
 	}
 
-	public BlockPos getA1Position() {
-		return a1Pos;
-	}
-
-	public String getPositionName(BlockPos coords) {
-		int xLocal = coords.getX() - a1Pos.getX();
-		int zLocal = coords.getZ() - a1Pos.getZ();
-		String name = encodeColumnName(xLocal) + minMax(zLocal + 1, 1, 8);
-		return name;
-	}
-
-	private int minMax(int i, int min, int max) {
-		if (i > max) {
-			return max;
-		}
-
-		if (i < min) {
-			return min;
-		}
-
-		return i;
-	}
-
-	/**
-	 * Get the minecraft coordinates for a given chess position (such as a1, e5)
-	 */
-	public BlockPos getPosition(String name) {
-		int[] parsed = parseIntPosition(name);
-		return new BlockPos(a1Pos.getX() + parsed[0], a1Pos.getY() + 1, a1Pos.getZ() + parsed[1]);
-	}
-
-	private int[] parseIntPosition(String name) {
-		int[] p = { -10, -10 };
-
-		if (name == null || name.length() != 2) {
-			return p;
-		}
-
-		name = name.toLowerCase();
-
-		if (!name.matches("[a-h][1-8]")) {
-			return p;
-		}
-
-		p[0] = parseColumnName(name.substring(0, 1));
-		p[1] = i(name.substring(1, 2)) - 1;
-		return p;
-	}
-
-	private int i(String substring) {
-		try {
-			return Integer.valueOf(substring, 10);
-		} catch (Exception e) {
-			return -10;
-		}
-	}
-
-	private String encodeColumnName(int i) {
-		switch (i) {
-		case 0:
-			return "a";
-		case 1:
-			return "b";
-		case 2:
-			return "c";
-		case 3:
-			return "d";
-		case 4:
-			return "e";
-		case 5:
-			return "f";
-		case 6:
-			return "g";
-		case 7:
-			return "h";
-		}
-		return "a";
-	}
-
-	private int parseColumnName(String s) {
-		if (s == null || s.length() != 1) {
-			return -10;
-		}
-
-		if (s.equals("a")) {
-			return 0;
-		} else if (s.equals("b")) {
-			return 1;
-		} else if (s.equals("c")) {
-			return 2;
-		} else if (s.equals("d")) {
-			return 3;
-		} else if (s.equals("e")) {
-			return 4;
-		} else if (s.equals("f")) {
-			return 5;
-		} else if (s.equals("g")) {
-			return 6;
-		} else if (s.equals("h")) {
-			return 7;
-		}
-
-		return -10;
-	}
-
+	
 	private static final BlockPos BLACK_PODIUM = new BlockPos(3, -1, -2);
 	private static final BlockPos WHITE_PODIUM = new BlockPos(3, -1, 9);
 
@@ -183,15 +81,6 @@ public class CheckerBoard {
 		block = Blocks.CHEST.getDefaultState().withProperty(BlockChest.FACING, facing);
 		y++;
 		drawLine(Axis.X, -2);
-
-		/*
-		 * if (BlockChest.FACING.equals(facing.SOUTH)) { blackChest =
-		 * ((BlockChest)
-		 * world.getBlockState(cursorCoords()).getBlock()).getLockableContainer(
-		 * world, cursorCoords()); } else { whiteChest = ((BlockChest)
-		 * world.getBlockState(cursorCoords()).getBlock()).getLockableContainer(
-		 * world, cursorCoords()); }
-		 */
 	}
 
 	public ILockableContainer getWhiteChest() {
