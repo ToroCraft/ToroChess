@@ -22,8 +22,8 @@ public interface IChessPiece {
 
 	void setGameId(UUID id);
 
-	BlockPos getA1Pos();
+	BlockPos getA8();
 
-	void setA1Pos(BlockPos pos);
+	void setA8(BlockPos pos);
 
 }

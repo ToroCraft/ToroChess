@@ -31,11 +31,29 @@ public class EntityPawn extends EntityChessPiece implements IChessPiece {
 
 	public EntityPawn(World worldIn) {
 		super(worldIn);
+		super.setSize(0.4F, 1.1F);
+
+	}
+
+	@Override
+	public boolean isChild() {
+		return true;
 	}
 
 	@Override
 	protected SoundEvent getAmbientSound() {
 		return null;
+	}
+
+	@Override
+	public float getEyeHeight() {
+		float f = 1.74F;
+
+		if (this.isChild()) {
+			f = (float) ((double) f - 0.81D);
+		}
+
+		return f;
 	}
 
 }

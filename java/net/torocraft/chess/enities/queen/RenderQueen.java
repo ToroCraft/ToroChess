@@ -1,26 +1,36 @@
 package net.torocraft.chess.enities.queen;
 
-import net.minecraft.client.renderer.entity.RenderLiving;
+import static net.torocraft.chess.enities.IChessPiece.Side.BLACK;
+
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.ToroChess;
 
 @SideOnly(Side.CLIENT)
-public class RenderQueen extends RenderLiving<EntityQueen> {
-	
-	 private static final ResourceLocation skeletonTextures = new ResourceLocation("textures/entity/skeleton/skeleton.png");
-	
+public class RenderQueen extends RenderBiped<EntityQueen> {
+
+	private static final ResourceLocation WHITE_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/queen_white.png");
+	private static final ResourceLocation BLACK_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/queen_black.png");
+
 	public RenderQueen(RenderManager renderManagerIn) {
 		super(renderManagerIn, new ModelQueen(), 0.5F);
 	}
-	
-	/**
-	 * Returns the location of an entity's texture. Doesn't seem to be
-	 * called unless you call Render.bindEntityTexture.
-	 */
+
+	@Override
 	protected ResourceLocation getEntityTexture(EntityQueen entity) {
-		return skeletonTextures;
+		if (BLACK.equals(entity.getSide())) {
+			return BLACK_TEXTURES;
+		} else {
+			return WHITE_TEXTURES;
+		}
 	}
 
+	@Override
+	protected void preRenderCallback(EntityQueen entitylivingbaseIn, float partialTickTime) {
+		GlStateManager.scale(1.2F, 1.2F, 1.2F);
+	}
 }

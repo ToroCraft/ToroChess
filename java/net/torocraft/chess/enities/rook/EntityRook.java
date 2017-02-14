@@ -13,11 +13,12 @@ import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.IChessPiece;
 
 public class EntityRook extends EntityChessPiece implements IChessPiece {
-	
+
 	public static String NAME = "rook";
 
 	public static void init(int entityId) {
-		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityRook.class, NAME, entityId, ToroChess.INSTANCE, 60, 2, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityRook.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
+				true);
 	}
 
 	public static void registerRenders() {
@@ -31,6 +32,8 @@ public class EntityRook extends EntityChessPiece implements IChessPiece {
 
 	public EntityRook(World worldIn) {
 		super(worldIn);
+		setSize(0.6F, 2.9F);
+		stepHeight = 1.0F;
 	}
 
 	@Override
@@ -38,4 +41,8 @@ public class EntityRook extends EntityChessPiece implements IChessPiece {
 		return null;
 	}
 
+	@Override
+	public float getEyeHeight() {
+		return 2.55F;
+	}
 }

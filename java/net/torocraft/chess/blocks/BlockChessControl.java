@@ -26,7 +26,7 @@ public class BlockChessControl extends Block {
 
 	public static Item ITEM_INSTANCE;
 
-	private static final BlockPos A1_OFFSET = new BlockPos(-4, 1, -4);
+	private static final BlockPos A8_OFFSET = new BlockPos(-4, 1, -4);
 
 	public static void init() {
 		INSTANCE = new BlockChessControl();
@@ -59,7 +59,7 @@ public class BlockChessControl extends Block {
 			placer.move(MoverType.SELF, 0, 2, 0);
 		}
 		if (!world.isRemote) {
-			new ChessGameGenerator(world, pos.add(A1_OFFSET)).generate();
+			new ChessGameGenerator(world, pos.add(A8_OFFSET)).generate();
 		}
 	}
 

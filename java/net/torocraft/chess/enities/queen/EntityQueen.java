@@ -31,6 +31,11 @@ public class EntityQueen extends EntityChessPiece implements IChessPiece {
 
 	public EntityQueen(World worldIn) {
 		super(worldIn);
+		this.setSize(0.7F, 2.4F);
+	}
+
+	public float getEyeHeight() {
+		return 2.1F;
 	}
 
 	@Override

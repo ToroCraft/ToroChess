@@ -16,9 +16,9 @@ public class CheckerBoardGenerator {
 	private final World world;
 
 	/**
-	 * the coordinates of board position a1
+	 * the coordinates of board position a8
 	 */
-	private final BlockPos a1Pos;
+	private final BlockPos a8;
 
 	private static final IBlockState STAIRS_NORTH = stairsBlock(EnumFacing.NORTH);
 	private static final IBlockState STAIRS_SOUTH = stairsBlock(EnumFacing.SOUTH);
@@ -27,7 +27,7 @@ public class CheckerBoardGenerator {
 	private static final IBlockState BORDER = border();
 
 	/*
-	 * Cursor Variables (relative to a1)
+	 * Cursor Variables (relative to a8)
 	 */
 	private int x;
 	private int y;
@@ -42,7 +42,7 @@ public class CheckerBoardGenerator {
 
 	public CheckerBoardGenerator(World world, BlockPos position) {
 		this.world = world;
-		a1Pos = position;
+		a8 = position;
 	}
 
 	public void generate() {
@@ -221,7 +221,7 @@ public class CheckerBoardGenerator {
 	 * Get the Minecraft coordinates of the cursor
 	 */
 	private BlockPos cursorCoords() {
-		return a1Pos.add(x, y, z);
+		return a8.add(x, y, z);
 	}
 
 	private IBlockState defineCheckerBlock() {

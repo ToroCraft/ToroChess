@@ -10,7 +10,7 @@ public class EntityAILookDownBoard extends EntityAIBase {
 
 	public EntityAILookDownBoard(EntityChessPiece entitylivingIn) {
 		this.entity = entitylivingIn;
-		this.setMutexBits(2);
+		this.setMutexBits(3);
 	}
 
 	/**

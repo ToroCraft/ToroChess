@@ -6,6 +6,8 @@ import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
 public class EntityAIMoveToPosition extends EntityAIBase {
+	private static final double SPEED = 0.5;
+	
 	private final EntityChessPiece entity;
 	private int timeoutCounter;
 	private String chessPosition;
@@ -15,14 +17,16 @@ public class EntityAIMoveToPosition extends EntityAIBase {
 	private double targetZ;
 	private boolean isAboveDestination;
 	private boolean moving = false;
-
+	
+	
+	
 	public EntityAIMoveToPosition(EntityChessPiece creature) {
 		this.entity = creature;
-		this.setMutexBits(5);
+		this.setMutexBits(3);
 	}
 
 	private void determineDestination() {
-		destination = CheckerBoardUtil.getPosition(entity.getA1Pos(), entity.getChessPosition());
+		destination = CheckerBoardUtil.getPosition(entity.getA8(), entity.getChessPosition());
 		targetX = (double) this.destination.getX() + 0.5d;
 		targetY = (double) this.destination.getY();
 		targetZ = (double) this.destination.getZ() + 0.5d;
@@ -75,8 +79,8 @@ public class EntityAIMoveToPosition extends EntityAIBase {
 			return;
 		}
 
-		double speed = 0.5;
-		moving = entity.getNavigator().tryMoveToXYZ(targetX, targetY, targetZ, speed);
+		
+		moving = entity.getNavigator().tryMoveToXYZ(targetX, targetY, targetZ, SPEED);
 		timeoutCounter = 0;
 	}
 

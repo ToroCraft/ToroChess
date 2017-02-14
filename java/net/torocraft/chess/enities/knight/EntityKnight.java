@@ -2,6 +2,9 @@ package net.torocraft.chess.enities.knight;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -31,11 +34,13 @@ public class EntityKnight extends EntityChessPiece implements IChessPiece {
 
 	public EntityKnight(World worldIn) {
 		super(worldIn);
+		setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+		//setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
 	}
-
+	
 	@Override
 	protected SoundEvent getAmbientSound() {
 		return null;
 	}
-
+	
 }

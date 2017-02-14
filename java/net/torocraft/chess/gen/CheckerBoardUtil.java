@@ -7,15 +7,15 @@ public class CheckerBoardUtil {
 	/**
 	 * Get the Minecraft coordinates for a given chess position (such as a1, e5)
 	 */
-	public static BlockPos getPosition(BlockPos a1Pos, String chessPosition) {
-		if(a1Pos == null){
-			throw new NullPointerException("a1Pos is null");
+	public static BlockPos getPosition(BlockPos a8, String chessPosition) {
+		if(a8 == null){
+			throw new NullPointerException("a8 is null");
 		}
 		if(chessPosition == null){
 			throw new NullPointerException("chess position string is null");
 		}
 		int[] parsed = CheckerBoardUtil.parseIntPosition(chessPosition);
-		return a1Pos.add(parsed[0], 1, parsed[1]);
+		return a8.add(parsed[0], 1, parsed[1]);
 	}
 
 	public static int[] parseIntPosition(String name) {
@@ -70,9 +70,9 @@ public class CheckerBoardUtil {
 		return -10;
 	}
 
-	public static String getPositionName(BlockPos a1Pos, BlockPos coords) {
-		int xLocal = coords.getX() - a1Pos.getX();
-		int zLocal = coords.getZ() - a1Pos.getZ();
+	public static String getPositionName(BlockPos a8, BlockPos coords) {
+		int xLocal = coords.getX() - a8.getX();
+		int zLocal = coords.getZ() - a8.getZ();
 		String name = encodeColumnName(xLocal) + minMax(zLocal + 1, 1, 8);
 		return name;
 	}

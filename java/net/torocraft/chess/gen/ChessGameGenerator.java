@@ -19,24 +19,24 @@ public class ChessGameGenerator {
 
 	private CheckerBoardGenerator board;
 	private final World world;
-	private final BlockPos a1Pos;
+	private final BlockPos a8;
 	private UUID gameId = UUID.randomUUID();
 
-	public ChessGameGenerator(World world, BlockPos a1Pos) {
+	public ChessGameGenerator(World world, BlockPos a8) {
 		if(world == null){
 			throw new NullPointerException("null world");
 		}
-		if(a1Pos == null){
-			throw new NullPointerException("null a1Pos");
+		if(a8 == null){
+			throw new NullPointerException("null a8");
 		}
-		this.board = new CheckerBoardGenerator(world, a1Pos);
+		this.board = new CheckerBoardGenerator(world, a8);
 		this.world = world;
-		this.a1Pos = a1Pos;
+		this.a8 = a8;
 	}
 
 	public CheckerBoardGenerator getBoard() {
 		if(board == null){
-			board = new CheckerBoardGenerator(world, a1Pos);
+			board = new CheckerBoardGenerator(world, a8);
 		}
 		return board;
 	}
@@ -89,20 +89,18 @@ public class ChessGameGenerator {
 	}
 
 	private void addWand() {
-		//ItemChessControlWand wand = new ItemChessControlWand();
-		//wand.setChessControlBlockPosition(a1Pos);
 		ItemStack stack = new ItemStack(ItemChessControlWand.INSTANCE, 1);
 		getBoard().getWhiteChest().setInventorySlotContents(0, stack);
 	}
 
 	private void placeEntity(EntityChessPiece e, Side side, String position) {
-		int x = a1Pos.getX() + world.rand.nextInt(8);
-		int z = a1Pos.getZ() + world.rand.nextInt(8);
+		int x = a8.getX() + world.rand.nextInt(8);
+		int z = a8.getZ() + world.rand.nextInt(8);
 		e.setChessPosition(position);
-		e.setPosition(x, a1Pos.getY() + 1, z);
+		e.setPosition(x, a8.getY() + 1, z);
 		e.setSide(side);
 		e.setGameId(gameId);
-		e.setA1Pos(a1Pos);
+		e.setA8(a8);
 		world.spawnEntity(e);
 	}
 

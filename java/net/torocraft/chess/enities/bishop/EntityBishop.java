@@ -21,7 +21,6 @@ public class EntityBishop extends EntityChessPiece implements IChessPiece {
 	}
 
 	public static void registerRenders() {
-		System.out.println("REGISTER RENDERS for bishop");
 		RenderingRegistry.registerEntityRenderingHandler(EntityBishop.class, new IRenderFactory<EntityBishop>() {
 			@Override
 			public Render<EntityBishop> createRenderFor(RenderManager manager) {
@@ -32,11 +31,16 @@ public class EntityBishop extends EntityChessPiece implements IChessPiece {
 
 	public EntityBishop(World worldIn) {
 		super(worldIn);
+		setSize(0.6F, 1.95F);
 	}
 
 	@Override
 	protected SoundEvent getAmbientSound() {
 		return null;
+	}
+
+	public float getEyeHeight() {
+		return 1.62F;
 	}
 
 }

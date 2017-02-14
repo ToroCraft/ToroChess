@@ -2,12 +2,17 @@ package net.torocraft.chess.enities;
 
 import java.util.UUID;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.ai.EntityAILookIdle;
+import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -18,12 +23,14 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 
 	private static final String NBT_SIDE_KEY = "chessside";
 	private static final String NBT_POSITION_KEY = "chessposition";
-	private static final String NBT_A1_POSITION_KEY = "a1position";
+	private static final String NBT_A8_POSITION_KEY = "a8position";
 	private static final String NBT_GAME_ID_KEY = "gameid";
 
-	private Side side = Side.WHITE;
+	private static final DataParameter<Boolean> SIDE_IS_WHITE = EntityDataManager.<Boolean> createKey(EntityZombieVillager.class,
+			DataSerializers.BOOLEAN);
+
 	private String chessPosition;
-	private BlockPos a1Pos;
+	private BlockPos a8;
 	private UUID gameId;
 	private boolean moved = true;
 	double x = 0;
@@ -36,11 +43,28 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	@Override
+	protected void entityInit() {
+		super.entityInit();
+		dataManager.register(SIDE_IS_WHITE, Boolean.valueOf(true));
+	}
+
+	@Override
+	public void setSide(Side side) {
+		dataManager.set(SIDE_IS_WHITE, castSide(side));
+	}
+
+	@Override
+	public Side getSide() {
+		return castSide(dataManager.get(SIDE_IS_WHITE));
+	}
+
+	@Override
 	protected void initEntityAI() {
-		this.tasks.addTask(1, new EntityAISwimming(this));
-		this.tasks.addTask(4, new EntityAIMoveToPosition(this));
-		this.tasks.addTask(5, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F));
-		this.tasks.addTask(6, new EntityAILookDownBoard(this));
+		tasks.addTask(1, new EntityAISwimming(this));
+		tasks.addTask(2, new EntityAIAttackMelee(this, 0.5D, true));
+		tasks.addTask(4, new EntityAIMoveToPosition(this));
+		tasks.addTask(5, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F));
+		tasks.addTask(6, new EntityAILookDownBoard(this));
 	}
 
 	public void resetMovedFlag() {
@@ -66,17 +90,40 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		z = posZ;
 	}
 
+	public boolean attackEntityAsMobbbb(Entity entityIn) {
+		if (entityIn instanceof EntityChessPiece) {
+			return entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), 4);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean attackEntityAsMob(Entity entityIn) {
+		if (!(entityIn instanceof EntityChessPiece)) {
+			return false;
+		}
+		float attackDamage = 4 + entityIn.world.rand.nextInt(4);
+		return entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), attackDamage);
+	}
+
+
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
 		if (source.getEntity() == null) {
 			return false;
 		}
 		if (source.getEntity() instanceof EntityChessPiece) {
-			setDead();
+			return super.attackEntityFrom(source, amount);
 		} else {
 			source.getEntity().attackEntityFrom(source, amount);
 		}
 		return false;
+	}
+	
+	@Override
+	public void onLivingUpdate() {
+		this.updateArmSwingProgress();
+		super.onLivingUpdate();
 	}
 
 	@Override
@@ -90,7 +137,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	private boolean isMissingValues() {
-		if (side == null || chessPosition == null || a1Pos == null || gameId == null) {
+		if (chessPosition == null || a8 == null || gameId == null) {
 			setDead();
 			return true;
 		}
@@ -98,18 +145,18 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	@Override
-	public void writeEntityToNBT(NBTTagCompound tagCompound) {
+	public void writeEntityToNBT(NBTTagCompound c) {
 		if (isMissingValues()) {
 			return;
 		}
-		super.writeEntityToNBT(tagCompound);
-		tagCompound.setBoolean(NBT_SIDE_KEY, castSide(side));
-		tagCompound.setString(NBT_POSITION_KEY, chessPosition);
-		tagCompound.setLong(NBT_A1_POSITION_KEY, a1Pos.toLong());
-		tagCompound.setUniqueId(NBT_GAME_ID_KEY, gameId);
+		super.writeEntityToNBT(c);
+		c.setBoolean(NBT_SIDE_KEY, dataManager.get(SIDE_IS_WHITE));
+		c.setString(NBT_POSITION_KEY, chessPosition);
+		c.setLong(NBT_A8_POSITION_KEY, a8.toLong());
+		c.setUniqueId(NBT_GAME_ID_KEY, gameId);
 	}
 
-	private boolean castSide(Side side) {
+	private Boolean castSide(Side side) {
 		if (Side.BLACK.equals(side)) {
 			return true;
 		} else {
@@ -126,14 +173,14 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	@Override
-	public void readEntityFromNBT(NBTTagCompound tagCompund) {
-		super.readEntityFromNBT(tagCompund);
+	public void readEntityFromNBT(NBTTagCompound c) {
+		super.readEntityFromNBT(c);
 
 		try {
-			side = castSide(tagCompund.getBoolean(NBT_SIDE_KEY));
-			chessPosition = tagCompund.getString(NBT_POSITION_KEY);
-			a1Pos = BlockPos.fromLong(tagCompund.getLong(NBT_A1_POSITION_KEY));
-			gameId = tagCompund.getUniqueId(NBT_GAME_ID_KEY);
+			chessPosition = c.getString(NBT_POSITION_KEY);
+			a8 = BlockPos.fromLong(c.getLong(NBT_A8_POSITION_KEY));
+			gameId = c.getUniqueId(NBT_GAME_ID_KEY);
+			dataManager.set(SIDE_IS_WHITE, c.getBoolean(NBT_SIDE_KEY));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -141,16 +188,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		if (!isMissingValues()) {
 			return;
 		}
-	}
-
-	@Override
-	public Side getSide() {
-		return side;
-	}
-
-	@Override
-	public void setSide(Side side) {
-		this.side = side;
 	}
 
 	@Override
@@ -165,13 +202,13 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	@Override
-	public BlockPos getA1Pos() {
-		return a1Pos;
+	public BlockPos getA8() {
+		return a8;
 	}
 
 	@Override
-	public void setA1Pos(BlockPos a1Pos) {
-		this.a1Pos = a1Pos;
+	public void setA8(BlockPos a8) {
+		this.a8 = a8;
 	}
 
 	@Override
