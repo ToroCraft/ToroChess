@@ -2,6 +2,7 @@ package net.torocraft.chess.items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.lwjgl.opengl.GL11;
 
@@ -42,9 +43,7 @@ import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.IChessPiece.Side;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
-//TODO: white and black wand, only one can work at a time
-
-//TODO: wand should only work for this game
+//TODO: white and black wand, only one can work at a time (current turn check)
 
 //TODO: game controller entity, something to hold the game state?
 
@@ -78,12 +77,14 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 
 //add sounds to select/deselection and move targeting and incorrectly selections
 
+//place instruction books in the chests
+
 public class ItemChessControlWand extends Item {
 
-	public static final String NBT_SELECTED_POS = "pos";
-	public static final String NBT_SIDE = "side";
-	public static final String NBT_A8_POS = "a8";
-	public static final String NBT_GAME_ID = "gameid";
+	public static final String NBT_SELECTED_POS = "chesspos";
+	public static final String NBT_SIDE = "chessside";
+	public static final String NBT_A8_POS = "chessa8";
+	public static final String NBT_GAME_ID = "chessgameid";
 	public static final String NAME = "chess_control_wand";
 	public static final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
 	public static final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
@@ -163,7 +164,13 @@ public class ItemChessControlWand extends Item {
 		String from = c.getString(NBT_SELECTED_POS);
 		String to = CheckerBoardUtil.getPositionName(a8, pos);
 		Side side = castSide(c.getBoolean(NBT_SIDE));
-		movePiece(world, wand, a8, side, from, to);
+		UUID gameId = c.getUniqueId(NBT_GAME_ID);
+		
+		if(gameId == null){
+			return EnumActionResult.PASS;
+		}
+
+		movePiece(world, wand, gameId, a8, side, from, to);
 
 		return EnumActionResult.SUCCESS;
 	}
@@ -179,6 +186,12 @@ public class ItemChessControlWand extends Item {
 
 		NBTTagCompound c = wand.getTagCompound();
 		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SIDE)) {
+			return false;
+		}
+		
+		UUID gameId = c.getUniqueId(NBT_GAME_ID);
+		
+		if (gameId == null || !gameId.equals(piece.getGameId())) {
 			return false;
 		}
 
@@ -197,10 +210,17 @@ public class ItemChessControlWand extends Item {
 		if (from == null) {
 			return false;
 		}
+
 		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
 		String to = enemyPiece.getChessPosition();
 		Side side = castSide(wand.getTagCompound().getBoolean(NBT_SIDE));
-		movePiece(world, wand, a8, side, from, to);
+		UUID gameId = wand.getTagCompound().getUniqueId(NBT_GAME_ID);
+		
+		if(gameId == null){
+			return false;
+		}
+
+		movePiece(world, wand, gameId, a8, side, from, to);
 		return true;
 	}
 
@@ -217,14 +237,14 @@ public class ItemChessControlWand extends Item {
 		return true;
 	}
 
-	private static void movePiece(World world, ItemStack stack, BlockPos a8, Side side, String from, String to) {
-		EntityChessPiece attacker = getHighlightedPiece(world, from, a8);
+	private static void movePiece(World world, ItemStack stack, UUID gameId, BlockPos a8, Side side, String from, String to) {
+		EntityChessPiece attacker = getHighlightedPiece(world, from, a8, gameId);
 
 		if (attacker == null) {
 			return;
 		}
 
-		EntityChessPiece victum = getPiece(world, to, a8);
+		EntityChessPiece victum = getPiece(world, to, a8, gameId);
 		if (victum != null && victum.getSide().equals(side)) {
 			victum = null;
 			return;
@@ -237,9 +257,9 @@ public class ItemChessControlWand extends Item {
 		attacker.setChessPosition(to);
 	}
 
-	private static EntityChessPiece getHighlightedPiece(World world, String piecePos, BlockPos a8) {
+	private static EntityChessPiece getHighlightedPiece(World world, String piecePos, BlockPos a8, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), HIGHLIGHTED_PIECED);
+				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), new HighlightedChessPiecePredicate(gameId));
 
 		if (pieces == null || pieces.size() < 1) {
 			return null;
@@ -248,9 +268,9 @@ public class ItemChessControlWand extends Item {
 		return pieces.get(0);
 	}
 
-	private static EntityChessPiece getPiece(World world, String piecePos, BlockPos a8) {
+	private static EntityChessPiece getPiece(World world, String piecePos, BlockPos a8, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos));
+				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
 
 		if (pieces == null || pieces.size() < 1) {
 			return null;
@@ -261,34 +281,24 @@ public class ItemChessControlWand extends Item {
 
 	private static void setSelectedNbt(ItemStack wand, EntityChessPiece target) {
 		NBTTagCompound c = wand.getTagCompound();
-		if (c == null) {
-			c = new NBTTagCompound();
-		}
 		c.setString(NBT_SELECTED_POS, ((EntityChessPiece) target).getChessPosition());
-		// c.setLong(NBT_A8_POS, ((EntityChessPiece) target).getA8().toLong());
-		// c.setString(NBT_SELECTED_PIECE, target.getName());
 		wand.setTagCompound(c);
 	}
 
 	private static void clearSelectedNbt(ItemStack wand) {
-		if (!wand.hasTagCompound()) {
-			return;
-		}
 		NBTTagCompound c = wand.getTagCompound();
 		c.removeTag(NBT_SELECTED_POS);
-		// c.removeTag(NBT_SELECTED_PIECE);
-		// c.removeTag(NBT_A8_POS);
 	}
 
-	private static void highlightEntity(EntityLivingBase target) {
-		removeAllHighlights(target.world, target.getPosition());
+	private static void highlightEntity(EntityChessPiece target) {
+		removeAllHighlights(target.world, target.getPosition(), target.getGameId());
 		PotionEffect potioneffect = new PotionEffect(MobEffects.GLOWING, 1000, 0, false, false);
 		target.addPotionEffect(potioneffect);
 	}
 
-	private static void removeAllHighlights(World world, BlockPos pos) {
+	private static void removeAllHighlights(World world, BlockPos pos, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
-				HIGHLIGHTED_PIECED);
+				new HighlightedChessPiecePredicate(gameId));
 		if (pieces == null) {
 			return;
 		}
@@ -297,23 +307,38 @@ public class ItemChessControlWand extends Item {
 		}
 	}
 
-	private static Predicate<EntityChessPiece> HIGHLIGHTED_PIECED = new Predicate<EntityChessPiece>() {
+	private static class HighlightedChessPiecePredicate implements Predicate<EntityChessPiece> {
+
+		private final UUID gameId;
+
+		public HighlightedChessPiecePredicate(UUID gameId) {
+			this.gameId = gameId;
+		}
+
 		@Override
 		public boolean apply(EntityChessPiece e) {
-			return e.isPotionActive(MobEffects.GLOWING);
+			if (e.getGameId() == null) {
+				return false;
+			}
+			return e.getGameId().equals(gameId) && e.isPotionActive(MobEffects.GLOWING);
 		}
 	};
 
 	private static class ChessPieceAtPredicate implements Predicate<EntityChessPiece> {
 		private final String chessPosition;
+		private final UUID gameId;
 
-		public ChessPieceAtPredicate(String chessPosition) {
+		public ChessPieceAtPredicate(String chessPosition, UUID gameId) {
 			this.chessPosition = chessPosition;
+			this.gameId = gameId;
 		}
 
 		@Override
 		public boolean apply(EntityChessPiece e) {
-			return e.getChessPosition().equals(chessPosition);
+			if (e.getChessPosition() == null || e.getGameId() == null) {
+				return false;
+			}
+			return e.getChessPosition().equals(chessPosition) && e.getGameId().equals(gameId);
 		}
 	};
 

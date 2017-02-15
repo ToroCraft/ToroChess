@@ -18,10 +18,10 @@ import net.torocraft.chess.items.ItemChessControlWand;
 
 public class ChessGameGenerator {
 
-	private CheckerBoardGenerator board;
+	private final CheckerBoardGenerator board;
 	private final World world;
 	private final BlockPos a8;
-	private UUID gameId = UUID.randomUUID();
+	private final UUID gameId = UUID.randomUUID();
 
 	public ChessGameGenerator(World world, BlockPos a8) {
 		if (world == null) {
@@ -35,18 +35,11 @@ public class ChessGameGenerator {
 		this.a8 = a8;
 	}
 
-	public CheckerBoardGenerator getBoard() {
-		if (board == null) {
-			board = new CheckerBoardGenerator(world, a8);
-		}
-		return board;
-	}
-
 	public void generate() {
 		if (world.isRemote) {
 			return;
 		}
-		getBoard().generate();
+		board.generate();
 		addWand();
 		placePieces();
 	}
@@ -90,9 +83,9 @@ public class ChessGameGenerator {
 	}
 
 	private void addWand() {
-		for (int i = 0; i < 8; i++) {
-			getBoard().getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
-			getBoard().getBlackChest().setInventorySlotContents(i, createWand(Side.BLACK));
+		for (int i = 0; i < 4; i++) {
+			board.getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
+			board.getBlackChest().setInventorySlotContents(i, createWand(Side.BLACK));
 		}
 	}
 

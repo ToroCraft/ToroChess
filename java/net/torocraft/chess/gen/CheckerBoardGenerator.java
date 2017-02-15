@@ -57,15 +57,15 @@ public class CheckerBoardGenerator {
 	}
 
 	
-	private static final BlockPos BLACK_PODIUM = new BlockPos(3, -1, -2);
-	private static final BlockPos WHITE_PODIUM = new BlockPos(3, -1, 9);
+	private static final BlockPos WHITE_PODIUM = new BlockPos(3, -1, -2);
+	private static final BlockPos BLACK_PODIUM = new BlockPos(3, -1, 9);
 
 	private void placePodiums() {
 		setCursor(WHITE_PODIUM);
-		placePodium(EnumFacing.NORTH);
+		placePodium(EnumFacing.SOUTH);
 
 		setCursor(BLACK_PODIUM);
-		placePodium(EnumFacing.SOUTH);
+		placePodium(EnumFacing.NORTH);
 	}
 
 	private void setCursor(BlockPos pos) {
