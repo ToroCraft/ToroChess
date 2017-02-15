@@ -79,6 +79,8 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 
 //place instruction books in the chests
 
+//convert chess control block to TileEntity with a chess controller
+
 public class ItemChessControlWand extends Item {
 
 	public static final String NBT_SELECTED_POS = "chesspos";
