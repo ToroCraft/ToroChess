@@ -3,6 +3,7 @@ package net.torocraft.chess.gen;
 import java.util.UUID;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.enities.EntityChessPiece;
@@ -23,10 +24,10 @@ public class ChessGameGenerator {
 	private UUID gameId = UUID.randomUUID();
 
 	public ChessGameGenerator(World world, BlockPos a8) {
-		if(world == null){
+		if (world == null) {
 			throw new NullPointerException("null world");
 		}
-		if(a8 == null){
+		if (a8 == null) {
 			throw new NullPointerException("null a8");
 		}
 		this.board = new CheckerBoardGenerator(world, a8);
@@ -35,14 +36,14 @@ public class ChessGameGenerator {
 	}
 
 	public CheckerBoardGenerator getBoard() {
-		if(board == null){
+		if (board == null) {
 			board = new CheckerBoardGenerator(world, a8);
 		}
 		return board;
 	}
 
 	public void generate() {
-		if(world.isRemote){
+		if (world.isRemote) {
 			return;
 		}
 		getBoard().generate();
@@ -89,8 +90,20 @@ public class ChessGameGenerator {
 	}
 
 	private void addWand() {
-		ItemStack stack = new ItemStack(ItemChessControlWand.INSTANCE, 1);
-		getBoard().getWhiteChest().setInventorySlotContents(0, stack);
+		for (int i = 0; i < 8; i++) {
+			getBoard().getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
+			getBoard().getBlackChest().setInventorySlotContents(i, createWand(Side.BLACK));
+		}
+	}
+
+	private ItemStack createWand(Side side) {
+		ItemStack wand = new ItemStack(ItemChessControlWand.INSTANCE, 1);
+		NBTTagCompound c = new NBTTagCompound();
+		c.setLong(ItemChessControlWand.NBT_A8_POS, a8.toLong());
+		c.setBoolean(ItemChessControlWand.NBT_SIDE, castSide(side));
+		c.setUniqueId(ItemChessControlWand.NBT_GAME_ID, gameId);
+		wand.setTagCompound(c);
+		return wand;
 	}
 
 	private void placeEntity(EntityChessPiece e, Side side, String position) {
@@ -102,6 +115,14 @@ public class ChessGameGenerator {
 		e.setGameId(gameId);
 		e.setA8(a8);
 		world.spawnEntity(e);
+	}
+
+	private Boolean castSide(Side side) {
+		if (Side.BLACK.equals(side)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

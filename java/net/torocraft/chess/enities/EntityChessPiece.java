@@ -90,13 +90,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		z = posZ;
 	}
 
-	public boolean attackEntityAsMobbbb(Entity entityIn) {
-		if (entityIn instanceof EntityChessPiece) {
-			return entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), 4);
-		}
-		return false;
-	}
-
 	@Override
 	public boolean attackEntityAsMob(Entity entityIn) {
 		if (!(entityIn instanceof EntityChessPiece)) {
@@ -106,20 +99,22 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		return entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), attackDamage);
 	}
 
-
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		if (source.getEntity() == null) {
-			return false;
-		}
-		if (source.getEntity() instanceof EntityChessPiece) {
+		if (canBeAttackedBy(source)) {
 			return super.attackEntityFrom(source, amount);
-		} else {
-			source.getEntity().attackEntityFrom(source, amount);
 		}
 		return false;
 	}
-	
+
+	private boolean canBeAttackedBy(DamageSource source) {
+		if (source.getEntity() == null || !(source.getEntity() instanceof EntityChessPiece)) {
+			return false;
+		}
+		Side attackerSide = ((EntityChessPiece) source.getEntity()).getSide();
+		return !attackerSide.equals(getSide());
+	}
+
 	@Override
 	public void onLivingUpdate() {
 		this.updateArmSwingProgress();

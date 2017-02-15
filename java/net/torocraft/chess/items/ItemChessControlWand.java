@@ -10,6 +10,7 @@ import com.google.common.base.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -32,37 +33,68 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.enities.IChessPiece.Side;
 import net.torocraft.chess.gen.CheckerBoardUtil;
-
-//TODO: unhiglight all other pieces when a new one is highlighted
-
-//TODO: black/white wand textures
 
 //TODO: white and black wand, only one can work at a time
 
-//TODO: white pieces can only be moved my the white wand
-
 //TODO: wand should only work for this game
 
-//TODO: game controller entity?
-
-//TODO: give pieces a stone texture?
+//TODO: game controller entity, something to hold the game state?
 
 //TODO: highlight location
 
+//long range item clicking
+
+//add banners, limit stairs to 5 levels
+
+//wand should remember A8 and gameId
+
+//craftable control blocks with blocks that will be placed (so the square colors can be changed)
+
+//api MC(move, clear, set) CHESS(isValid, getState)
+
+//left clicking board with wand opens game settings GUI, or right clicking the game control block
+
+//king arms are missing
+
+//add a crown texture for the king
+
+//pieces can't travel to some squares, white can't reach h1, g1, h2, g2, f2 for example
+
+// valid move overlay indicators
+
+//move timers
+
+//wands are placed in the wrong chest
+
+//no head shake AI when player tries an incorrect move
+
+//add sounds to select/deselection and move targeting and incorrectly selections
+
 public class ItemChessControlWand extends Item {
 
-	private static final String NBT_SELECTED_PIECE = "piece";
-	private static final String NBT_SELECTED_POS = "pos";
-	private static final String NBT_A8_POS = "a8";
-	public static ItemChessControlWand INSTANCE;
-	public static String NAME = "chess_control_wand";
-
+	public static final String NBT_SELECTED_POS = "pos";
+	public static final String NBT_SIDE = "side";
+	public static final String NBT_A8_POS = "a8";
+	public static final String NBT_GAME_ID = "gameid";
+	public static final String NAME = "chess_control_wand";
+	public static final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
+	public static final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
 	public static final double[] TEXTURE_OFFSETS = new double[8];
+
+	/**
+	 * texture unit offset
+	 */
+	private static double T = 0.125f;
+
+	public static ItemChessControlWand INSTANCE;
 
 	static {
 		for (int i = 0; i < 8; i++) {
@@ -79,8 +111,18 @@ public class ItemChessControlWand extends Item {
 	}
 
 	public static void registerRenders() {
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(INSTANCE, 0,
-				new ModelResourceLocation(ToroChess.MODID + ":" + NAME, "inventory"));
+		ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
+			@Override
+			public ModelResourceLocation getModelLocation(ItemStack stack) {
+				if (Side.WHITE.equals(getSide(stack))) {
+					return MODEL_WHITE;
+				} else {
+					return MODEL_BLACK;
+				}
+			}
+		});
+		ModelLoader.registerItemVariants(INSTANCE, new ModelResourceLocation[] { MODEL_WHITE, MODEL_BLACK });
+		MinecraftForge.EVENT_BUS.register(ItemChessControlWand.INSTANCE);
 	}
 
 	public ItemChessControlWand() {
@@ -105,51 +147,77 @@ public class ItemChessControlWand extends Item {
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY,
 			float hitZ) {
 
-		ItemStack stack = player.getHeldItem(hand);
+		ItemStack wand = player.getHeldItem(hand);
 
-		if (world.isRemote || !stack.hasTagCompound()) {
+		if (world.isRemote || !wand.hasTagCompound()) {
 			return EnumActionResult.PASS;
 		}
 
-		NBTTagCompound c = stack.getTagCompound();
+		NBTTagCompound c = wand.getTagCompound();
 
-		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SELECTED_POS)) {
+		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SELECTED_POS) || !c.hasKey(NBT_SIDE)) {
 			return EnumActionResult.PASS;
 		}
 
-		BlockPos a8 = BlockPos.fromLong(stack.getTagCompound().getLong(NBT_A8_POS));
+		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
 		String from = c.getString(NBT_SELECTED_POS);
 		String to = CheckerBoardUtil.getPositionName(a8, pos);
-		movePiece(world, a8, from, to);
+		Side side = castSide(c.getBoolean(NBT_SIDE));
+		movePiece(world, wand, a8, side, from, to);
 
-		return EnumActionResult.PASS;
+		return EnumActionResult.SUCCESS;
 	}
 
 	@Override
 	public boolean itemInteractionForEntity(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
 		if (player.world.isRemote || !(target instanceof EntityChessPiece)) {
-			return true;
+			return false;
 		}
 
 		EntityChessPiece piece = (EntityChessPiece) target;
-		ItemStack stack = player.getHeldItem(hand);
-		
-		System.out.println(piece.getSide());
+		ItemStack wand = player.getHeldItem(hand);
 
-		if (target.isPotionActive(MobEffects.GLOWING)) {
-			target.removeActivePotionEffect(MobEffects.GLOWING);
-			resetWandNbt(stack);
-		} else {
-			highlightEntity(target);
-			setWandNbt(stack, piece);
+		NBTTagCompound c = wand.getTagCompound();
+		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SIDE)) {
+			return false;
 		}
 
-		System.out.println(stack.getTagCompound() + " " + stack.hasTagCompound());
+		Side side = castSide(c.getBoolean(NBT_SIDE));
 
+		if (!side.equals(piece.getSide())) {
+			return handleClickOnEnemy(player.world, wand, piece);
+		} else {
+			return handleClickOnFriend(wand, piece);
+		}
+
+	}
+
+	private boolean handleClickOnEnemy(World world, ItemStack wand, EntityChessPiece enemyPiece) {
+		String from = wand.getTagCompound().getString(NBT_SELECTED_POS);
+		if (from == null) {
+			return false;
+		}
+		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
+		String to = enemyPiece.getChessPosition();
+		Side side = castSide(wand.getTagCompound().getBoolean(NBT_SIDE));
+		movePiece(world, wand, a8, side, from, to);
 		return true;
 	}
 
-	private static void movePiece(World world, BlockPos a8, String from, String to) {
+	private boolean handleClickOnFriend(ItemStack stack, EntityChessPiece friendlyPiece) {
+		if (friendlyPiece.isPotionActive(MobEffects.GLOWING)) {
+			friendlyPiece.removeActivePotionEffect(MobEffects.GLOWING);
+			clearSelectedNbt(stack);
+
+		} else {
+			highlightEntity(friendlyPiece);
+			setSelectedNbt(stack, friendlyPiece);
+
+		}
+		return true;
+	}
+
+	private static void movePiece(World world, ItemStack stack, BlockPos a8, Side side, String from, String to) {
 		EntityChessPiece attacker = getHighlightedPiece(world, from, a8);
 
 		if (attacker == null) {
@@ -157,9 +225,13 @@ public class ItemChessControlWand extends Item {
 		}
 
 		EntityChessPiece victum = getPiece(world, to, a8);
-		if (victum == attacker) {
+		if (victum != null && victum.getSide().equals(side)) {
 			victum = null;
+			return;
 		}
+
+		attacker.removeActivePotionEffect(MobEffects.GLOWING);
+		clearSelectedNbt(stack);
 
 		attacker.setAttackTarget(victum);
 		attacker.setChessPosition(to);
@@ -187,25 +259,25 @@ public class ItemChessControlWand extends Item {
 		return pieces.get(0);
 	}
 
-	private static void setWandNbt(ItemStack wand, EntityChessPiece target) {
+	private static void setSelectedNbt(ItemStack wand, EntityChessPiece target) {
 		NBTTagCompound c = wand.getTagCompound();
 		if (c == null) {
 			c = new NBTTagCompound();
 		}
 		c.setString(NBT_SELECTED_POS, ((EntityChessPiece) target).getChessPosition());
-		c.setLong(NBT_A8_POS, ((EntityChessPiece) target).getA8().toLong());
-		c.setString(NBT_SELECTED_PIECE, target.getName());
+		// c.setLong(NBT_A8_POS, ((EntityChessPiece) target).getA8().toLong());
+		// c.setString(NBT_SELECTED_PIECE, target.getName());
 		wand.setTagCompound(c);
 	}
 
-	private static void resetWandNbt(ItemStack wand) {
+	private static void clearSelectedNbt(ItemStack wand) {
 		if (!wand.hasTagCompound()) {
 			return;
 		}
 		NBTTagCompound c = wand.getTagCompound();
-		c.removeTag(NBT_SELECTED_PIECE);
 		c.removeTag(NBT_SELECTED_POS);
-		c.removeTag(NBT_A8_POS);
+		// c.removeTag(NBT_SELECTED_PIECE);
+		// c.removeTag(NBT_A8_POS);
 	}
 
 	private static void highlightEntity(EntityLivingBase target) {
@@ -249,18 +321,19 @@ public class ItemChessControlWand extends Item {
 	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		selectedBlocks.clear();
-		
+
 		if (player == null) {
 			return;
 		}
 
-		ItemStack itemStack = player.getHeldItemMainhand();
+		ItemStack wand = player.getHeldItemMainhand();
 
-		if (itemStack == null || itemStack.getItem() != INSTANCE || !itemStack.hasTagCompound()) {
+		if (wand == null || wand.getItem() != INSTANCE || !wand.hasTagCompound()) {
 			return;
 		}
 
-		BlockPos a8 = BlockPos.fromLong(itemStack.getTagCompound().getLong(NBT_A8_POS));
+		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
+		Side side = getSide(wand);
 
 		if (a8 == null) {
 			return;
@@ -270,22 +343,22 @@ public class ItemChessControlWand extends Item {
 		if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
 			setSelectedBlock(a8, r);
 		}
-		
-		if(selectedBlocks.size() < 1){
+
+		if (selectedBlocks.size() < 1) {
 			return;
 		}
 
 		double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
 		double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
 		double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-		render(x, y, z);
+		render(x, y, z, side);
 
 	}
 
 	private void setSelectedBlock(BlockPos a8, RayTraceResult r) {
 		SelectBlock b = new SelectBlock();
 		BlockPos offset = r.getBlockPos().subtract(a8);
-		if(offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0){
+		if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
 			return;
 		}
 		b.u = 7 - offset.getX();
@@ -297,8 +370,8 @@ public class ItemChessControlWand extends Item {
 	private double[] texureMinX, texureMaxX;
 	private double[] texureMinY, texureMaxY;
 
-	public void render(double x, double y, double z) {
-		if(selectedBlocks.size() < 1){
+	public void render(double x, double y, double z, Side side) {
+		if (selectedBlocks.size() < 1) {
 			return;
 		}
 		TextureManager tm = Minecraft.getMinecraft().renderEngine;
@@ -312,7 +385,7 @@ public class ItemChessControlWand extends Item {
 		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 		vb.setTranslation(-x, -y, -z);
 		for (SelectBlock u : selectedBlocks) {
-			renderVectors(vb, u);
+			renderVectors(vb, u, side);
 		}
 		vb.setTranslation(0, 0, 0);
 		Tessellator.getInstance().draw();
@@ -320,7 +393,7 @@ public class ItemChessControlWand extends Item {
 		GL11.glPopAttrib();
 	}
 
-	private void renderVectors(VertexBuffer vb, SelectBlock info) {
+	private void renderVectors(VertexBuffer vb, SelectBlock info, Side side) {
 		double x = info.pos.getX();
 		double y = info.pos.getY() + 1.001;
 		double z = info.pos.getZ();
@@ -328,23 +401,22 @@ public class ItemChessControlWand extends Item {
 		double u = TEXTURE_OFFSETS[info.u];
 		double v = TEXTURE_OFFSETS[info.v];
 
-		vb.pos(x, y, z);
-		vb.tex(u, v);
-		vb.color(255, 255, 255, 255);
-		vb.endVertex();
+		if (Side.WHITE.equals(side)) {
+			vector(vb, x, y, z, u, v, 0, 0, T, T);
+			vector(vb, x, y, z, u, v, 0, 1, T, 0);
+			vector(vb, x, y, z, u, v, 1, 1, 0, 0);
+			vector(vb, x, y, z, u, v, 1, 0, 0, T);
+		} else {
+			vector(vb, x, y, z, u, v, 0, 0, 0, 0);
+			vector(vb, x, y, z, u, v, 0, 1, 0, T);
+			vector(vb, x, y, z, u, v, 1, 1, T, T);
+			vector(vb, x, y, z, u, v, 1, 0, T, 0);
+		}
+	}
 
-		vb.pos(x, y, z + 1);
-		vb.tex(u, v + 0.125);
-		vb.color(255, 255, 255, 255);
-		vb.endVertex();
-
-		vb.pos(x + 1, y, z + 1);
-		vb.tex(u + 0.125, v + 0.125);
-		vb.color(255, 255, 255, 255);
-		vb.endVertex();
-
-		vb.pos(x + 1, y, z);
-		vb.tex(u + 0.125, v);
+	private void vector(VertexBuffer vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
+		vb.pos(x + oX, y, z + oZ);
+		vb.tex(u + oU, v + oV);
 		vb.color(255, 255, 255, 255);
 		vb.endVertex();
 	}
@@ -352,5 +424,21 @@ public class ItemChessControlWand extends Item {
 	public static class SelectBlock {
 		public int u, v;
 		public BlockPos pos;
+	}
+
+	private static Side castSide(Boolean side) {
+		if (side != null && side) {
+			return Side.BLACK;
+		} else {
+			return Side.WHITE;
+		}
+	}
+
+	public static Side getSide(ItemStack stack) {
+		Boolean b = null;
+		if (stack.hasTagCompound()) {
+			b = stack.getTagCompound().getBoolean(NBT_SIDE);
+		}
+		return castSide(b);
 	}
 }

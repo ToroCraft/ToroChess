@@ -15,7 +15,7 @@ import net.torocraft.chess.items.ItemChessControlWand;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent e) {
-
+		ItemChessControlWand.init();
 	}
 
 	public void init(FMLInitializationEvent e) {
@@ -26,7 +26,6 @@ public class CommonProxy {
 		EntityPawn.init(id++);
 		EntityQueen.init(id++);
 		EntityRook.init(id++);
-		ItemChessControlWand.init();
 		BlockChessControl.init();
 	}
 

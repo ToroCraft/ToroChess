@@ -1,6 +1,5 @@
 package net.torocraft.chess;
 
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -24,14 +23,13 @@ public class ClientProxy extends CommonProxy {
 		EntityPawn.registerRenders();
 		EntityQueen.registerRenders();
 		EntityRook.registerRenders();
+		ItemChessControlWand.registerRenders();
 	}
 
 	@Override
 	public void init(FMLInitializationEvent e) {
 		super.init(e);
-		ItemChessControlWand.registerRenders();
 		BlockChessControl.registerRenders();
-		MinecraftForge.EVENT_BUS.register(ItemChessControlWand.INSTANCE);
 	}
 
 	@Override
