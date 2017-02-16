@@ -1,6 +1,6 @@
 package net.torocraft.chess.blocks;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -11,6 +11,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -18,7 +19,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
-public class BlockChessControl extends Block {
+public class BlockChessControl extends BlockContainer {
 
 	public static final String NAME = "chess_control";
 
@@ -50,7 +51,8 @@ public class BlockChessControl extends Block {
 		setResistance(0.1f);
 		setHardness(0.5f);
 		setLightLevel(0);
-		setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
+		setCreativeTab(CreativeTabs.MISC);
+		isBlockContainer = true;
 	}
 
 	@Override
@@ -61,6 +63,11 @@ public class BlockChessControl extends Block {
 		if (!world.isRemote) {
 			new ChessGameGenerator(world, pos.add(A8_OFFSET)).generate();
 		}
+	}
+
+	@Override
+	public TileEntity createNewTileEntity(World worldIn, int meta) {
+		return new TileEntityChessControl();
 	}
 
 }

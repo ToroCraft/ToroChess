@@ -1,4 +1,4 @@
-package net.torocraft.chess.state;
+package net.torocraft.chess;
 
 import java.util.UUID;
 

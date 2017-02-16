@@ -38,9 +38,17 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
+import net.torocraft.chess.engine.ChessPieceState;
+import net.torocraft.chess.engine.ChessPieceState.Type;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.IChessPiece.Side;
+import net.torocraft.chess.enities.bishop.EntityBishop;
+import net.torocraft.chess.enities.king.EntityKing;
+import net.torocraft.chess.enities.knight.EntityKnight;
+import net.torocraft.chess.enities.queen.EntityQueen;
+import net.torocraft.chess.enities.rook.EntityRook;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
 //TODO: white and black wand, only one can work at a time (current turn check)
@@ -80,6 +88,8 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 //place instruction books in the chests
 
 //convert chess control block to TileEntity with a chess controller
+
+//have wands light up when it is the players turn
 
 public class ItemChessControlWand extends Item {
 
@@ -167,8 +177,8 @@ public class ItemChessControlWand extends Item {
 		String to = CheckerBoardUtil.getPositionName(a8, pos);
 		Side side = castSide(c.getBoolean(NBT_SIDE));
 		UUID gameId = c.getUniqueId(NBT_GAME_ID);
-		
-		if(gameId == null){
+
+		if (gameId == null) {
 			return EnumActionResult.PASS;
 		}
 
@@ -190,9 +200,9 @@ public class ItemChessControlWand extends Item {
 		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SIDE)) {
 			return false;
 		}
-		
+
 		UUID gameId = c.getUniqueId(NBT_GAME_ID);
-		
+
 		if (gameId == null || !gameId.equals(piece.getGameId())) {
 			return false;
 		}
@@ -217,8 +227,8 @@ public class ItemChessControlWand extends Item {
 		String to = enemyPiece.getChessPosition();
 		Side side = castSide(wand.getTagCompound().getBoolean(NBT_SIDE));
 		UUID gameId = wand.getTagCompound().getUniqueId(NBT_GAME_ID);
-		
-		if(gameId == null){
+
+		if (gameId == null) {
 			return false;
 		}
 
@@ -467,5 +477,45 @@ public class ItemChessControlWand extends Item {
 			b = stack.getTagCompound().getBoolean(NBT_SIDE);
 		}
 		return castSide(b);
+	}
+	
+	public static ChessPieceState fromEntity(EntityChessPiece entity) {
+		ChessPieceState state = new ChessPieceState();
+
+		if (entity instanceof EntityBishop) {
+			state.type = Type.BISHOP;
+
+		} else if (entity instanceof EntityKing) {
+			state.type = Type.KING;
+
+		} else if (entity instanceof EntityKnight) {
+			state.type = Type.KNIGHT;
+
+		} else if (entity instanceof EntityQueen) {
+			state.type = Type.QUEEN;
+
+		} else if (entity instanceof EntityRook) {
+			state.type = Type.ROOK;
+
+		} else {
+			state.type = Type.PAWN;
+		}
+
+		state.position = entity.getChessPosition();
+
+		return state;
+	}
+
+	// TODO: call the rule engine
+	public void loadPiecesFromWorld(World world, UUID gameId, BlockPos a8) {
+		List<ChessPieceState> pieces = new ArrayList<>();
+
+		List<EntityChessPiece> entityPieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
+				new AxisAlignedBB(a8.add(4, 0, 4)).expand(80, 20, 80), new ChessPieceSearchPredicate(gameId));
+
+		for (EntityChessPiece entityPiece : entityPieces) {
+			pieces.add(fromEntity(entityPiece));
+		}
+
 	}
 }
