@@ -3,6 +3,7 @@ package net.torocraft.chess.enities;
 import java.util.UUID;
 
 import net.minecraft.util.math.BlockPos;
+import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 
 public interface IChessPiece {
@@ -11,9 +12,9 @@ public interface IChessPiece {
 
 	void setSide(Side side);
 
-	String getChessPosition();
+	Position getChessPosition();
 
-	void setChessPosition(String position);
+	void setChessPosition(Position position);
 
 	UUID getGameId();
 

@@ -352,6 +352,7 @@ public class ItemChessControlWand extends Item {
 		state.side = entity.getSide();
 		
 		String[] chessPosition = entity.getChessPosition().split("");
+		//TODO improve string position parser error handling or convert to the new position object
 		state.position = new ChessPieceState.Position(CoordinateLetter.valueOf(chessPosition[0].toUpperCase()), CoordinateNumber.values()[Integer.parseInt(chessPosition[1]) - 1]);
 		return state;
 	}

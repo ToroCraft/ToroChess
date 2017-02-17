@@ -16,6 +16,9 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.ai.EntityAILookDownBoard;
 import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
@@ -23,14 +26,15 @@ import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
 public abstract class EntityChessPiece extends EntityCreature implements IChessPiece {
 
 	private static final String NBT_SIDE_KEY = "chessside";
-	private static final String NBT_POSITION_KEY = "chessposition";
+	private static final String NBT_POSITION_LETTER_KEY = "chess_letter_position";
+	private static final String NBT_POSITION_NUMBER_KEY = "chess_number_position";
 	private static final String NBT_A8_POSITION_KEY = "a8position";
 	private static final String NBT_GAME_ID_KEY = "gameid";
 
 	private static final DataParameter<Boolean> SIDE_IS_WHITE = EntityDataManager.<Boolean> createKey(EntityZombieVillager.class,
 			DataSerializers.BOOLEAN);
 
-	private String chessPosition;
+	private Position chessPosition;
 	private BlockPos a8;
 	private UUID gameId;
 	private boolean moved = true;
@@ -147,7 +151,10 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		}
 		super.writeEntityToNBT(c);
 		c.setBoolean(NBT_SIDE_KEY, dataManager.get(SIDE_IS_WHITE));
-		c.setString(NBT_POSITION_KEY, chessPosition);
+		
+		c.setInteger(NBT_POSITION_LETTER_KEY, chessPosition.letter.ordinal());
+		c.setInteger(NBT_POSITION_LETTER_KEY, chessPosition.number.ordinal());
+		
 		c.setLong(NBT_A8_POSITION_KEY, a8.toLong());
 		c.setUniqueId(NBT_GAME_ID_KEY, gameId);
 	}
@@ -173,7 +180,10 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		super.readEntityFromNBT(c);
 
 		try {
-			chessPosition = c.getString(NBT_POSITION_KEY);
+			CoordinateLetter letter = CoordinateLetter.values()[c.getInteger(NBT_POSITION_LETTER_KEY)];
+			CoordinateNumber number = CoordinateNumber.values()[c.getInteger(NBT_POSITION_NUMBER_KEY)];
+			chessPosition = new Position(letter, number);
+			
 			a8 = BlockPos.fromLong(c.getLong(NBT_A8_POSITION_KEY));
 			gameId = c.getUniqueId(NBT_GAME_ID_KEY);
 			dataManager.set(SIDE_IS_WHITE, c.getBoolean(NBT_SIDE_KEY));
@@ -187,13 +197,13 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	@Override
-	public void setChessPosition(String position) {
+	public void setChessPosition(Position position) {
 		moved = true;
 		chessPosition = position;
 	}
 
 	@Override
-	public String getChessPosition() {
+	public Position getChessPosition() {
 		return chessPosition;
 	}
 

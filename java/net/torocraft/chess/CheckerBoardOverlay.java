@@ -113,11 +113,13 @@ public class CheckerBoardOverlay {
 			return;
 		}
 
-		Position p = new Position( CoordinateLetter.values()[7 - offset.getX()], CoordinateNumber.values()[offset.getZ()]);
-		for (Position move : moves) {
-			if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
-				overlay.valid = true;
-				break;
+		if (moves != null && moves.size() > 0) {
+			Position p = new Position(CoordinateLetter.values()[7 - offset.getX()], CoordinateNumber.values()[offset.getZ()]);
+			for (Position move : moves) {
+				if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
+					overlay.valid = true;
+					break;
+				}
 			}
 		}
 

@@ -1,23 +1,66 @@
 package net.torocraft.chess.gen;
 
 import net.minecraft.util.math.BlockPos;
+import net.torocraft.chess.engine.ChessPieceState.Position;
+
+/**
+ * <pre>
+ * <h2>Minecraft Axes</h2>
+ * +----> X (east)
+ * |
+ * |
+ * v  
+ * Z (south)
+ * 
+ * <h2>Board Layout (chess positions)</h2>
+ * a8 b8 ... h8
+ * 
+ * a7
+ * 
+ * ...
+ * 
+ * a1 b1 ... h1
+ * 
+ * <h2>Board Layout (world offsets X,Z)</h2>
+ * 0,0 1,0 ... 7,0
+ * 
+ * 0,1
+ * 
+ * ...
+ * 
+ * 0,7 1,7 ... 7,7
+ * 
+ * </pre>
+ */
 
 public class CheckerBoardUtil {
 
-	/**
-	 * Get the Minecraft coordinates for a given chess position (such as a1, e5)
+	public static int[] toBoardOffsets(Position position) {
+		// TODO
+		return null;
+	}
+
+	public static BlockPos toWorldCoords(Position position) {
+		// TODO
+		return null;
+	}
+
+	/*
+	 * OLD METHODS
 	 */
+	@Deprecated
 	public static BlockPos getPosition(BlockPos a8, String chessPosition) {
-		if(a8 == null){
+		if (a8 == null) {
 			throw new NullPointerException("a8 is null");
 		}
-		if(chessPosition == null){
+		if (chessPosition == null) {
 			throw new NullPointerException("chess position string is null");
 		}
 		int[] parsed = CheckerBoardUtil.parseIntPosition(chessPosition);
 		return a8.add(parsed[0], 1, parsed[1]);
 	}
 
+	@Deprecated
 	public static int[] parseIntPosition(String name) {
 		int[] p = { -10, -10 };
 
@@ -32,10 +75,11 @@ public class CheckerBoardUtil {
 		}
 
 		p[0] = parseColumnName(name.substring(0, 1));
-		p[1] = i(name.substring(1, 2)) - 1;
+		p[1] = 7 - i(name.substring(1, 2)) - 1;
 		return p;
 	}
 
+	@Deprecated
 	private static int i(String substring) {
 		try {
 			return Integer.valueOf(substring, 10);
@@ -44,6 +88,7 @@ public class CheckerBoardUtil {
 		}
 	}
 
+	@Deprecated
 	private static int parseColumnName(String s) {
 		if (s == null || s.length() != 1) {
 			return -10;
@@ -70,6 +115,7 @@ public class CheckerBoardUtil {
 		return -10;
 	}
 
+	@Deprecated
 	public static String getPositionName(BlockPos a8, BlockPos coords) {
 		int xLocal = coords.getX() - a8.getX();
 		int zLocal = coords.getZ() - a8.getZ();
@@ -77,6 +123,7 @@ public class CheckerBoardUtil {
 		return name;
 	}
 
+	@Deprecated
 	private static int minMax(int i, int min, int max) {
 		if (i > max) {
 			return max;
@@ -89,6 +136,7 @@ public class CheckerBoardUtil {
 		return i;
 	}
 
+	@Deprecated
 	private static String encodeColumnName(int i) {
 		switch (i) {
 		case 0:
