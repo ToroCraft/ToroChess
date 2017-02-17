@@ -18,7 +18,11 @@ public class ChessPieceState {
 	}
 
 	public Type type;
-	public CoordinateLetter letter;
-	public CoordinateNumber number;
+	public Position position;
 	public Side side;
+
+	public static class Position {
+		public CoordinateLetter letter;
+		public CoordinateNumber number;
+	}
 }

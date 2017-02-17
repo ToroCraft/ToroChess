@@ -2,8 +2,9 @@ package net.torocraft.chess.engine;
 
 import java.util.List;
 
-public interface IChessRuleEngine {
+import net.torocraft.chess.engine.ChessPieceState.Position;
 
+public interface IChessRuleEngine {
 	/**
 	 * 
 	 * @param state
@@ -13,5 +14,5 @@ public interface IChessRuleEngine {
 	 * @return a list of possible moves, if move are possible an empty list is
 	 *         returned
 	 */
-	List<String> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove);
+	List<Position> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove);
 }
