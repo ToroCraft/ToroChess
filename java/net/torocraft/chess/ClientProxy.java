@@ -24,6 +24,7 @@ public class ClientProxy extends CommonProxy {
 		EntityQueen.registerRenders();
 		EntityRook.registerRenders();
 		ItemChessControlWand.registerRenders();
+		CheckerBoardOverlay.init();
 	}
 
 	@Override

@@ -4,19 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.base.Predicate;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,19 +22,15 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState;
+import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.engine.ChessPieceState.Type;
 import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
 import net.torocraft.chess.enities.knight.EntityKnight;
@@ -60,23 +47,8 @@ public class ItemChessControlWand extends Item {
 	public static final String NAME = "chess_control_wand";
 	public static final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
 	public static final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
-	public static final double[] TEXTURE_OFFSETS = new double[8];
-
-	/**
-	 * texture unit offset
-	 */
-	private static double T = 0.125f;
 
 	public static ItemChessControlWand INSTANCE;
-
-	static {
-		for (int i = 0; i < 8; i++) {
-			TEXTURE_OFFSETS[i] = ((double) i) / 8;
-		}
-	}
-
-	private List<SelectBlock> selectedBlocks = new ArrayList<>();
-	private static final ResourceLocation TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/overlay.png");
 
 	public static void init() {
 		INSTANCE = new ItemChessControlWand();
@@ -95,7 +67,6 @@ public class ItemChessControlWand extends Item {
 			}
 		});
 		ModelLoader.registerItemVariants(INSTANCE, new ModelResourceLocation[] { MODEL_WHITE, MODEL_BLACK });
-		MinecraftForge.EVENT_BUS.register(ItemChessControlWand.INSTANCE);
 	}
 
 	public ItemChessControlWand() {
@@ -103,17 +74,6 @@ public class ItemChessControlWand extends Item {
 		setMaxDamage(1);
 		setCreativeTab(CreativeTabs.MISC);
 		setMaxStackSize(1);
-
-		texureMinX = new double[64];
-		texureMaxX = new double[64];
-		texureMinY = new double[64];
-		texureMaxY = new double[64];
-		for (int i = 0; i < 64; i++) {
-			texureMinX[i] = (i % 8) / 8.0;
-			texureMaxX[i] = (i % 8 + 1) / 8.0;
-			texureMinY[i] = (i / 8) / 8.0;
-			texureMaxY[i] = (i / 8 + 1) / 8.0;
-		}
 	}
 
 	@Override
@@ -314,121 +274,16 @@ public class ItemChessControlWand extends Item {
 		}
 	};
 
-	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
-		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		selectedBlocks.clear();
-
-		if (player == null) {
-			return;
-		}
-
-		ItemStack wand = player.getHeldItemMainhand();
-
-		if (wand == null || wand.getItem() != INSTANCE || !wand.hasTagCompound()) {
-			return;
-		}
-
-		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
-		Side side = getSide(wand);
-
-		if (a8 == null) {
-			return;
-		}
-
-		RayTraceResult r = player.rayTrace(50, 1);
-		if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
-			setSelectedBlock(a8, r);
-		}
-
-		if (selectedBlocks.size() < 1) {
-			return;
-		}
-
-		double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
-		double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
-		double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-		render(x, y, z, side);
-
-	}
-
-	private void setSelectedBlock(BlockPos a8, RayTraceResult r) {
-		SelectBlock b = new SelectBlock();
-		BlockPos offset = r.getBlockPos().subtract(a8);
-		if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
-			return;
-		}
-		b.u = 7 - offset.getX();
-		b.v = offset.getZ();
-		b.pos = r.getBlockPos();
-		selectedBlocks.add(b);
-	}
-
-	private double[] texureMinX, texureMaxX;
-	private double[] texureMinY, texureMaxY;
-
-	public void render(double x, double y, double z, Side side) {
-		if (selectedBlocks.size() < 1) {
-			return;
-		}
-		TextureManager tm = Minecraft.getMinecraft().renderEngine;
-		tm.bindTexture(TEXTURE);
-		VertexBuffer vb = Tessellator.getInstance().getBuffer();
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		GL11.glPushMatrix();
-		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		GL11.glEnable(GL11.GL_BLEND);
-		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-		vb.setTranslation(-x, -y, -z);
-		for (SelectBlock u : selectedBlocks) {
-			renderVectors(vb, u, side);
-		}
-		vb.setTranslation(0, 0, 0);
-		Tessellator.getInstance().draw();
-		GL11.glPopMatrix();
-		GL11.glPopAttrib();
-	}
-
-	private void renderVectors(VertexBuffer vb, SelectBlock info, Side side) {
-		double x = info.pos.getX();
-		double y = info.pos.getY() + 1.001;
-		double z = info.pos.getZ();
-
-		double u = TEXTURE_OFFSETS[info.u];
-		double v = TEXTURE_OFFSETS[info.v];
-
-		if (Side.WHITE.equals(side)) {
-			vector(vb, x, y, z, u, v, 0, 0, T, T);
-			vector(vb, x, y, z, u, v, 0, 1, T, 0);
-			vector(vb, x, y, z, u, v, 1, 1, 0, 0);
-			vector(vb, x, y, z, u, v, 1, 0, 0, T);
-		} else {
-			vector(vb, x, y, z, u, v, 0, 0, 0, 0);
-			vector(vb, x, y, z, u, v, 0, 1, 0, T);
-			vector(vb, x, y, z, u, v, 1, 1, T, T);
-			vector(vb, x, y, z, u, v, 1, 0, T, 0);
-		}
-	}
-
-	private void vector(VertexBuffer vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
-		vb.pos(x + oX, y, z + oZ);
-		vb.tex(u + oU, v + oV);
-		vb.color(255, 255, 255, 255);
-		vb.endVertex();
-	}
-
-	public static class SelectBlock {
-		public int u, v;
-		public BlockPos pos;
-	}
-
 	private static Side castSide(Boolean side) {
 		if (side != null && side) {
 			return Side.BLACK;
 		} else {
 			return Side.WHITE;
 		}
+	}
+	
+	public static BlockPos getA8(ItemStack stack) {
+		return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_A8_POS));
 	}
 
 	public static Side getSide(ItemStack stack) {
