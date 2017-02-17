@@ -29,8 +29,8 @@ import net.torocraft.chess.CheckerBoardOverlay;
 import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.File;
+import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.engine.ChessPieceState.Type;
@@ -352,7 +352,8 @@ public class ItemChessControlWand extends Item {
 		state.side = entity.getSide();
 		
 		String[] chessPosition = entity.getChessPosition().split("");
-		state.position = new ChessPieceState.Position(CoordinateLetter.valueOf(chessPosition[0].toUpperCase()), CoordinateNumber.values()[Integer.parseInt(chessPosition[1]) - 1]);
+		state.position = new ChessPieceState.Position(
+				File.valueOf(chessPosition[0].toUpperCase()), Rank.values()[Integer.parseInt(chessPosition[1]) - 1]);
 		return state;
 	}
 

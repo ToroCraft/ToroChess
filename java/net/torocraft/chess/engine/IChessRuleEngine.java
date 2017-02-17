@@ -12,5 +12,6 @@ public interface IChessRuleEngine {
 	 * @return a list of possible moves, if no moves are possible an empty list is
 	 *         returned
 	 */
-	List<ChessPieceState.Position> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove);
+	MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove);
+
 }

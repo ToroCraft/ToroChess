@@ -21,8 +21,8 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.File;
+import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.items.ItemChessControlWand;
@@ -113,7 +113,7 @@ public class CheckerBoardOverlay {
 			return;
 		}
 
-		Position p = new Position( CoordinateLetter.values()[7 - offset.getX()], CoordinateNumber.values()[offset.getZ()]);
+		Position p = new Position( File.values()[7 - offset.getX()], Rank.values()[offset.getZ()]);
 		for (Position move : moves) {
 			if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
 				overlay.valid = true;

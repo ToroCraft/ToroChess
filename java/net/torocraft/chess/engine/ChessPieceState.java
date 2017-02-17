@@ -9,25 +9,31 @@ public class ChessPieceState {
 		WHITE, BLACK
 	}
 
-	public enum CoordinateLetter {
+	public enum File {
 		A, B, C, D, E, F, G, H
 	}
 
-	public enum CoordinateNumber {
-		One, Two, Three, Four, Five, Six, Seven, Eight
+	public enum Rank {
+		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
 	}
 
 	public Type type;
 	public Position position;
 	public Side side;
+	public boolean isInitialMove;
 
 	public static class Position {
-		public CoordinateLetter letter;
-		public CoordinateNumber number;
+		public File letter;
+		public Rank number;
 
-		public Position(CoordinateLetter letter, CoordinateNumber number) {
+		public Position(File letter, Rank number) {
 			this.letter = letter;
 			this.number = number;
+		}
+
+		@Override
+		public String toString() {
+			return letter.toString().toLowerCase() + number.ordinal();
 		}
 	}
 
