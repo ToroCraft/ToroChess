@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -38,6 +40,12 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE = new ItemBlock(INSTANCE);
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
+
+		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE),
+				" Q ",
+				"OSQ",
+				"   ",
+				'Q', Blocks.QUARTZ_BLOCK, 'O', Blocks.OBSIDIAN, 'S', Items.GOLDEN_SWORD);
 	}
 
 	public static void registerRenders() {
