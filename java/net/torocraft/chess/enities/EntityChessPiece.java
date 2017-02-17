@@ -16,9 +16,9 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
-import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Position;
+import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.ai.EntityAILookDownBoard;
 import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
@@ -180,8 +180,8 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		super.readEntityFromNBT(c);
 
 		try {
-			CoordinateLetter letter = CoordinateLetter.values()[c.getInteger(NBT_POSITION_LETTER_KEY)];
-			CoordinateNumber number = CoordinateNumber.values()[c.getInteger(NBT_POSITION_NUMBER_KEY)];
+			File letter = File.values()[c.getInteger(NBT_POSITION_LETTER_KEY)];
+			Rank number = Rank.values()[c.getInteger(NBT_POSITION_NUMBER_KEY)];
 			chessPosition = new Position(letter, number);
 			
 			a8 = BlockPos.fromLong(c.getLong(NBT_A8_POSITION_KEY));

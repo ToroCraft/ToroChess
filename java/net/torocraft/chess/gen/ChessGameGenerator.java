@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
@@ -45,7 +46,7 @@ public class ChessGameGenerator {
 	}
 
 	public void placePieces() {
-		placeEntity(new EntityPawn(world), Side.WHITE, "a2");
+		placeEntity(new EntityPawn(world), Side.WHITE, p("a", 2));
 		placeEntity(new EntityPawn(world), Side.WHITE, "b2");
 		placeEntity(new EntityPawn(world), Side.WHITE, "c2");
 		placeEntity(new EntityPawn(world), Side.WHITE, "d2");
@@ -82,6 +83,11 @@ public class ChessGameGenerator {
 		placeEntity(new EntityRook(world), Side.BLACK, "h8");
 	}
 
+	private Position p(String string, int i) {
+		
+		return null;
+	}
+
 	private void addWand() {
 		for (int i = 0; i < 4; i++) {
 			board.getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
@@ -99,7 +105,7 @@ public class ChessGameGenerator {
 		return wand;
 	}
 
-	private void placeEntity(EntityChessPiece e, Side side, String position) {
+	private void placeEntity(EntityChessPiece e, Side side, Position position) {
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
 		e.setChessPosition(position);

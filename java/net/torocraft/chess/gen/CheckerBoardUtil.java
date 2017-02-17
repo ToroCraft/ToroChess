@@ -35,14 +35,10 @@ import net.torocraft.chess.engine.ChessPieceState.Position;
 
 public class CheckerBoardUtil {
 
-	public static int[] toBoardOffsets(Position position) {
-		// TODO
-		return null;
-	}
 
-	public static BlockPos toWorldCoords(Position position) {
-		// TODO
-		return null;
+
+	public static BlockPos toWorldCoords(BlockPos a8, Position position) {
+		//return a8.add(position.)
 	}
 
 	/*
