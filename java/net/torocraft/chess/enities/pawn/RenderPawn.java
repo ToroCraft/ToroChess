@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
 
-import static net.torocraft.chess.enities.IChessPiece.Side.BLACK;
+import static net.torocraft.chess.engine.ChessPieceState.Side.BLACK;
 
 @SideOnly(Side.CLIENT)
 public class RenderPawn extends RenderLiving<EntityPawn> {

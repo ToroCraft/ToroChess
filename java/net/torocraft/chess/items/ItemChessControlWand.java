@@ -43,7 +43,7 @@ import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState;
 import net.torocraft.chess.engine.ChessPieceState.Type;
 import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece.Side;
+import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
 import net.torocraft.chess.enities.knight.EntityKnight;
@@ -461,7 +461,14 @@ public class ItemChessControlWand extends Item {
 			state.type = Type.PAWN;
 		}
 
-		state.position = entity.getChessPosition();
+		String chessPosition = entity.getChessPosition();
+
+		state.side = entity.getSide();
+
+		// FIXME
+		state.position = new ChessPieceState.Position();
+		state.position.letter = null;
+		state.position.number = null;
 
 		return state;
 	}

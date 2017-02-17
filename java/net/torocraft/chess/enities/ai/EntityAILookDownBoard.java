@@ -1,8 +1,8 @@
 package net.torocraft.chess.enities.ai;
 
 import net.minecraft.entity.ai.EntityAIBase;
+import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece.Side;
 
 public class EntityAILookDownBoard extends EntityAIBase {
 

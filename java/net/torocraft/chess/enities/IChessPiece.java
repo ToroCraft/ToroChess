@@ -3,12 +3,9 @@ package net.torocraft.chess.enities;
 import java.util.UUID;
 
 import net.minecraft.util.math.BlockPos;
+import net.torocraft.chess.engine.ChessPieceState.Side;
 
 public interface IChessPiece {
-
-	public static enum Side {
-		WHITE, BLACK
-	};
 
 	Side getSide();
 

@@ -1,6 +1,6 @@
 package net.torocraft.chess.enities.queen;
 
-import static net.torocraft.chess.enities.IChessPiece.Side.BLACK;
+import static net.torocraft.chess.engine.ChessPieceState.Side.BLACK;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderBiped;

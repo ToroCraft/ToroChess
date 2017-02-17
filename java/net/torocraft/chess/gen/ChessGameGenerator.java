@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece.Side;
+import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
 import net.torocraft.chess.enities.knight.EntityKnight;
