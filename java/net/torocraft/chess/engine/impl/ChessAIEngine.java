@@ -8,8 +8,8 @@ import java.util.List;
 import static net.torocraft.chess.engine.ChessPieceState.Move;
 import static net.torocraft.chess.engine.ChessPieceState.Side;
 import static net.torocraft.chess.engine.ChessPieceState.Position;
-import static net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
-import static net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import static net.torocraft.chess.engine.ChessPieceState.File;
+import static net.torocraft.chess.engine.ChessPieceState.Rank;
 
 public class ChessAIEngine implements IChessAIEngine {
     private Move aiMove;
@@ -19,8 +19,8 @@ public class ChessAIEngine implements IChessAIEngine {
         //TODO write AI
 
         //FIXME test data
-        aiMove = new Move(new Position(CoordinateLetter.A, CoordinateNumber.Eight),
-                new Position(CoordinateLetter.D, CoordinateNumber.Four));
+        aiMove = new Move(new Position(File.A, Rank.EIGHT),
+                new Position(File.D, Rank.FOUR));
         return aiMove;
     }
 }
