@@ -23,17 +23,17 @@ public class ChessPieceState {
 	public boolean isInitialMove;
 
 	public static class Position {
-		public File letter;
-		public Rank number;
+		public File file;
+		public Rank rank;
 
 		public Position(File letter, Rank number) {
-			this.letter = letter;
-			this.number = number;
+			this.file = letter;
+			this.rank = number;
 		}
 
 		@Override
 		public String toString() {
-			return letter.toString().toLowerCase() + number.ordinal();
+			return file.toString().toLowerCase() + rank.ordinal();
 		}
 	}
 
