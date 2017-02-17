@@ -89,8 +89,9 @@ public class CheckerBoardOverlay {
 			return;
 		}
 
+		//FIXME this is for testing only
 		b.valid = offset.getX() == 0;
-
+		
 		b.u = 7 - offset.getX();
 		b.v = offset.getZ();
 		b.pos = r.getBlockPos();
