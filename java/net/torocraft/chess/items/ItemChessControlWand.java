@@ -352,10 +352,7 @@ public class ItemChessControlWand extends Item {
 		state.side = entity.getSide();
 		
 		String[] chessPosition = entity.getChessPosition().split("");
-		state.position = new ChessPieceState.Position();
-		state.position.letter = CoordinateLetter.valueOf(chessPosition[0].toUpperCase());
-		state.position.number = CoordinateNumber.values()[Integer.parseInt(chessPosition[1]) - 1];
-
+		state.position = new ChessPieceState.Position(CoordinateLetter.valueOf(chessPosition[0].toUpperCase()), CoordinateNumber.values()[Integer.parseInt(chessPosition[1]) - 1]);
 		return state;
 	}
 

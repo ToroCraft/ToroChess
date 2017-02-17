@@ -46,21 +46,6 @@ public class CheckerBoardOverlay {
 			TEXTURE_OFFSETS[i] = ((double) i) / 8;
 		}
 		MinecraftForge.EVENT_BUS.register(INSTANCE);
-
-		// FIXME: remove this testing code
-		List<Position> l = new ArrayList<>();
-		l.add(position(CoordinateLetter.A, CoordinateNumber.One));
-		l.add(position(CoordinateLetter.A, CoordinateNumber.Eight));
-		l.add(position(CoordinateLetter.H, CoordinateNumber.One));
-		l.add(position(CoordinateLetter.H, CoordinateNumber.Eight));
-		INSTANCE.setValidMoves(l);
-	}
-
-	private static Position position(CoordinateLetter l, CoordinateNumber n) {
-		Position p = new Position();
-		p.letter = l;
-		p.number = n;
-		return p;
 	}
 
 	public void setValidMoves(List<Position> moves) {
@@ -128,9 +113,7 @@ public class CheckerBoardOverlay {
 			return;
 		}
 
-		Position p = new Position();
-		p.letter = CoordinateLetter.values()[7 - offset.getX()];
-		p.number = CoordinateNumber.values()[offset.getZ()];
+		Position p = new Position( CoordinateLetter.values()[7 - offset.getX()], CoordinateNumber.values()[offset.getZ()]);
 		for (Position move : moves) {
 			if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
 				overlay.valid = true;
