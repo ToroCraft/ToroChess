@@ -1,6 +1,7 @@
 package net.torocraft.chess;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
@@ -19,35 +20,74 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.items.ItemChessControlWand;
 
+@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 public class CheckerBoardOverlay {
-	public static final double[] TEXTURE_OFFSETS = new double[8];
 
-	/**
-	 * texture unit offset
-	 */
-	private static double T = 0.125f;
+	public static CheckerBoardOverlay INSTANCE;
 
-	private List<SelectBlock> selectedBlocks = new ArrayList<>();
+	private static final double T = 0.125f;
+	private static final double[] TEXTURE_OFFSETS = new double[8];
 	private static final ResourceLocation LOCATIONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/overlay.png");
 	private static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/icons.png");
 
-	static {
+	private final List<Overlay> overlays = new ArrayList<>();
+	private List<Position> moves;
+
+	public static void init() {
+		INSTANCE = new CheckerBoardOverlay();
 		for (int i = 0; i < 8; i++) {
 			TEXTURE_OFFSETS[i] = ((double) i) / 8;
 		}
+		MinecraftForge.EVENT_BUS.register(INSTANCE);
+
+		// FIXME: remove this testing code
+		List<Position> l = new ArrayList<>();
+		l.add(position(CoordinateLetter.A, CoordinateNumber.One));
+		l.add(position(CoordinateLetter.A, CoordinateNumber.Eight));
+		l.add(position(CoordinateLetter.H, CoordinateNumber.One));
+		l.add(position(CoordinateLetter.H, CoordinateNumber.Eight));
+		INSTANCE.setValidMoves(l);
 	}
 
-	public static void init() {
-		MinecraftForge.EVENT_BUS.register(new CheckerBoardOverlay());
+	private static Position position(CoordinateLetter l, CoordinateNumber n) {
+		Position p = new Position();
+		p.letter = l;
+		p.number = n;
+		return p;
+	}
+
+	public void setValidMoves(List<Position> moves) {
+		this.moves = moves;
 	}
 
 	@SubscribeEvent
 	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
+		removeOldOverlays();
+		addBlockUnderCrosshairs(event);
+	}
+
+	private void removeOldOverlays() {
+		if (overlays.size() < 1) {
+			return;
+		}
+		for (Iterator<Overlay> iter = overlays.iterator(); iter.hasNext();) {
+			Overlay overlay = iter.next();
+			overlay.life--;
+			if (overlay.life < 0) {
+				iter.remove();
+			}
+		}
+	}
+
+	private void addBlockUnderCrosshairs(RenderWorldLastEvent event) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		selectedBlocks.clear();
 
 		if (player == null) {
 			return;
@@ -68,10 +108,10 @@ public class CheckerBoardOverlay {
 
 		RayTraceResult r = player.rayTrace(50, 1);
 		if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
-			setSelectedBlock(a8, r);
+			addCursorOverlay(a8, r);
 		}
 
-		if (selectedBlocks.size() < 1) {
+		if (overlays.size() < 1) {
 			return;
 		}
 
@@ -79,27 +119,33 @@ public class CheckerBoardOverlay {
 		double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
 		double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
 		render(x, y, z, side);
-
 	}
 
-	private void setSelectedBlock(BlockPos a8, RayTraceResult r) {
-		SelectBlock b = new SelectBlock();
+	private void addCursorOverlay(BlockPos a8, RayTraceResult r) {
+		Overlay overlay = new Overlay();
 		BlockPos offset = r.getBlockPos().subtract(a8);
 		if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
 			return;
 		}
 
-		//FIXME this is for testing only
-		b.valid = offset.getX() == 0;
-		
-		b.u = 7 - offset.getX();
-		b.v = offset.getZ();
-		b.pos = r.getBlockPos();
-		selectedBlocks.add(b);
+		Position p = new Position();
+		p.letter = CoordinateLetter.values()[7 - offset.getX()];
+		p.number = CoordinateNumber.values()[offset.getZ()];
+		for (Position move : moves) {
+			if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
+				overlay.valid = true;
+				break;
+			}
+		}
+
+		overlay.u = 7 - offset.getX();
+		overlay.v = offset.getZ();
+		overlay.pos = r.getBlockPos();
+		overlays.add(overlay);
 	}
 
 	public void render(double x, double y, double z, Side side) {
-		if (selectedBlocks.size() < 1) {
+		if (overlays.size() < 1) {
 			return;
 		}
 		TextureManager tm = Minecraft.getMinecraft().renderEngine;
@@ -121,7 +167,7 @@ public class CheckerBoardOverlay {
 		VertexBuffer vb = Tessellator.getInstance().getBuffer();
 		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 		vb.setTranslation(-x, -y, -z);
-		for (SelectBlock select : selectedBlocks) {
+		for (Overlay select : overlays) {
 			renderVectors(vb, select.pos, TEXTURE_OFFSETS[select.u], TEXTURE_OFFSETS[select.v], side, 1.002);
 		}
 		vb.setTranslation(0, 0, 0);
@@ -134,7 +180,7 @@ public class CheckerBoardOverlay {
 		vb = Tessellator.getInstance().getBuffer();
 		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 		vb.setTranslation(-x, -y, -z);
-		for (SelectBlock select : selectedBlocks) {
+		for (Overlay select : overlays) {
 			if (select.valid) {
 				renderVectors(vb, select.pos, TEXTURE_OFFSETS[0], TEXTURE_OFFSETS[0], side, 1.001);
 			}
@@ -168,9 +214,10 @@ public class CheckerBoardOverlay {
 		vb.endVertex();
 	}
 
-	public static class SelectBlock {
+	public static class Overlay {
 		public int u, v;
 		public BlockPos pos;
 		public boolean valid;
+		public int life;
 	}
 }

@@ -25,11 +25,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.torocraft.chess.CheckerBoardOverlay;
 import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateLetter;
+import net.torocraft.chess.engine.ChessPieceState.CoordinateNumber;
+import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.engine.ChessPieceState.Type;
+import net.torocraft.chess.engine.IChessRuleEngine;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
@@ -164,7 +169,7 @@ public class ItemChessControlWand extends Item {
 		} else {
 			highlightEntity(friendlyPiece);
 			setSelectedNbt(stack, friendlyPiece);
-
+			onPieceSelected(friendlyPiece);
 		}
 		return true;
 	}
@@ -281,7 +286,7 @@ public class ItemChessControlWand extends Item {
 			return Side.WHITE;
 		}
 	}
-	
+
 	public static BlockPos getA8(ItemStack stack) {
 		return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_A8_POS));
 	}
@@ -294,7 +299,35 @@ public class ItemChessControlWand extends Item {
 		return castSide(b);
 	}
 
-	public static ChessPieceState fromEntity(EntityChessPiece entity) {
+	private IChessRuleEngine ruleEngine;
+
+	private IChessRuleEngine getRuleEngine() {
+		/*
+		 * testing rule engine
+		 */
+		if (ruleEngine == null) {
+			ruleEngine = new IChessRuleEngine() {
+				@Override
+				public List<Position> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+					List<Position> l = new ArrayList<>();
+					for (ChessPieceState pieceState : state) {
+						l.add(pieceState.position);
+					}
+					return l;
+				}
+			};
+		}
+
+		return ruleEngine;
+	}
+
+	private void onPieceSelected(EntityChessPiece friendlyPiece) {
+		System.out.println("piece on " + friendlyPiece.getChessPosition() + " selected");
+		List<Position> moves = getRuleEngine().getMoves(loadPiecesFromWorld(friendlyPiece), convertToState(friendlyPiece));
+		CheckerBoardOverlay.INSTANCE.setValidMoves(moves);
+	}
+
+	private static ChessPieceState convertToState(EntityChessPiece entity) {
 		ChessPieceState state = new ChessPieceState();
 
 		if (entity instanceof EntityBishop) {
@@ -316,28 +349,31 @@ public class ItemChessControlWand extends Item {
 			state.type = Type.PAWN;
 		}
 
-		String chessPosition = entity.getChessPosition();
-
 		state.side = entity.getSide();
-
-		// FIXME
+		
+		String[] chessPosition = entity.getChessPosition().split("");
 		state.position = new ChessPieceState.Position();
-		state.position.letter = null;
-		state.position.number = null;
+		state.position.letter = CoordinateLetter.valueOf(chessPosition[0].toUpperCase());
+		state.position.number = CoordinateNumber.values()[Integer.parseInt(chessPosition[1]) - 1];
 
 		return state;
 	}
 
-	// TODO: call the rule engine
-	public void loadPiecesFromWorld(World world, UUID gameId, BlockPos a8) {
+	public static List<ChessPieceState> loadPiecesFromWorld(EntityChessPiece referenceEntity) {
+
+		World world = referenceEntity.world;
+		UUID gameId = referenceEntity.getGameId();
+		BlockPos a8 = referenceEntity.getA8();
+
 		List<ChessPieceState> pieces = new ArrayList<>();
 
 		List<EntityChessPiece> entityPieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
 				new AxisAlignedBB(a8.add(4, 0, 4)).expand(80, 20, 80), new ChessPieceSearchPredicate(gameId));
 
 		for (EntityChessPiece entityPiece : entityPieces) {
-			pieces.add(fromEntity(entityPiece));
+			pieces.add(convertToState(entityPiece));
 		}
 
+		return pieces;
 	}
 }
