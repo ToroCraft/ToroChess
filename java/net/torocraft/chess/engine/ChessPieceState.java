@@ -24,5 +24,20 @@ public class ChessPieceState {
 	public static class Position {
 		public CoordinateLetter letter;
 		public CoordinateNumber number;
+
+		public Position(CoordinateLetter letter, CoordinateNumber number) {
+			this.letter = letter;
+			this.number = number;
+		}
+	}
+
+	public static class Move {
+		public Position currentPosition;
+		public Position requestedMoveToPosition;
+
+		public Move(Position currentPosition, Position requestedMoveToPosition) {
+			this.currentPosition = currentPosition;
+			this.requestedMoveToPosition = requestedMoveToPosition;
+		}
 	}
 }
