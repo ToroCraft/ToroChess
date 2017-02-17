@@ -51,46 +51,6 @@ import net.torocraft.chess.enities.queen.EntityQueen;
 import net.torocraft.chess.enities.rook.EntityRook;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
-//TODO: white and black wand, only one can work at a time (current turn check)
-
-//TODO: game controller entity, something to hold the game state?
-
-//TODO: highlight location
-
-//long range item clicking
-
-//add banners, limit stairs to 5 levels
-
-//wand should remember A8 and gameId
-
-//craftable control blocks with blocks that will be placed (so the square colors can be changed)
-
-//api MC(move, clear, set) CHESS(isValid, getState)
-
-//left clicking board with wand opens game settings GUI, or right clicking the game control block
-
-//king arms are missing
-
-//add a crown texture for the king
-
-//pieces can't travel to some squares, white can't reach h1, g1, h2, g2, f2 for example
-
-// valid move overlay indicators
-
-//move timers
-
-//wands are placed in the wrong chest
-
-//no head shake AI when player tries an incorrect move
-
-//add sounds to select/deselection and move targeting and incorrectly selections
-
-//place instruction books in the chests
-
-//convert chess control block to TileEntity with a chess controller
-
-//have wands light up when it is the players turn
-
 public class ItemChessControlWand extends Item {
 
 	public static final String NBT_SELECTED_POS = "chesspos";
@@ -478,7 +438,7 @@ public class ItemChessControlWand extends Item {
 		}
 		return castSide(b);
 	}
-	
+
 	public static ChessPieceState fromEntity(EntityChessPiece entity) {
 		ChessPieceState state = new ChessPieceState();
 
