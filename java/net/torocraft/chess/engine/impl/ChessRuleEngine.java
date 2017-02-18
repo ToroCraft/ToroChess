@@ -2,6 +2,8 @@ package net.torocraft.chess.engine.impl;
 
 import net.torocraft.chess.engine.ChessPieceState;
 import net.torocraft.chess.engine.IChessRuleEngine;
+import net.torocraft.chess.engine.MoveResult;
+import net.torocraft.chess.engine.workers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,40 +13,118 @@ import static net.torocraft.chess.engine.ChessPieceState.File;
 import static net.torocraft.chess.engine.ChessPieceState.Rank;
 
 public class ChessRuleEngine implements IChessRuleEngine {
-    private List<Position> legalPositions;
+    private MoveResult moveResult;
+    private List<ChessPieceState> internalState;
+    private ChessPieceState internalChessPieceToMove;
+    private IChessPieceWorker chessPieceWorker;
+
+    //TODO if either king is checkmate, set to checkmate and return no legal moves
+    //TODO if either king is check, set to check and find legal moves
 
     @Override
-    public List<Position> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
-        //TODO calculate if a checkmate exists
-        //TODO calculate if check exists
+    public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+        internalState = state;
+        internalChessPieceToMove = chessPieceToMove;
+
+        if (isAKingInCheckMate()) {
+            return moveResult;
+        }
+
+        if (isAKingInStalemate()) {
+            return moveResult;
+        }
 
         switch (chessPieceToMove.type) {
             case BISHOP:
-                //TODO call BISHOP class
+                chessPieceWorker = new BishopWorker(internalState, internalChessPieceToMove);
                 break;
             case KING:
+                chessPieceWorker = new KingWorker(internalState, internalChessPieceToMove);
                 //TODO call KING class
                 break;
             case KNIGHT:
+                chessPieceWorker = new KnightWorker(internalState, internalChessPieceToMove);
                 //TODO call KNIGHT class
                 break;
             case PAWN:
+                chessPieceWorker = new PawnWorker(internalState, internalChessPieceToMove);
                 //TODO call PAWN class
                 break;
             case QUEEN:
+                chessPieceWorker = new QueenWorker(internalState, internalChessPieceToMove);
                 //TODO call QUEEN class
                 break;
             case ROOK:
+                chessPieceWorker = new RookWorker(internalState, internalChessPieceToMove);
                 //TODO call ROOK class
                 break;
             default:
-                legalPositions = new ArrayList<>();
+                moveResult = new MoveResult();
                 break;
         }
 
+        getLegalMoveWithWorker();
+
         //FIXME Test data return
-        legalPositions.add(new Position(File.A, Rank.FOUR));
-        legalPositions.add(new Position(File.B, Rank.SEVEN));
-        return legalPositions;
+        moveResult.legalPositions = new ArrayList<>();
+        moveResult.legalPositions.add(new Position(File.A, Rank.FOUR));
+        moveResult.legalPositions.add(new Position(File.B, Rank.SEVEN));
+        moveResult.blackCondition = MoveResult.Condition.CLEAR;
+        moveResult.whiteCondition = MoveResult.Condition.CHECK;
+        return moveResult;
+    }
+
+    private void getLegalMoveWithWorker() {
+        if (chessPieceWorker.isKingInCheck(internalState)) {
+            moveResult = new MoveResult();
+            if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
+                moveResult.blackCondition = MoveResult.Condition.CHECK;
+                moveResult.whiteCondition = MoveResult.Condition.CLEAR;
+            } else {
+                moveResult.blackCondition = MoveResult.Condition.CLEAR;
+                moveResult.whiteCondition = MoveResult.Condition.CHECK;
+            }
+        }
+        moveResult = chessPieceWorker.getLegalMoves(internalState, internalChessPieceToMove);
+    }
+
+    private boolean isAKingInCheckMate() {
+        //TODO
+        if (isSideInCheckmate(ChessPieceState.Side.BLACK)) {
+            moveResult = new MoveResult();
+            moveResult.blackCondition = MoveResult.Condition.CHECKMATE;
+            moveResult.whiteCondition = MoveResult.Condition.CLEAR;
+            moveResult.legalPositions = new ArrayList<>();
+        } else if (isSideInCheckmate(ChessPieceState.Side.WHITE)){
+            moveResult = new MoveResult();
+            moveResult.blackCondition = MoveResult.Condition.CLEAR;
+            moveResult.whiteCondition = MoveResult.Condition.CHECKMATE;
+            moveResult.legalPositions = new ArrayList<>();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSideInCheckmate(ChessPieceState.Side side) {
+        //TODO logic checking if side is in checkmate
+        return true;
+    }
+
+    private boolean isAKingInStalemate() {
+        //TODO
+        if (isThereAStalemate()) {
+            moveResult = new MoveResult();
+            moveResult.blackCondition = MoveResult.Condition.STALEMATE;
+            moveResult.whiteCondition = MoveResult.Condition.STALEMATE;
+            moveResult.legalPositions = new ArrayList<>();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isThereAStalemate() {
+        //TODO logic checking if side is in stalemate
+        //TODO look at piece wanting to move
+        return true;
     }
 }

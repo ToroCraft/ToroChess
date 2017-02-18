@@ -43,8 +43,11 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
 
-		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE), " Q ", "OSQ", "   ", 'Q', Blocks.QUARTZ_BLOCK, 'O', Blocks.OBSIDIAN,
-				'S', Items.GOLDEN_SWORD);
+		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE),
+				" Q ",
+				"OSQ",
+				"   ",
+				'Q', new ItemStack(Blocks.QUARTZ_BLOCK, 32), 'O', new ItemStack(Blocks.OBSIDIAN, 32), 'S', Items.GOLDEN_SWORD);
 	}
 
 	public static void registerRenders() {
