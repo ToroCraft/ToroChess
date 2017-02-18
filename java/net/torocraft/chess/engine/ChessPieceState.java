@@ -26,9 +26,9 @@ public class ChessPieceState {
 		public File file;
 		public Rank rank;
 
-		public Position(File letter, Rank number) {
-			this.file = letter;
-			this.rank = number;
+		public Position(File file, Rank rank) {
+			this.file = file;
+			this.rank = rank;
 		}
 
 		@Override

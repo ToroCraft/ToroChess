@@ -114,9 +114,9 @@ public class CheckerBoardOverlay {
 		}
 
 		if (moves != null && moves.size() > 0) {
-			Position p = new Position(CoordinateLetter.values()[7 - offset.getX()], CoordinateNumber.values()[offset.getZ()]);
+			Position p = new Position(File.values()[7 - offset.getX()], Rank.values()[offset.getZ()]);
 			for (Position move : moves) {
-				if (move.letter.equals(p.letter) && move.number.equals(p.number)) {
+				if (move.file.equals(p.file) && move.rank.equals(p.rank)) {
 					overlay.valid = true;
 					break;
 				}

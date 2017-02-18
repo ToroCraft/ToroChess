@@ -30,11 +30,12 @@ import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState;
 import net.torocraft.chess.engine.ChessPieceState.File;
-import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Position;
+import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.engine.ChessPieceState.Type;
 import net.torocraft.chess.engine.IChessRuleEngine;
+import net.torocraft.chess.engine.MoveResult;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
@@ -45,7 +46,8 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 
 public class ItemChessControlWand extends Item {
 
-	public static final String NBT_SELECTED_POS = "chesspos";
+	public static final String NBT_SELECTED_RANK = "chessposrank";
+	public static final String NBT_SELECTED_FILE = "chessposfile";
 	public static final String NBT_SIDE = "chessside";
 	public static final String NBT_A8_POS = "chessa8";
 	public static final String NBT_GAME_ID = "chessgameid";
@@ -93,13 +95,13 @@ public class ItemChessControlWand extends Item {
 
 		NBTTagCompound c = wand.getTagCompound();
 
-		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SELECTED_POS) || !c.hasKey(NBT_SIDE)) {
+		if (!c.hasKey(NBT_A8_POS) || !c.hasKey(NBT_SELECTED_FILE) || !c.hasKey(NBT_SELECTED_RANK) || !c.hasKey(NBT_SIDE)) {
 			return EnumActionResult.PASS;
 		}
 
 		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
-		String from = c.getString(NBT_SELECTED_POS);
-		String to = CheckerBoardUtil.getPositionName(a8, pos);
+		Position from = getSelectedPiece(wand);
+		Position to = CheckerBoardUtil.getChessPosition(a8, pos);
 		Side side = castSide(c.getBoolean(NBT_SIDE));
 		UUID gameId = c.getUniqueId(NBT_GAME_ID);
 
@@ -143,13 +145,13 @@ public class ItemChessControlWand extends Item {
 	}
 
 	private boolean handleClickOnEnemy(World world, ItemStack wand, EntityChessPiece enemyPiece) {
-		String from = wand.getTagCompound().getString(NBT_SELECTED_POS);
+		Position from = ItemChessControlWand.getSelectedPiece(wand); // wand.getTagCompound().getString(NBT_SELECTED_POS);
 		if (from == null) {
 			return false;
 		}
 
 		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
-		String to = enemyPiece.getChessPosition();
+		Position to = enemyPiece.getChessPosition();
 		Side side = castSide(wand.getTagCompound().getBoolean(NBT_SIDE));
 		UUID gameId = wand.getTagCompound().getUniqueId(NBT_GAME_ID);
 
@@ -159,6 +161,18 @@ public class ItemChessControlWand extends Item {
 
 		movePiece(world, wand, gameId, a8, side, from, to);
 		return true;
+	}
+
+	private static Position getSelectedPiece(ItemStack wand) {
+		if (wand.hasTagCompound() || !wand.getTagCompound().hasKey(NBT_SELECTED_FILE) || !wand.getTagCompound().hasKey(NBT_SELECTED_RANK)) {
+			return null;
+		}
+
+		NBTTagCompound c = wand.getTagCompound();
+		File file = File.values()[c.getInteger(NBT_SELECTED_FILE)];
+		Rank rank = Rank.values()[c.getInteger(NBT_SELECTED_RANK)];
+
+		return new Position(file, rank);
 	}
 
 	private boolean handleClickOnFriend(ItemStack stack, EntityChessPiece friendlyPiece) {
@@ -174,7 +188,7 @@ public class ItemChessControlWand extends Item {
 		return true;
 	}
 
-	private static void movePiece(World world, ItemStack stack, UUID gameId, BlockPos a8, Side side, String from, String to) {
+	private static void movePiece(World world, ItemStack stack, UUID gameId, BlockPos a8, Side side, Position from, Position to) {
 		EntityChessPiece attacker = getHighlightedPiece(world, from, a8, gameId);
 
 		if (attacker == null) {
@@ -194,9 +208,9 @@ public class ItemChessControlWand extends Item {
 		attacker.setChessPosition(to);
 	}
 
-	private static EntityChessPiece getHighlightedPiece(World world, String piecePos, BlockPos a8, UUID gameId) {
+	private static EntityChessPiece getHighlightedPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), new HighlightedChessPiecePredicate(gameId));
+				new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).expand(80, 20, 80), new HighlightedChessPiecePredicate(gameId));
 
 		if (pieces == null || pieces.size() < 1) {
 			return null;
@@ -205,9 +219,9 @@ public class ItemChessControlWand extends Item {
 		return pieces.get(0);
 	}
 
-	private static EntityChessPiece getPiece(World world, String piecePos, BlockPos a8, UUID gameId) {
+	private static EntityChessPiece getPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-				new AxisAlignedBB(CheckerBoardUtil.getPosition(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
+				new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
 
 		if (pieces == null || pieces.size() < 1) {
 			return null;
@@ -218,13 +232,16 @@ public class ItemChessControlWand extends Item {
 
 	private static void setSelectedNbt(ItemStack wand, EntityChessPiece target) {
 		NBTTagCompound c = wand.getTagCompound();
-		c.setString(NBT_SELECTED_POS, ((EntityChessPiece) target).getChessPosition());
+		Position p = ((EntityChessPiece) target).getChessPosition();
+		c.setInteger(NBT_SELECTED_FILE, p.file.ordinal());
+		c.setInteger(NBT_SELECTED_RANK, p.rank.ordinal());
 		wand.setTagCompound(c);
 	}
 
 	private static void clearSelectedNbt(ItemStack wand) {
 		NBTTagCompound c = wand.getTagCompound();
-		c.removeTag(NBT_SELECTED_POS);
+		c.removeTag(NBT_SELECTED_FILE);
+		c.removeTag(NBT_SELECTED_RANK);
 	}
 
 	private static void highlightEntity(EntityChessPiece target) {
@@ -262,10 +279,10 @@ public class ItemChessControlWand extends Item {
 	};
 
 	private static class ChessPieceAtPredicate implements Predicate<EntityChessPiece> {
-		private final String chessPosition;
+		private final Position chessPosition;
 		private final UUID gameId;
 
-		public ChessPieceAtPredicate(String chessPosition, UUID gameId) {
+		public ChessPieceAtPredicate(Position chessPosition, UUID gameId) {
 			this.chessPosition = chessPosition;
 			this.gameId = gameId;
 		}
@@ -308,12 +325,13 @@ public class ItemChessControlWand extends Item {
 		if (ruleEngine == null) {
 			ruleEngine = new IChessRuleEngine() {
 				@Override
-				public List<Position> getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
-					List<Position> l = new ArrayList<>();
+				public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+					MoveResult r = new MoveResult();
+					r.legalPositions = new ArrayList<>();
 					for (ChessPieceState pieceState : state) {
-						l.add(pieceState.position);
+						r.legalPositions.add(pieceState.position);
 					}
-					return l;
+					return r;
 				}
 			};
 		}
@@ -323,8 +341,8 @@ public class ItemChessControlWand extends Item {
 
 	private void onPieceSelected(EntityChessPiece friendlyPiece) {
 		System.out.println("piece on " + friendlyPiece.getChessPosition() + " selected");
-		List<Position> moves = getRuleEngine().getMoves(loadPiecesFromWorld(friendlyPiece), convertToState(friendlyPiece));
-		CheckerBoardOverlay.INSTANCE.setValidMoves(moves);
+		MoveResult moves = getRuleEngine().getMoves(loadPiecesFromWorld(friendlyPiece), convertToState(friendlyPiece));
+		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
 	private static ChessPieceState convertToState(EntityChessPiece entity) {
@@ -350,10 +368,10 @@ public class ItemChessControlWand extends Item {
 		}
 
 		state.side = entity.getSide();
-		
-		String[] chessPosition = entity.getChessPosition().split("");
-		state.position = new ChessPieceState.Position(
-				File.valueOf(chessPosition[0].toUpperCase()), Rank.values()[Integer.parseInt(chessPosition[1]) - 1]);
+		state.position = entity.getChessPosition();
+		// TODO: implement this
+		state.isInitialMove = false;
+
 		return state;
 	}
 

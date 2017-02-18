@@ -26,8 +26,8 @@ import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
 public abstract class EntityChessPiece extends EntityCreature implements IChessPiece {
 
 	private static final String NBT_SIDE_KEY = "chessside";
-	private static final String NBT_POSITION_LETTER_KEY = "chess_letter_position";
-	private static final String NBT_POSITION_NUMBER_KEY = "chess_number_position";
+	private static final String NBT_POSITION_FILE_KEY = "chess_file_position";
+	private static final String NBT_POSITION_RANK_KEY = "chess_rank_position";
 	private static final String NBT_A8_POSITION_KEY = "a8position";
 	private static final String NBT_GAME_ID_KEY = "gameid";
 
@@ -152,8 +152,8 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		super.writeEntityToNBT(c);
 		c.setBoolean(NBT_SIDE_KEY, dataManager.get(SIDE_IS_WHITE));
 		
-		c.setInteger(NBT_POSITION_LETTER_KEY, chessPosition.letter.ordinal());
-		c.setInteger(NBT_POSITION_LETTER_KEY, chessPosition.number.ordinal());
+		c.setInteger(NBT_POSITION_FILE_KEY, chessPosition.file.ordinal());
+		c.setInteger(NBT_POSITION_RANK_KEY, chessPosition.rank.ordinal());
 		
 		c.setLong(NBT_A8_POSITION_KEY, a8.toLong());
 		c.setUniqueId(NBT_GAME_ID_KEY, gameId);
@@ -180,8 +180,8 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		super.readEntityFromNBT(c);
 
 		try {
-			File letter = File.values()[c.getInteger(NBT_POSITION_LETTER_KEY)];
-			Rank number = Rank.values()[c.getInteger(NBT_POSITION_NUMBER_KEY)];
+			File letter = File.values()[c.getInteger(NBT_POSITION_FILE_KEY)];
+			Rank number = Rank.values()[c.getInteger(NBT_POSITION_RANK_KEY)];
 			chessPosition = new Position(letter, number);
 			
 			a8 = BlockPos.fromLong(c.getLong(NBT_A8_POSITION_KEY));

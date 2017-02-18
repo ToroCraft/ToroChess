@@ -26,7 +26,7 @@ public class EntityAIMoveToPosition extends EntityAIBase {
 	}
 
 	private void determineDestination() {
-		destination = CheckerBoardUtil.getPosition(entity.getA8(), entity.getChessPosition());
+		destination = CheckerBoardUtil.toWorldCoords(entity.getA8(), entity.getChessPosition());
 		targetX = (double) this.destination.getX() + 0.5d;
 		targetY = (double) this.destination.getY();
 		targetZ = (double) this.destination.getZ() + 0.5d;

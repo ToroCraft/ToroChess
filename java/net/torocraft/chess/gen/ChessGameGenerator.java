@@ -7,7 +7,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Position;
+import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
@@ -46,47 +48,43 @@ public class ChessGameGenerator {
 	}
 
 	public void placePieces() {
-		placeEntity(new EntityPawn(world), Side.WHITE, p("a", 2));
-		placeEntity(new EntityPawn(world), Side.WHITE, "b2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "c2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "d2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "e2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "f2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "g2");
-		placeEntity(new EntityPawn(world), Side.WHITE, "h2");
+		placeEntity(new EntityPawn(world), Side.WHITE, File.A, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.B, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.C, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.D, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.E, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.F, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.G, Rank.TWO);
+		placeEntity(new EntityPawn(world), Side.WHITE, File.H, Rank.TWO);
 
-		placeEntity(new EntityRook(world), Side.WHITE, "a1");
-		placeEntity(new EntityKnight(world), Side.WHITE, "b1");
-		placeEntity(new EntityBishop(world), Side.WHITE, "c1");
-		placeEntity(new EntityKing(world), Side.WHITE, "d1");
-		placeEntity(new EntityQueen(world), Side.WHITE, "e1");
-		placeEntity(new EntityBishop(world), Side.WHITE, "f1");
-		placeEntity(new EntityKnight(world), Side.WHITE, "g1");
-		placeEntity(new EntityRook(world), Side.WHITE, "h1");
+		placeEntity(new EntityRook(world), Side.WHITE, File.A, Rank.ONE);
+		placeEntity(new EntityKnight(world), Side.WHITE, File.B, Rank.ONE);
+		placeEntity(new EntityBishop(world), Side.WHITE, File.C, Rank.ONE);
+		placeEntity(new EntityKing(world), Side.WHITE, File.D, Rank.ONE);
+		placeEntity(new EntityQueen(world), Side.WHITE, File.E, Rank.ONE);
+		placeEntity(new EntityBishop(world), Side.WHITE, File.F, Rank.ONE);
+		placeEntity(new EntityKnight(world), Side.WHITE, File.G, Rank.ONE);
+		placeEntity(new EntityRook(world), Side.WHITE, File.H, Rank.ONE);
 
-		placeEntity(new EntityPawn(world), Side.BLACK, "a7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "b7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "c7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "d7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "e7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "f7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "g7");
-		placeEntity(new EntityPawn(world), Side.BLACK, "h7");
+		placeEntity(new EntityPawn(world), Side.BLACK, File.A, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.B, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.C, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.D, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.E, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.F, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.G, Rank.SEVEN);
+		placeEntity(new EntityPawn(world), Side.BLACK, File.H, Rank.SEVEN);
 
-		placeEntity(new EntityRook(world), Side.BLACK, "a8");
-		placeEntity(new EntityKnight(world), Side.BLACK, "b8");
-		placeEntity(new EntityBishop(world), Side.BLACK, "c8");
-		placeEntity(new EntityKing(world), Side.BLACK, "d8");
-		placeEntity(new EntityQueen(world), Side.BLACK, "e8");
-		placeEntity(new EntityBishop(world), Side.BLACK, "f8");
-		placeEntity(new EntityKnight(world), Side.BLACK, "g8");
-		placeEntity(new EntityRook(world), Side.BLACK, "h8");
+		placeEntity(new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT);
+		placeEntity(new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT);
+		placeEntity(new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT);
+		placeEntity(new EntityKing(world), Side.BLACK, File.D, Rank.EIGHT);
+		placeEntity(new EntityQueen(world), Side.BLACK, File.E, Rank.EIGHT);
+		placeEntity(new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT);
+		placeEntity(new EntityKnight(world), Side.BLACK, File.H, Rank.EIGHT);
+		placeEntity(new EntityRook(world), Side.BLACK, File.G, Rank.EIGHT);
 	}
 
-	private Position p(String string, int i) {
-		
-		return null;
-	}
 
 	private void addWand() {
 		for (int i = 0; i < 4; i++) {
@@ -105,10 +103,10 @@ public class ChessGameGenerator {
 		return wand;
 	}
 
-	private void placeEntity(EntityChessPiece e, Side side, Position position) {
+	private void placeEntity(EntityChessPiece e, Side side, File file, Rank rank) {
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
-		e.setChessPosition(position);
+		e.setChessPosition(new Position(file, rank));
 		e.setPosition(x, a8.getY() + 1, z);
 		e.setSide(side);
 		e.setGameId(gameId);
