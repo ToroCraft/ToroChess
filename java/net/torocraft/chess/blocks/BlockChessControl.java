@@ -1,5 +1,7 @@
 package net.torocraft.chess.blocks;
 
+import java.util.UUID;
+
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -41,11 +43,8 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
 
-		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE),
-				" Q ",
-				"OSQ",
-				"   ",
-				'Q', Blocks.QUARTZ_BLOCK, 'O', Blocks.OBSIDIAN, 'S', Items.GOLDEN_SWORD);
+		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE), " Q ", "OSQ", "   ", 'Q', Blocks.QUARTZ_BLOCK, 'O', Blocks.OBSIDIAN,
+				'S', Items.GOLDEN_SWORD);
 	}
 
 	public static void registerRenders() {
@@ -76,6 +75,28 @@ public class BlockChessControl extends BlockContainer {
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new TileEntityChessControl();
+	}
+
+	public static TileEntityChessControl getChessControl(World world, BlockPos a8, UUID gameId) {
+		if (gameId == null) {
+			return null;
+		}
+		TileEntityChessControl e = getChessControl(world, a8);
+		if (e == null || !e.getGameId().equals(gameId)) {
+			return null;
+		}
+		return e;
+	}
+
+	public static TileEntityChessControl getChessControl(World world, BlockPos a8) {
+		if (world == null || a8 == null) {
+			return null;
+		}
+		TileEntityChessControl e = (TileEntityChessControl) world.getTileEntity(a8.subtract(A8_OFFSET));
+		if (e == null) {
+			return null;
+		}
+		return e;
 	}
 
 }

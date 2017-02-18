@@ -27,10 +27,10 @@ public class ChessPieceState {
 		public Rank rank;
 
 		public Position(File file, Rank rank) {
-			if(file == null){
+			if (file == null) {
 				throw new NullPointerException("file is null");
 			}
-			if(rank == null){
+			if (rank == null) {
 				throw new NullPointerException("rank is null");
 			}
 			this.file = file;
@@ -41,6 +41,37 @@ public class ChessPieceState {
 		public String toString() {
 			return file.toString().toLowerCase() + (rank.ordinal() + 1);
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((file == null) ? 0 : file.hashCode());
+			result = prime * result + ((rank == null) ? 0 : rank.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			Position other = (Position) obj;
+			if (file != other.file) {
+				return false;
+			}
+			if (rank != other.rank) {
+				return false;
+			}
+			return true;
+		}
+
 	}
 
 	public static class Move {

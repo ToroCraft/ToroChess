@@ -6,11 +6,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.blocks.BlockChessControl;
+import net.torocraft.chess.blocks.TileEntityChessControl;
 import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Side;
+import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
 import net.torocraft.chess.enities.knight.EntityKnight;
@@ -45,6 +47,7 @@ public class ChessGameGenerator {
 		board.generate();
 		addWand();
 		placePieces();
+		saveGameData();
 	}
 
 	public void placePieces() {
@@ -85,7 +88,6 @@ public class ChessGameGenerator {
 		placeEntity(new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);
 	}
 
-
 	private void addWand() {
 		for (int i = 0; i < 4; i++) {
 			board.getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
@@ -112,6 +114,14 @@ public class ChessGameGenerator {
 		e.setGameId(gameId);
 		e.setA8(a8);
 		world.spawnEntity(e);
+	}
+
+	private void saveGameData() {
+		TileEntityChessControl control = BlockChessControl.getChessControl(world, a8);
+		control.setGameId(gameId);
+		control.setSelectedPiece(null);
+		control.setTurn(Side.WHITE);
+		control.markDirty();
 	}
 
 	private Boolean castSide(Side side) {
