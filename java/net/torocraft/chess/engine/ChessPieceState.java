@@ -27,6 +27,12 @@ public class ChessPieceState {
 		public Rank rank;
 
 		public Position(File file, Rank rank) {
+			if(file == null){
+				throw new NullPointerException("file is null");
+			}
+			if(rank == null){
+				throw new NullPointerException("rank is null");
+			}
 			this.file = file;
 			this.rank = rank;
 		}

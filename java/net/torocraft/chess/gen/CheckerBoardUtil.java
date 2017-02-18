@@ -38,15 +38,27 @@ import net.torocraft.chess.engine.ChessPieceState.Rank;
 public class CheckerBoardUtil {
 
 	public static BlockPos toWorldCoords(BlockPos a8, Position position) {
+		if(a8 == null){
+			throw new NullPointerException("a8 is null");
+		}
+		if(position == null){
+			throw new NullPointerException("position is null");
+		}
 		return a8.add(position.file.ordinal(), 0, position.rank.ordinal());
 	}
 
-	public static Position getChessPosition(BlockPos a8, BlockPos coords) {
-		if(a8.getY() != coords.getY()){
+	public static Position getChessPosition(BlockPos a8, BlockPos pos) {
+		if(a8 == null){
+			throw new NullPointerException("a8 is null");
+		}
+		if(pos == null){
+			throw new NullPointerException("position is null");
+		}
+		if(a8.getY() != pos.getY()){
 			return null;
 		}
-		int xLocal = coords.getX() - a8.getX();
-		int zLocal = coords.getZ() - a8.getZ();
+		int xLocal = pos.getX() - a8.getX();
+		int zLocal = pos.getZ() - a8.getZ();
 		
 		if(zLocal > 7 || xLocal > 7 || xLocal < 0 || zLocal < 0){
 			return null;

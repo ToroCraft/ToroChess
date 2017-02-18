@@ -101,6 +101,7 @@ public class ItemChessControlWand extends Item {
 
 		BlockPos a8 = BlockPos.fromLong(wand.getTagCompound().getLong(NBT_A8_POS));
 		Position from = getSelectedPiece(wand);
+
 		Position to = CheckerBoardUtil.getChessPosition(a8, pos);
 		Side side = castSide(c.getBoolean(NBT_SIDE));
 		UUID gameId = c.getUniqueId(NBT_GAME_ID);
@@ -145,7 +146,7 @@ public class ItemChessControlWand extends Item {
 	}
 
 	private boolean handleClickOnEnemy(World world, ItemStack wand, EntityChessPiece enemyPiece) {
-		Position from = ItemChessControlWand.getSelectedPiece(wand); // wand.getTagCompound().getString(NBT_SELECTED_POS);
+		Position from = ItemChessControlWand.getSelectedPiece(wand);
 		if (from == null) {
 			return false;
 		}
@@ -164,7 +165,7 @@ public class ItemChessControlWand extends Item {
 	}
 
 	private static Position getSelectedPiece(ItemStack wand) {
-		if (wand.hasTagCompound() || !wand.getTagCompound().hasKey(NBT_SELECTED_FILE) || !wand.getTagCompound().hasKey(NBT_SELECTED_RANK)) {
+		if (!wand.hasTagCompound() || !wand.getTagCompound().hasKey(NBT_SELECTED_FILE) || !wand.getTagCompound().hasKey(NBT_SELECTED_RANK)) {
 			return null;
 		}
 
@@ -172,14 +173,14 @@ public class ItemChessControlWand extends Item {
 		File file = File.values()[c.getInteger(NBT_SELECTED_FILE)];
 		Rank rank = Rank.values()[c.getInteger(NBT_SELECTED_RANK)];
 
-		return new Position(file, rank);
+		Position p = new Position(file, rank);
+		return p;
 	}
 
 	private boolean handleClickOnFriend(ItemStack stack, EntityChessPiece friendlyPiece) {
 		if (friendlyPiece.isPotionActive(MobEffects.GLOWING)) {
 			friendlyPiece.removeActivePotionEffect(MobEffects.GLOWING);
 			clearSelectedNbt(stack);
-
 		} else {
 			highlightEntity(friendlyPiece);
 			setSelectedNbt(stack, friendlyPiece);
@@ -292,7 +293,8 @@ public class ItemChessControlWand extends Item {
 			if (e.getChessPosition() == null || e.getGameId() == null) {
 				return false;
 			}
-			return e.getChessPosition().equals(chessPosition) && e.getGameId().equals(gameId);
+			Position p = e.getChessPosition();
+			return chessPosition.file.equals(p.file) && chessPosition.rank.equals(p.rank) && e.getGameId().equals(gameId);
 		}
 	};
 
@@ -340,7 +342,6 @@ public class ItemChessControlWand extends Item {
 	}
 
 	private void onPieceSelected(EntityChessPiece friendlyPiece) {
-		System.out.println("piece on " + friendlyPiece.getChessPosition() + " selected");
 		MoveResult moves = getRuleEngine().getMoves(loadPiecesFromWorld(friendlyPiece), convertToState(friendlyPiece));
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
