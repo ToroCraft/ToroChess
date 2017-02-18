@@ -65,7 +65,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 
 	@Override
 	protected void initEntityAI() {
-		tasks.addTask(1, new EntityAISwimming(this));
 		tasks.addTask(2, new EntityAIAttackMelee(this, 0.5D, true));
 		tasks.addTask(4, new EntityAIMoveToPosition(this));
 		tasks.addTask(5, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F));

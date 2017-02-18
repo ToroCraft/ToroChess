@@ -1,5 +1,6 @@
 package net.torocraft.chess.blocks;
 
+import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.BlockContainer;
@@ -16,11 +17,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.torocraft.chess.ChessPieceSearchPredicate;
 import net.torocraft.chess.ToroChess;
+import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class BlockChessControl extends BlockContainer {
@@ -48,6 +53,11 @@ public class BlockChessControl extends BlockContainer {
 				"OSQ",
 				"   ",
 				'Q', new ItemStack(Blocks.QUARTZ_BLOCK, 32), 'O', new ItemStack(Blocks.OBSIDIAN, 32), 'S', Items.GOLDEN_SWORD);
+	}
+
+	@Override
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
 	}
 
 	public static void registerRenders() {
@@ -100,6 +110,20 @@ public class BlockChessControl extends BlockContainer {
 			return null;
 		}
 		return e;
+	}
+
+	@Override
+	public void breakBlock(World world, BlockPos pos, IBlockState state) {
+		TileEntityChessControl control = (TileEntityChessControl) world.getTileEntity(pos);
+
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+				new ChessPieceSearchPredicate(control.getGameId()));
+
+		for (EntityChessPiece piece : pieces) {
+			piece.setDead();
+		}
+
+		super.breakBlock(world, pos, state);
 	}
 
 }
