@@ -60,8 +60,8 @@ public class ChessGameGenerator {
 		placeEntity(new EntityRook(world), Side.WHITE, File.A, Rank.ONE);
 		placeEntity(new EntityKnight(world), Side.WHITE, File.B, Rank.ONE);
 		placeEntity(new EntityBishop(world), Side.WHITE, File.C, Rank.ONE);
-		placeEntity(new EntityKing(world), Side.WHITE, File.D, Rank.ONE);
-		placeEntity(new EntityQueen(world), Side.WHITE, File.E, Rank.ONE);
+		placeEntity(new EntityKing(world), Side.WHITE, File.E, Rank.ONE);
+		placeEntity(new EntityQueen(world), Side.WHITE, File.D, Rank.ONE);
 		placeEntity(new EntityBishop(world), Side.WHITE, File.F, Rank.ONE);
 		placeEntity(new EntityKnight(world), Side.WHITE, File.G, Rank.ONE);
 		placeEntity(new EntityRook(world), Side.WHITE, File.H, Rank.ONE);
@@ -78,8 +78,8 @@ public class ChessGameGenerator {
 		placeEntity(new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT);
 		placeEntity(new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT);
 		placeEntity(new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT);
-		placeEntity(new EntityKing(world), Side.BLACK, File.D, Rank.EIGHT);
-		placeEntity(new EntityQueen(world), Side.BLACK, File.E, Rank.EIGHT);
+		placeEntity(new EntityKing(world), Side.BLACK, File.E, Rank.EIGHT);
+		placeEntity(new EntityQueen(world), Side.BLACK, File.D, Rank.EIGHT);
 		placeEntity(new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT);
 		placeEntity(new EntityKnight(world), Side.BLACK, File.G, Rank.EIGHT);
 		placeEntity(new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);

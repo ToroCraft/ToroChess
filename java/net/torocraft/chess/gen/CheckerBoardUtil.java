@@ -8,29 +8,14 @@ import net.torocraft.chess.engine.ChessPieceState.Rank;
 /**
  * <pre>
  * <h2>Minecraft Axes</h2>
- * +----> X (east)
- * |
- * |
- * v  
- * Z (south)
  * 
- * <h2>Board Layout (chess positions)</h2>
- * a8 b8 ... h8
- * 
- * a7
- * 
- * ...
- * 
- * a1 b1 ... h1
- * 
- * <h2>Board Layout (world offsets X,Z)</h2>
- * 0,0 1,0 ... 7,0
- * 
- * 0,1
- * 
- * ...
- * 
- * 0,7 1,7 ... 7,7
+ *           z
+ *           ^
+ *     white |a1 
+ *           |
+ *     black |
+ * x<--------+
+ *    h8      a8 (board origin)
  * 
  * </pre>
  */
@@ -44,7 +29,7 @@ public class CheckerBoardUtil {
 		if(position == null){
 			throw new NullPointerException("position is null");
 		}
-		return a8.add(position.file.ordinal(), 0, position.rank.ordinal());
+		return a8.add(7 - position.file.ordinal(), 0, position.rank.ordinal());
 	}
 
 	public static Position getChessPosition(BlockPos a8, BlockPos pos) {
@@ -64,6 +49,6 @@ public class CheckerBoardUtil {
 			return null;
 		}
 		
-		return new Position(File.values()[xLocal], Rank.values()[zLocal]);
+		return new Position(File.values()[7 - xLocal], Rank.values()[zLocal]);
 	}
 }

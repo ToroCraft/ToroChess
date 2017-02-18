@@ -39,7 +39,7 @@ public class ChessPieceState {
 
 		@Override
 		public String toString() {
-			return file.toString().toLowerCase() + rank.ordinal();
+			return file.toString().toLowerCase() + (rank.ordinal() + 1);
 		}
 	}
 

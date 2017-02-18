@@ -196,6 +196,11 @@ public class ItemChessControlWand extends Item {
 			return;
 		}
 
+		if (isInvalidMove(gameId, a8, side, from, to)) {
+			System.out.println("move invalid " + from + " -> " + to);
+			return;
+		}
+
 		EntityChessPiece victum = getPiece(world, to, a8, gameId);
 		if (victum != null && victum.getSide().equals(side)) {
 			victum = null;
@@ -207,6 +212,18 @@ public class ItemChessControlWand extends Item {
 
 		attacker.setAttackTarget(victum);
 		attacker.setChessPosition(to);
+	}
+
+	private static boolean isInvalidMove(UUID gameId, BlockPos a8, Side side, Position from, Position to) {
+		// FIXME figure out a better way to cache the valid moves other than
+		// using the overlay class
+		List<Position> moves = CheckerBoardOverlay.INSTANCE.getValidMoves();
+		for (Position move : moves) {
+			if (move.file.equals(to.file) && move.rank.equals(to.rank)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static EntityChessPiece getHighlightedPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
@@ -325,23 +342,27 @@ public class ItemChessControlWand extends Item {
 		 * testing rule engine
 		 */
 		if (ruleEngine == null) {
-			ruleEngine = new IChessRuleEngine() {
-				@Override
-				public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
-					MoveResult r = new MoveResult();
-					r.legalPositions = new ArrayList<>();
-					for (ChessPieceState pieceState : state) {
-						r.legalPositions.add(pieceState.position);
-					}
-					return r;
-				}
-			};
+			ruleEngine = highlightPiecesDemoEngine();
 		}
-
 		return ruleEngine;
 	}
 
+	private IChessRuleEngine highlightPiecesDemoEngine() {
+		return new IChessRuleEngine() {
+			@Override
+			public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+				MoveResult r = new MoveResult();
+				r.legalPositions = new ArrayList<>();
+				for (ChessPieceState pieceState : state) {
+					r.legalPositions.add(pieceState.position);
+				}
+				return r;
+			}
+		};
+	}
+
 	private void onPieceSelected(EntityChessPiece friendlyPiece) {
+		System.out.println("onPieceSelected " + friendlyPiece.getChessPosition());
 		MoveResult moves = getRuleEngine().getMoves(loadPiecesFromWorld(friendlyPiece), convertToState(friendlyPiece));
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
