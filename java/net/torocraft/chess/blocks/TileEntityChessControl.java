@@ -60,8 +60,9 @@ public class TileEntityChessControl extends TileEntity {
 			return;
 		}
 
-		if (!attacker.getSide().equals(turn)) {
+		if (isNotYourTurn(attacker)) {
 			System.out.println("It's not " + attacker.getSide().toString().toLowerCase() + "'s turn!");
+			return;
 		}
 
 		System.out.println("Request Move:  " + from + " -> " + to);
@@ -78,9 +79,23 @@ public class TileEntityChessControl extends TileEntity {
 		}
 
 		deselectEntity();
+		switchTurns();
 
 		attacker.setAttackTarget(victum);
 		attacker.setChessPosition(to);
+	}
+
+	private boolean isNotYourTurn(EntityChessPiece attacker) {
+		return !attacker.getSide().equals(turn);
+	}
+
+	private void switchTurns() {
+		if(Side.WHITE.equals(turn)) {
+			turn = Side.BLACK;
+		}else{
+			turn = Side.WHITE;
+		}
+		System.out.println(turn.toString().toLowerCase() + "'s trun");
 	}
 
 	private boolean isSameSide(EntityChessPiece target, EntityChessPiece victum) {
@@ -95,6 +110,11 @@ public class TileEntityChessControl extends TileEntity {
 		
 		if(target.getChessPosition().equals(selectedPiece)){
 			deselectEntity();
+			return;
+		}
+		
+		if (isNotYourTurn(target)) {
+			System.out.println("It's not " + target.getSide().toString().toLowerCase() + "'s turn!");
 			return;
 		}
 		

@@ -170,9 +170,14 @@ public class CheckerBoardUtil {
 	public static boolean isInvalidMove(UUID gameId, BlockPos a8, Position from, Position to) {
 		// FIXME figure out a better way to cache the valid moves other than
 		// using the overlay class
+		
+		if(from == null || to == null){
+			return true;
+		}
+		
 		List<Position> moves = CheckerBoardOverlay.INSTANCE.getValidMoves();
 		for (Position move : moves) {
-			if (move.file.equals(to.file) && move.rank.equals(to.rank)) {
+			if (move.equals(to)) {
 				return false;
 			}
 		}
