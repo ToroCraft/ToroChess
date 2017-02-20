@@ -61,7 +61,6 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	public ItemChessControlWand() {
 		setUnlocalizedName(NAME);
 		setMaxDamage(1);
-		setCreativeTab(CreativeTabs.MISC);
 		setMaxStackSize(1);
 	}
 
