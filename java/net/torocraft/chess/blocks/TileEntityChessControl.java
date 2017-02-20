@@ -45,11 +45,11 @@ public class TileEntityChessControl extends TileEntity {
 		return ruleEngine;
 	}
 
-	public void movePiece(BlockPos a8, Position to) {
+	public boolean movePiece(BlockPos a8, Position to) {
 
 		if (selectedPiece == null) {
 			System.out.println("No piece has been selected");
-			return;
+			return false;
 		}
 
 		Position from = selectedPiece;
@@ -57,25 +57,25 @@ public class TileEntityChessControl extends TileEntity {
 		EntityChessPiece attacker = CheckerBoardUtil.getPiece(world, from, a8, gameId);
 
 		if (attacker == null) {
-			return;
+			return false;
 		}
 
 		if (isNotYourTurn(attacker)) {
 			System.out.println("It's not " + attacker.getSide().toString().toLowerCase() + "'s turn!");
-			return;
+			return false;
 		}
 
 		System.out.println("Request Move:  " + from + " -> " + to);
 
 		if (CheckerBoardUtil.isInvalidMove(gameId, a8, from, to)) {
 			System.out.println("INVALID MOVE");
-			return;
+			return false;
 		}
 
 		EntityChessPiece victum = CheckerBoardUtil.getPiece(world, to, a8, gameId);
 
 		if (isSameSide(attacker, victum)) {
-			return;
+			return false;
 		}
 
 		deselectEntity();
@@ -83,8 +83,10 @@ public class TileEntityChessControl extends TileEntity {
 
 		attacker.setAttackTarget(victum);
 		attacker.setChessPosition(to);
+		
+		return true;
 	}
-
+	
 	private boolean isNotYourTurn(EntityChessPiece attacker) {
 		return !attacker.getSide().equals(turn);
 	}
@@ -103,25 +105,27 @@ public class TileEntityChessControl extends TileEntity {
 	}
 
 	// TODO sync highlights on startup
-	public void selectEntity(EntityChessPiece target) {
+	public boolean selectEntity(EntityChessPiece target) {
 		if (target == null) {
 			throw new NullPointerException("target is null");
 		}
 		
 		if(target.getChessPosition().equals(selectedPiece)){
 			deselectEntity();
-			return;
+			markDirty();
+			return true;
 		}
 		
 		if (isNotYourTurn(target)) {
 			System.out.println("It's not " + target.getSide().toString().toLowerCase() + "'s turn!");
-			return;
+			return false;
 		}
 		
 		selectedPiece = target.getChessPosition();
 		setHightlight(target);
 		updateValidMoves(target);
 		markDirty();
+		return true;
 	}
 
 	public void deselectEntity() {

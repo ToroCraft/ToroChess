@@ -6,12 +6,14 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -64,8 +66,8 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	}
 
 	@Override
-	public EnumActionResult onItemUseExtended(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY,
-			float hitZ) {
+	public EnumActionResult onItemUseExtended(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
+			float hitY, float hitZ) {
 
 		ItemStack wand = player.getHeldItem(hand);
 
@@ -82,7 +84,12 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		}
 
 		Position to = CheckerBoardUtil.getChessPosition(a8, pos);
-		control.movePiece(a8, to);
+
+		if (control.movePiece(a8, to)) {
+			yup(player);
+		} else {
+			nope(player);
+		}
 
 		return EnumActionResult.SUCCESS;
 	}
@@ -108,16 +115,39 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		}
 
 		if (canAttack(wand, piece)) {
-			control.movePiece(a8, piece.getChessPosition());
+			if (control.movePiece(a8, piece.getChessPosition())) {
+				yup(player);
+			} else {
+				nope(player);
+			}
 			return true;
 		}
 
 		if (canSelect(wand, piece)) {
-			control.selectEntity(piece);
+			if (control.selectEntity(piece)) {
+				selectSound(player);
+			} else {
+				nope(player);
+			}
 			return true;
 		}
 
 		return false;
+	}
+
+	private void nope(EntityPlayer player) {
+		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.NEUTRAL, 1f,
+				1f);
+	}
+
+	private void yup(EntityPlayer player) {
+		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_YES, SoundCategory.NEUTRAL, 1f,
+				1f);
+	}
+
+	private void selectSound(EntityPlayer player) {
+		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT,
+				SoundCategory.NEUTRAL, 0.5f, 1f);
 	}
 
 	private boolean canSelect(ItemStack wand, EntityChessPiece piece) {
