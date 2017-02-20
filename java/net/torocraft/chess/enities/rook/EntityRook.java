@@ -2,6 +2,7 @@ package net.torocraft.chess.enities.rook;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -44,5 +45,13 @@ public class EntityRook extends EntityChessPiece implements IChessPiece {
 	@Override
 	public float getEyeHeight() {
 		return 2.55F;
+	}
+
+	protected SoundEvent getHurtSound() {
+		return SoundEvents.ENTITY_ENDERMEN_HURT;
+	}
+
+	protected SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_ENDERMEN_DEATH;
 	}
 }

@@ -8,11 +8,14 @@ import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.engine.ChessPieceState.File;
@@ -240,4 +243,31 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		this.initialMove = initialMove;
 	}
 
+	public SoundCategory getSoundCategory() {
+		return SoundCategory.HOSTILE;
+	}
+
+	protected SoundEvent getSwimSound() {
+		return SoundEvents.ENTITY_HOSTILE_SWIM;
+	}
+
+	protected SoundEvent getSplashSound() {
+		return SoundEvents.ENTITY_HOSTILE_SPLASH;
+	}
+
+	protected SoundEvent getHurtSound() {
+		return SoundEvents.ENTITY_ZOMBIE_HURT;
+	}
+
+	protected SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_ZOMBIE_DEATH;
+	}
+
+	protected SoundEvent getStepSound() {
+		return SoundEvents.ENTITY_ZOMBIE_STEP;
+	}
+
+	protected SoundEvent getFallSound(int heightIn) {
+		return heightIn > 4 ? SoundEvents.ENTITY_HOSTILE_BIG_FALL : SoundEvents.ENTITY_HOSTILE_SMALL_FALL;
+	}
 }
