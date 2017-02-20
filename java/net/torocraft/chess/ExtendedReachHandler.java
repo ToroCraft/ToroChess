@@ -36,7 +36,10 @@ public class ExtendedReachHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
 	public void onEvent(MouseEvent event) {
-		if (event.getButton() != 1 || !event.isButtonstate()) {
+		if (event.getButton() != 1) {
+			return;
+		}
+		if (!event.isButtonstate()) {
 			return;
 		}
 
@@ -45,7 +48,7 @@ public class ExtendedReachHandler {
 		if (player == null) {
 			return;
 		}
-
+		
 		ItemStack stack = player.getHeldItemMainhand();
 
 		if (stack == null || !(stack.getItem() instanceof IExtendedReach)) {
@@ -63,8 +66,8 @@ public class ExtendedReachHandler {
 			INSTANCE.sendToServer(new MessageExtendedReachInteract(raytrace.entityHit.getEntityId()));
 		} else if (RayTraceResult.Type.BLOCK.equals(raytrace.typeOfHit)) {
 			INSTANCE.sendToServer(new MessageExtendedReachInteract(raytrace.getBlockPos()));
-		} else {
 		}
+		
 
 	}
 

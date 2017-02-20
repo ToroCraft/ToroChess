@@ -64,7 +64,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	}
 
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY,
+	public EnumActionResult onItemUseExtended(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY,
 			float hitZ) {
 
 		ItemStack wand = player.getHeldItem(hand);
@@ -78,7 +78,6 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		TileEntityChessControl control = BlockChessControl.getChessControl(world, a8, gameId);
 
 		if (control == null) {
-			System.out.println("onItemUse: No control block found wand " + wand.getTagCompound());
 			return EnumActionResult.PASS;
 		}
 
@@ -89,7 +88,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	}
 
 	@Override
-	public boolean itemInteractionForEntity(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
+	public boolean itemInteractionForEntityExtended(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
 		if (player.world.isRemote || !(target instanceof EntityChessPiece)) {
 			return false;
 		}
@@ -105,7 +104,6 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
 		TileEntityChessControl control = BlockChessControl.getChessControl(player.world, a8, getGameId(wand));
 		if (control == null) {
-			System.out.println("itemInteractionForEntity: No control block found wand " + wand.getTagCompound());
 			return false;
 		}
 
