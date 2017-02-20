@@ -18,9 +18,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
     private ChessPieceState internalChessPieceToMove;
     private IChessPieceWorker chessPieceWorker;
 
-    //TODO if either king is checkmate, set to checkmate and return no legal moves
-    //TODO if either king is check, set to check and find legal moves
-
     @Override
     public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
         internalState = state;
@@ -40,27 +37,21 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 break;
             case KING:
                 chessPieceWorker = new KingWorker(internalState, internalChessPieceToMove);
-                //TODO call KING class
                 break;
             case KNIGHT:
                 chessPieceWorker = new KnightWorker(internalState, internalChessPieceToMove);
-                //TODO call KNIGHT class
                 break;
             case PAWN:
                 chessPieceWorker = new PawnWorker(internalState, internalChessPieceToMove);
-                //TODO call PAWN class
                 break;
             case QUEEN:
                 chessPieceWorker = new QueenWorker(internalState, internalChessPieceToMove);
-                //TODO call QUEEN class
                 break;
             case ROOK:
                 chessPieceWorker = new RookWorker(internalState, internalChessPieceToMove);
-                //TODO call ROOK class
                 break;
             default:
-                moveResult = new MoveResult();
-                break;
+                return new MoveResult();
         }
 
         getLegalMoveWithWorker();
@@ -75,6 +66,9 @@ public class ChessRuleEngine implements IChessRuleEngine {
     }
 
     private void getLegalMoveWithWorker() {
+        if (chessPieceWorker == null) {
+            return;
+        }
         if (chessPieceWorker.isKingInCheck(internalState)) {
             moveResult = new MoveResult();
             if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
