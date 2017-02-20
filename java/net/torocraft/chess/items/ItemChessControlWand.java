@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.torocraft.chess.IExtendedReach;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.blocks.BlockChessControl;
 import net.torocraft.chess.blocks.TileEntityChessControl;
@@ -25,7 +26,9 @@ import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
-public class ItemChessControlWand extends Item {
+public class ItemChessControlWand extends Item implements IExtendedReach {
+
+	public static final float REACH_DISTANCE = 40;
 
 	public static final String NBT_SIDE = "chessside";
 	public static final String NBT_A8_POS = "chessa8";
@@ -145,6 +148,11 @@ public class ItemChessControlWand extends Item {
 
 	public static Side getSide(ItemStack stack) {
 		return CheckerBoardUtil.castSide(stack.getTagCompound().getBoolean(NBT_SIDE));
+	}
+
+	@Override
+	public float getReach() {
+		return REACH_DISTANCE;
 	}
 
 }

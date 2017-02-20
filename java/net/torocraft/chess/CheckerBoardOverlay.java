@@ -51,7 +51,7 @@ public class CheckerBoardOverlay {
 	public void setValidMoves(List<Position> moves) {
 		this.moves = moves;
 	}
-	
+
 	public List<Position> getValidMoves() {
 		return moves;
 	}
@@ -95,7 +95,7 @@ public class CheckerBoardOverlay {
 			return;
 		}
 
-		RayTraceResult r = player.rayTrace(50, 1);
+		RayTraceResult r = player.rayTrace(ItemChessControlWand.REACH_DISTANCE, 1);
 		if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
 			addCursorOverlay(a8, r);
 		}
@@ -113,7 +113,7 @@ public class CheckerBoardOverlay {
 	private void addCursorOverlay(BlockPos a8, RayTraceResult r) {
 		Overlay overlay = new Overlay();
 		BlockPos offset = r.getBlockPos().subtract(a8);
-		
+
 		if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
 			return;
 		}
