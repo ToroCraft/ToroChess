@@ -128,8 +128,7 @@ public class CheckerBoardUtil {
 
 		state.side = entity.getSide();
 		state.position = entity.getChessPosition();
-		// TODO: implement this
-		state.isInitialMove = false;
+		state.isInitialMove = entity.isInitialMove();
 
 		return state;
 	}

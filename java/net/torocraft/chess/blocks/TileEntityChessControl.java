@@ -17,7 +17,7 @@ import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.engine.IChessRuleEngine;
 import net.torocraft.chess.engine.MoveResult;
-import net.torocraft.chess.engine.impl.TestingHighlightPiecesRuleEngine;
+import net.torocraft.chess.engine.impl.ChessRuleEngine;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
@@ -40,7 +40,7 @@ public class TileEntityChessControl extends TileEntity {
 
 	public IChessRuleEngine getRuleEngine() {
 		if (ruleEngine == null) {
-			ruleEngine = new TestingHighlightPiecesRuleEngine();
+			ruleEngine = new ChessRuleEngine();
 		}
 		return ruleEngine;
 	}

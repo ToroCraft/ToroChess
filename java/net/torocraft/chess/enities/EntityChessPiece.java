@@ -29,6 +29,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	private static final String NBT_POSITION_RANK_KEY = "chess_rank_position";
 	private static final String NBT_A8_POSITION_KEY = "a8position";
 	private static final String NBT_GAME_ID_KEY = "gameid";
+	private static final String NBT_INITIAL_MOVE = "chess_initial_move";
 
 	private static final DataParameter<Boolean> SIDE_IS_WHITE = EntityDataManager.<Boolean> createKey(EntityZombieVillager.class,
 			DataSerializers.BOOLEAN);
@@ -39,6 +40,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	private boolean moved = true;
 	double x = 0;
 	double z = 0;
+	boolean initialMove = true;
 
 	public EntityChessPiece(World worldIn) {
 		super(worldIn);
@@ -149,12 +151,13 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		}
 		super.writeEntityToNBT(c);
 		c.setBoolean(NBT_SIDE_KEY, dataManager.get(SIDE_IS_WHITE));
-		
+
 		c.setInteger(NBT_POSITION_FILE_KEY, chessPosition.file.ordinal());
 		c.setInteger(NBT_POSITION_RANK_KEY, chessPosition.rank.ordinal());
-		
+
 		c.setLong(NBT_A8_POSITION_KEY, a8.toLong());
 		c.setUniqueId(NBT_GAME_ID_KEY, gameId);
+		c.setBoolean(NBT_INITIAL_MOVE, initialMove);
 	}
 
 	private Boolean castSide(Side side) {
@@ -181,10 +184,11 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 			File letter = File.values()[c.getInteger(NBT_POSITION_FILE_KEY)];
 			Rank number = Rank.values()[c.getInteger(NBT_POSITION_RANK_KEY)];
 			chessPosition = new Position(letter, number);
-			
+
 			a8 = BlockPos.fromLong(c.getLong(NBT_A8_POSITION_KEY));
 			gameId = c.getUniqueId(NBT_GAME_ID_KEY);
 			dataManager.set(SIDE_IS_WHITE, c.getBoolean(NBT_SIDE_KEY));
+			initialMove = c.getBoolean(NBT_INITIAL_MOVE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -198,6 +202,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	public void setChessPosition(Position position) {
 		moved = true;
 		chessPosition = position;
+		initialMove = false;
 	}
 
 	@Override
@@ -223,6 +228,16 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	@Override
 	public void setGameId(UUID gameId) {
 		this.gameId = gameId;
+	}
+
+	@Override
+	public boolean isInitialMove() {
+		return initialMove;
+	}
+
+	@Override
+	public void setInitialMove(boolean initialMove) {
+		this.initialMove = initialMove;
 	}
 
 }

@@ -113,6 +113,7 @@ public class ChessGameGenerator {
 		e.setSide(side);
 		e.setGameId(gameId);
 		e.setA8(a8);
+		e.setInitialMove(true);
 		world.spawnEntity(e);
 	}
 
