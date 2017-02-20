@@ -83,4 +83,6 @@ public class ChessPieceState {
 			this.requestedMoveToPosition = requestedMoveToPosition;
 		}
 	}
+
+	//TODO add deep copy for king check testing purposes
 }

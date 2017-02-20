@@ -11,7 +11,7 @@ public class KnightWorker extends ChessPieceWorker {
     }
 
     @Override
-    public MoveResult getLegalMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+    public MoveResult getLegalMoves() {
         //TODO get legal moves for this piece
         return null;
     }

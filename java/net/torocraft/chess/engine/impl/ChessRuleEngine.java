@@ -8,9 +8,8 @@ import net.torocraft.chess.engine.workers.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.torocraft.chess.engine.ChessPieceState.Position;
-import static net.torocraft.chess.engine.ChessPieceState.File;
-import static net.torocraft.chess.engine.ChessPieceState.Rank;
+import static net.torocraft.chess.engine.MoveResult.Condition;
+import static net.torocraft.chess.engine.ChessPieceState.Side;
 
 public class ChessRuleEngine implements IChessRuleEngine {
     private MoveResult moveResult;
@@ -56,12 +55,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
         getLegalMoveWithWorker();
 
-        //FIXME Test data return
-        moveResult.legalPositions = new ArrayList<>();
-        moveResult.legalPositions.add(new Position(File.A, Rank.FOUR));
-        moveResult.legalPositions.add(new Position(File.B, Rank.SEVEN));
-        moveResult.blackCondition = MoveResult.Condition.CLEAR;
-        moveResult.whiteCondition = MoveResult.Condition.CHECK;
         return moveResult;
     }
 
@@ -69,8 +62,9 @@ public class ChessRuleEngine implements IChessRuleEngine {
         if (chessPieceWorker == null) {
             return;
         }
-        if (chessPieceWorker.isKingInCheck(internalState)) {
-            moveResult = new MoveResult();
+        moveResult = chessPieceWorker.getLegalMoves();
+
+        if (isKingInCheck()) {
             if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
                 moveResult.blackCondition = MoveResult.Condition.CHECK;
                 moveResult.whiteCondition = MoveResult.Condition.CLEAR;
@@ -78,18 +72,20 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 moveResult.blackCondition = MoveResult.Condition.CLEAR;
                 moveResult.whiteCondition = MoveResult.Condition.CHECK;
             }
+        } else {
+            moveResult.blackCondition = MoveResult.Condition.CLEAR;
+            moveResult.whiteCondition = MoveResult.Condition.CLEAR;
         }
-        moveResult = chessPieceWorker.getLegalMoves(internalState, internalChessPieceToMove);
     }
 
     private boolean isAKingInCheckMate() {
         //TODO
-        if (isSideInCheckmate(ChessPieceState.Side.BLACK)) {
+        if (isSideInCheckmate(Side.BLACK)) {
             moveResult = new MoveResult();
             moveResult.blackCondition = MoveResult.Condition.CHECKMATE;
             moveResult.whiteCondition = MoveResult.Condition.CLEAR;
             moveResult.legalPositions = new ArrayList<>();
-        } else if (isSideInCheckmate(ChessPieceState.Side.WHITE)){
+        } else if (isSideInCheckmate(Side.WHITE)){
             moveResult = new MoveResult();
             moveResult.blackCondition = MoveResult.Condition.CLEAR;
             moveResult.whiteCondition = MoveResult.Condition.CHECKMATE;
@@ -99,17 +95,17 @@ public class ChessRuleEngine implements IChessRuleEngine {
         return false;
     }
 
-    private boolean isSideInCheckmate(ChessPieceState.Side side) {
+    private boolean isSideInCheckmate(Side side) {
         //TODO logic checking if side is in checkmate
-        return true;
+        return false;
     }
 
     private boolean isAKingInStalemate() {
         //TODO
         if (isThereAStalemate()) {
             moveResult = new MoveResult();
-            moveResult.blackCondition = MoveResult.Condition.STALEMATE;
-            moveResult.whiteCondition = MoveResult.Condition.STALEMATE;
+            moveResult.blackCondition = Condition.STALEMATE;
+            moveResult.whiteCondition = Condition.STALEMATE;
             moveResult.legalPositions = new ArrayList<>();
             return true;
         }
@@ -119,6 +115,11 @@ public class ChessRuleEngine implements IChessRuleEngine {
     private boolean isThereAStalemate() {
         //TODO logic checking if side is in stalemate
         //TODO look at piece wanting to move
-        return true;
+        return false;
+    }
+
+    private boolean isKingInCheck() {
+        //TODO check is king is currently in check for current side
+        return false;
     }
 }
