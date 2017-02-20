@@ -29,9 +29,8 @@ public class PawnWorker extends ChessPieceWorker {
 
     private void checkForwardBlack() {
         Position chessPiecePosition = chessPieceToMove.position;
-        Position positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()],
-                Rank.values()[chessPiecePosition.rank.ordinal()-1]);
+        Position positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()-1,
+                chessPiecePosition.file.ordinal());
         if(isSpaceFreePawn(positionToCheck)){
             addLegalMove(positionToCheck);
         } else {
@@ -39,9 +38,8 @@ public class PawnWorker extends ChessPieceWorker {
         }
 
         if (chessPieceToMove.isInitialMove) {
-            positionToCheck =
-                    new Position(File.values()[chessPiecePosition.file.ordinal()],
-                            Rank.values()[chessPiecePosition.rank.ordinal()-2]);
+            positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()-2,
+                    chessPiecePosition.file.ordinal());
             if (isSpaceFreePawn(positionToCheck)) {
                 addLegalMove(positionToCheck);
             }
@@ -50,16 +48,14 @@ public class PawnWorker extends ChessPieceWorker {
 
     private void checkDiagonalsBlack() {
         Position chessPiecePosition = chessPieceToMove.position;
-        Position positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()-1],
-                        Rank.values()[chessPiecePosition.rank.ordinal()-1]);
+        Position positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()-1,
+                chessPiecePosition.file.ordinal()+1);
         if(isEnemyOccupyingPawn(positionToCheck)){
             addLegalMove(positionToCheck);
         }
 
-        positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()-1],
-                        Rank.values()[chessPiecePosition.rank.ordinal()+1]);
+        positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()-1,
+                chessPiecePosition.file.ordinal()-1);
         if(isEnemyOccupyingPawn(positionToCheck)){
             addLegalMove(positionToCheck);
         }
@@ -67,9 +63,8 @@ public class PawnWorker extends ChessPieceWorker {
 
     private void checkForwardWhite() {
         Position chessPiecePosition = chessPieceToMove.position;
-        Position positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()],
-                        Rank.values()[chessPiecePosition.rank.ordinal()+1]);
+        Position positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()+1,
+                chessPiecePosition.file.ordinal());
         if(isSpaceFreePawn(positionToCheck)){
             addLegalMove(positionToCheck);
         } else {
@@ -77,9 +72,8 @@ public class PawnWorker extends ChessPieceWorker {
         }
 
         if (chessPieceToMove.isInitialMove) {
-            positionToCheck =
-                    new Position(File.values()[chessPiecePosition.file.ordinal()],
-                            Rank.values()[chessPiecePosition.rank.ordinal()+2]);
+            positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()+2,
+                    chessPiecePosition.file.ordinal());
             if (isSpaceFreePawn(positionToCheck)) {
                 addLegalMove(positionToCheck);
             }
@@ -88,26 +82,28 @@ public class PawnWorker extends ChessPieceWorker {
 
     private void checkDiagonalsWhite() {
         Position chessPiecePosition = chessPieceToMove.position;
-        Position positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()+1],
-                        Rank.values()[chessPiecePosition.rank.ordinal()-1]);
+        Position positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()+1,
+                chessPiecePosition.file.ordinal()-1);
         if(isEnemyOccupyingPawn(positionToCheck)){
             addLegalMove(positionToCheck);
         }
 
-        positionToCheck =
-                new Position(File.values()[chessPiecePosition.file.ordinal()+1],
-                        Rank.values()[chessPiecePosition.rank.ordinal()+1]);
+        positionToCheck = tryCreatePosition(chessPiecePosition.rank.ordinal()+1,
+                chessPiecePosition.file.ordinal()+1);
         if(isEnemyOccupyingPawn(positionToCheck)){
             addLegalMove(positionToCheck);
         }
     }
 
     private boolean isSpaceFreePawn(Position positionToCheck) {
-        return isSpaceFree(positionToCheck) && !willPutKingInCheck(positionToCheck);
+        return positionToCheck!= null
+                && isSpaceFree(positionToCheck)
+                && !willPutKingInCheck(positionToCheck);
     }
 
     private boolean isEnemyOccupyingPawn(Position positionToCheck) {
-        return isEnemyOccupying(positionToCheck) && !willPutKingInCheck(positionToCheck);
+        return positionToCheck != null
+                && isEnemyOccupying(positionToCheck)
+                && !willPutKingInCheck(positionToCheck);
     }
 }

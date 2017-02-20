@@ -11,6 +11,9 @@ import java.util.List;
 import static net.torocraft.chess.engine.MoveResult.Condition;
 import static net.torocraft.chess.engine.ChessPieceState.Side;
 
+//TODO add support for castling
+//TODO add support for en passant
+//TODO add support for pawn promotion
 public class ChessRuleEngine implements IChessRuleEngine {
     private MoveResult moveResult;
     private List<ChessPieceState> internalState;
