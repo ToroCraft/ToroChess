@@ -16,6 +16,7 @@ import net.torocraft.chess.items.ItemChessControlWand;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent e) {
+		ExtendedReachHandler.init();
 		ItemChessControlWand.init();
 	}
 
