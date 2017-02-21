@@ -57,6 +57,18 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
                 && !pieceState.side.equals(chessPieceToMove.side);
     }
 
+    protected boolean isSpaceFreeFullCheck(Position positionToCheck) {
+        return positionToCheck != null
+                && isSpaceFree(positionToCheck)
+                && !willPutKingInCheck(positionToCheck);
+    }
+
+    protected boolean isEnemyOccupyingFullCheck(Position positionToCheck) {
+        return positionToCheck != null
+                && isEnemyOccupying(positionToCheck)
+                && !willPutKingInCheck(positionToCheck);
+    }
+
     protected void addLegalMove(Position position) {
         if (position == null) {
             return;
@@ -71,5 +83,4 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
         }
         return null;
     }
-
 }
