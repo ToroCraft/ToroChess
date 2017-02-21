@@ -1,4 +1,4 @@
-package net.torocraft.chess;
+package net.torocraft.chess.control;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,6 +21,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Rank;
 import net.torocraft.chess.engine.ChessPieceState.Position;

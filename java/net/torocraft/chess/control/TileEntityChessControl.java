@@ -1,4 +1,4 @@
-package net.torocraft.chess.blocks;
+package net.torocraft.chess.control;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,7 +10,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.torocraft.chess.CheckerBoardOverlay;
 import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Rank;
@@ -45,6 +44,23 @@ public class TileEntityChessControl extends TileEntity {
 		return ruleEngine;
 	}
 
+	public void resetBoard() {
+		// TODO
+		System.out.println("reset board requested");
+	}
+
+	public void clearBoard() {
+		// TODO
+	}
+
+	public void forfeit() {
+		// TODO
+	}
+
+	public void rewind() {
+		// TODO?
+	}
+
 	public boolean movePiece(BlockPos a8, Position to) {
 
 		if (selectedPiece == null) {
@@ -53,7 +69,7 @@ public class TileEntityChessControl extends TileEntity {
 		}
 
 		Position from = selectedPiece;
-		
+
 		EntityChessPiece attacker = CheckerBoardUtil.getPiece(world, from, a8, gameId);
 
 		if (attacker == null) {
@@ -83,18 +99,18 @@ public class TileEntityChessControl extends TileEntity {
 
 		attacker.setAttackTarget(victum);
 		attacker.setChessPosition(to);
-		
+
 		return true;
 	}
-	
+
 	private boolean isNotYourTurn(EntityChessPiece attacker) {
 		return !attacker.getSide().equals(turn);
 	}
 
 	private void switchTurns() {
-		if(Side.WHITE.equals(turn)) {
+		if (Side.WHITE.equals(turn)) {
 			turn = Side.BLACK;
-		}else{
+		} else {
 			turn = Side.WHITE;
 		}
 		System.out.println(turn.toString().toLowerCase() + "'s trun");
@@ -109,18 +125,18 @@ public class TileEntityChessControl extends TileEntity {
 		if (target == null) {
 			throw new NullPointerException("target is null");
 		}
-		
-		if(target.getChessPosition().equals(selectedPiece)){
+
+		if (target.getChessPosition().equals(selectedPiece)) {
 			deselectEntity();
 			markDirty();
 			return true;
 		}
-		
+
 		if (isNotYourTurn(target)) {
 			System.out.println("It's not " + target.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
-		
+
 		selectedPiece = target.getChessPosition();
 		setHightlight(target);
 		updateValidMoves(target);

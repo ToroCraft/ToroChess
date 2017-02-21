@@ -7,6 +7,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 
 @Mod(modid = ToroChess.MODID, name = ToroChess.MODNAME, version = ToroChess.VERSION)
 public class ToroChess {
@@ -18,6 +20,8 @@ public class ToroChess {
 	@Mod.Instance(MODID)
 	public static ToroChess INSTANCE;
 
+	public static SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(ToroChess.MODID);
+	
 	@SidedProxy(clientSide = "net.torocraft.chess.ClientProxy", serverSide = "net.torocraft.chess.ServerProxy")
 	public static CommonProxy proxy;
 

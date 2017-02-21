@@ -1,4 +1,4 @@
-package net.torocraft.chess;
+package net.torocraft.chess.items.extendedreach;
 
 import java.util.List;
 
@@ -14,22 +14,13 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.ToroChess;
 
 public class ExtendedReachHandler {
-	// TODO move this
-	public static SimpleNetworkWrapper INSTANCE;
 
 	public static void init() {
-		// TODO move network wrapper to a shared location
-		INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(ToroChess.MODID);
-
-		int packetId = 0;
-		INSTANCE.registerMessage(MessageExtendedReachInteract.Handler.class, MessageExtendedReachInteract.class, packetId++, Side.SERVER);
-
 		MinecraftForge.EVENT_BUS.register(new ExtendedReachHandler());
 	}
 
@@ -48,7 +39,7 @@ public class ExtendedReachHandler {
 		if (player == null) {
 			return;
 		}
-		
+
 		ItemStack stack = player.getHeldItemMainhand();
 
 		if (stack == null || !(stack.getItem() instanceof IExtendedReach)) {
@@ -63,11 +54,10 @@ public class ExtendedReachHandler {
 		}
 
 		if (raytrace.entityHit != null) {
-			INSTANCE.sendToServer(new MessageExtendedReachInteract(raytrace.entityHit.getEntityId()));
+			ToroChess.NETWORK.sendToServer(new MessageExtendedReachInteract(raytrace.entityHit.getEntityId()));
 		} else if (RayTraceResult.Type.BLOCK.equals(raytrace.typeOfHit)) {
-			INSTANCE.sendToServer(new MessageExtendedReachInteract(raytrace.getBlockPos()));
+			ToroChess.NETWORK.sendToServer(new MessageExtendedReachInteract(raytrace.getBlockPos()));
 		}
-		
 
 	}
 

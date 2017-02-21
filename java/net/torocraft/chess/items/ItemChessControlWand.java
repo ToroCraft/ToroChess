@@ -18,14 +18,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.torocraft.chess.IExtendedReach;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.blocks.BlockChessControl;
-import net.torocraft.chess.blocks.TileEntityChessControl;
+import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Side;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
+import net.torocraft.chess.items.extendedreach.IExtendedReach;
 
 public class ItemChessControlWand extends Item implements IExtendedReach {
 

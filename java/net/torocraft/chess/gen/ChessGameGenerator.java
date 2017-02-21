@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.blocks.BlockChessControl;
-import net.torocraft.chess.blocks.TileEntityChessControl;
+import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.ChessPieceState.File;
 import net.torocraft.chess.engine.ChessPieceState.Position;
 import net.torocraft.chess.engine.ChessPieceState.Rank;

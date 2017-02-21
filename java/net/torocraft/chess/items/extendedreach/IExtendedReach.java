@@ -1,4 +1,4 @@
-package net.torocraft.chess;
+package net.torocraft.chess.items.extendedreach;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
