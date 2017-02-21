@@ -1,26 +1,25 @@
-package net.torocraft.chess.engine.workers;
+package net.torocraft.chess.engine.chess.workers;
 
-import net.torocraft.chess.engine.ChessPieceState;
-import net.torocraft.chess.engine.MoveResult;
+import net.torocraft.chess.engine.chess.ChessPieceState;
+import net.torocraft.chess.engine.chess.ChessMoveResult;
+
+import static net.torocraft.chess.engine.chess.ChessPieceState.File;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Position;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Rank;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.torocraft.chess.engine.ChessPieceState.Rank;
-import static net.torocraft.chess.engine.ChessPieceState.File;
-
-import static net.torocraft.chess.engine.ChessPieceState.Position;
-
 public abstract class ChessPieceWorker implements IChessPieceWorker {
     protected final List<ChessPieceState> state;
     protected final ChessPieceState chessPieceToMove;
-    protected MoveResult moveResult;
+    protected ChessMoveResult moveResult;
     protected ChessPieceState[][] positionArray;
 
     public ChessPieceWorker(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
         this.state = state;
         this.chessPieceToMove = chessPieceToMove;
-        moveResult = new MoveResult();
+        moveResult = new ChessMoveResult();
         moveResult.legalPositions = new ArrayList<>();
         positionArray = new ChessPieceState[8][8];
         populatePositionArray();

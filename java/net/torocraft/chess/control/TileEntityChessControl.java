@@ -10,13 +10,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.torocraft.chess.engine.ChessPieceState.File;
-import net.torocraft.chess.engine.ChessPieceState.Position;
-import net.torocraft.chess.engine.ChessPieceState.Rank;
-import net.torocraft.chess.engine.ChessPieceState.Side;
-import net.torocraft.chess.engine.IChessRuleEngine;
-import net.torocraft.chess.engine.MoveResult;
-import net.torocraft.chess.engine.impl.ChessRuleEngine;
+import net.torocraft.chess.engine.GamePieceState.File;
+import net.torocraft.chess.engine.GamePieceState.Position;
+import net.torocraft.chess.engine.GamePieceState.Rank;
+import net.torocraft.chess.engine.GamePieceState.Side;
+import net.torocraft.chess.engine.chess.IChessRuleEngine;
+import net.torocraft.chess.engine.chess.ChessMoveResult;
+import net.torocraft.chess.engine.chess.impl.ChessRuleEngine;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
@@ -180,7 +180,7 @@ public class TileEntityChessControl extends TileEntity {
 	 * TODO this needs to happen on the client, via a packet?
 	 */
 	private void updateValidMoves(EntityChessPiece piece) {
-		MoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(piece), CheckerBoardUtil.convertToState(piece));
+		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(piece), CheckerBoardUtil.convertToState(piece));
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 

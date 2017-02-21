@@ -1,9 +1,9 @@
-package net.torocraft.chess.engine;
+package net.torocraft.chess.engine.chess;
+
+import static net.torocraft.chess.engine.chess.ChessPieceState.Move;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Side;
 
 import java.util.List;
-
-import static net.torocraft.chess.engine.ChessPieceState.Move;
-import static net.torocraft.chess.engine.ChessPieceState.Side;
 
 public interface IChessAIEngine {
     /**

@@ -9,12 +9,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.torocraft.chess.control.CheckerBoardOverlay;
 import net.torocraft.chess.control.ChessPieceSearchPredicate;
-import net.torocraft.chess.engine.ChessPieceState;
-import net.torocraft.chess.engine.ChessPieceState.File;
-import net.torocraft.chess.engine.ChessPieceState.Position;
-import net.torocraft.chess.engine.ChessPieceState.Rank;
-import net.torocraft.chess.engine.ChessPieceState.Side;
-import net.torocraft.chess.engine.ChessPieceState.Type;
+import net.torocraft.chess.engine.GamePieceState.File;
+import net.torocraft.chess.engine.GamePieceState.Position;
+import net.torocraft.chess.engine.GamePieceState.Rank;
+import net.torocraft.chess.engine.GamePieceState.Side;
+import net.torocraft.chess.engine.chess.ChessPieceState;
+import net.torocraft.chess.engine.chess.ChessPieceState.Type;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.enities.bishop.EntityBishop;
 import net.torocraft.chess.enities.king.EntityKing;
@@ -42,49 +42,48 @@ import net.torocraft.chess.items.HighlightedChessPiecePredicate;
 public class CheckerBoardUtil {
 
 	public static BlockPos toWorldCoords(BlockPos a8, Position position) {
-		if(a8 == null){
+		if (a8 == null) {
 			throw new NullPointerException("a8 is null");
 		}
-		if(position == null){
+		if (position == null) {
 			throw new NullPointerException("position is null");
 		}
 		return a8.add(7 - position.file.ordinal(), 0, position.rank.ordinal());
 	}
 
 	public static Position getChessPosition(BlockPos a8, BlockPos pos) {
-		if(a8 == null){
+		if (a8 == null) {
 			throw new NullPointerException("a8 is null");
 		}
-		if(pos == null){
+		if (pos == null) {
 			throw new NullPointerException("position is null");
 		}
-		if(a8.getY() != pos.getY()){
+		if (a8.getY() != pos.getY()) {
 			return null;
 		}
 		int xLocal = pos.getX() - a8.getX();
 		int zLocal = pos.getZ() - a8.getZ();
-		
-		if(zLocal > 7 || xLocal > 7 || xLocal < 0 || zLocal < 0){
+
+		if (zLocal > 7 || xLocal > 7 || xLocal < 0 || zLocal < 0) {
 			return null;
 		}
-		
+
 		return new Position(File.values()[7 - xLocal], Rank.values()[zLocal]);
 	}
-	
+
 	public static Side castSide(Boolean side) {
 		if (side != null && side) {
 			return Side.BLACK;
 		}
 		return Side.WHITE;
 	}
-	
+
 	public static boolean castSide(Side side) {
-		if(side != null && side.equals(Side.BLACK)){
+		if (side != null && side.equals(Side.BLACK)) {
 			return true;
 		}
 		return false;
 	}
-
 
 	public static List<ChessPieceState> loadPiecesFromWorld(EntityChessPiece referenceEntity) {
 
@@ -103,7 +102,7 @@ public class CheckerBoardUtil {
 
 		return pieces;
 	}
-	
+
 	public static ChessPieceState convertToState(EntityChessPiece entity) {
 		ChessPieceState state = new ChessPieceState();
 
@@ -132,7 +131,7 @@ public class CheckerBoardUtil {
 
 		return state;
 	}
-	
+
 	@Deprecated
 	public static EntityChessPiece getHighlightedPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
@@ -146,16 +145,16 @@ public class CheckerBoardUtil {
 	}
 
 	public static EntityChessPiece getPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
-		if(piecePos == null){
+		if (piecePos == null) {
 			throw new NullPointerException("piecePos is null");
 		}
-		if(a8 == null){
+		if (a8 == null) {
 			throw new NullPointerException("a8 is null");
 		}
-		if(gameId == null){
+		if (gameId == null) {
 			throw new NullPointerException("gameId is null");
 		}
-		
+
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
 				new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
 
@@ -165,15 +164,15 @@ public class CheckerBoardUtil {
 
 		return pieces.get(0);
 	}
-	
+
 	public static boolean isInvalidMove(UUID gameId, BlockPos a8, Position from, Position to) {
 		// FIXME figure out a better way to cache the valid moves other than
 		// using the overlay class
-		
-		if(from == null || to == null){
+
+		if (from == null || to == null) {
 			return true;
 		}
-		
+
 		List<Position> moves = CheckerBoardOverlay.INSTANCE.getValidMoves();
 		for (Position move : moves) {
 			if (move.equals(to)) {

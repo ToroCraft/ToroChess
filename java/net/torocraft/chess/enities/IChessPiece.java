@@ -3,8 +3,8 @@ package net.torocraft.chess.enities;
 import java.util.UUID;
 
 import net.minecraft.util.math.BlockPos;
-import net.torocraft.chess.engine.ChessPieceState.Position;
-import net.torocraft.chess.engine.ChessPieceState.Side;
+import net.torocraft.chess.engine.GamePieceState.Position;
+import net.torocraft.chess.engine.GamePieceState.Side;
 
 public interface IChessPiece {
 
