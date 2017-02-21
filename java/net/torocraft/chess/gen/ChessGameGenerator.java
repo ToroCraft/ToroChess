@@ -46,46 +46,46 @@ public class ChessGameGenerator {
 		}
 		board.generate();
 		addWand();
-		placePieces();
+		placePieces(world, a8, gameId);
 		saveGameData();
 	}
 
-	public void placePieces() {
-		placeEntity(new EntityPawn(world), Side.WHITE, File.A, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.B, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.C, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.D, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.E, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.F, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.G, Rank.TWO);
-		placeEntity(new EntityPawn(world), Side.WHITE, File.H, Rank.TWO);
+	public static void placePieces(World world, BlockPos a8, UUID gameId) {
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.A, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.B, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.C, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.D, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.E, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.F, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.G, Rank.TWO);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.H, Rank.TWO);
 
-		placeEntity(new EntityRook(world), Side.WHITE, File.A, Rank.ONE);
-		placeEntity(new EntityKnight(world), Side.WHITE, File.B, Rank.ONE);
-		placeEntity(new EntityBishop(world), Side.WHITE, File.C, Rank.ONE);
-		placeEntity(new EntityKing(world), Side.WHITE, File.E, Rank.ONE);
-		placeEntity(new EntityQueen(world), Side.WHITE, File.D, Rank.ONE);
-		placeEntity(new EntityBishop(world), Side.WHITE, File.F, Rank.ONE);
-		placeEntity(new EntityKnight(world), Side.WHITE, File.G, Rank.ONE);
-		placeEntity(new EntityRook(world), Side.WHITE, File.H, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.A, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.B, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.C, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityKing(world), Side.WHITE, File.E, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityQueen(world), Side.WHITE, File.D, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.F, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.G, Rank.ONE);
+		placeEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.H, Rank.ONE);
 
-		placeEntity(new EntityPawn(world), Side.BLACK, File.A, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.B, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.C, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.D, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.E, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.F, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.G, Rank.SEVEN);
-		placeEntity(new EntityPawn(world), Side.BLACK, File.H, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.A, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.B, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.C, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.D, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.E, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.F, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.G, Rank.SEVEN);
+		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.H, Rank.SEVEN);
 
-		placeEntity(new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT);
-		placeEntity(new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT);
-		placeEntity(new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT);
-		placeEntity(new EntityKing(world), Side.BLACK, File.E, Rank.EIGHT);
-		placeEntity(new EntityQueen(world), Side.BLACK, File.D, Rank.EIGHT);
-		placeEntity(new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT);
-		placeEntity(new EntityKnight(world), Side.BLACK, File.G, Rank.EIGHT);
-		placeEntity(new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityKing(world), Side.BLACK, File.E, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityQueen(world), Side.BLACK, File.D, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.G, Rank.EIGHT);
+		placeEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);
 	}
 
 	private void addWand() {
@@ -105,7 +105,7 @@ public class ChessGameGenerator {
 		return wand;
 	}
 
-	private void placeEntity(EntityChessPiece e, Side side, File file, Rank rank) {
+	private static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
 		e.setChessPosition(new Position(file, rank));

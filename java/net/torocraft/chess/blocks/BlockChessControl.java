@@ -1,6 +1,5 @@
 package net.torocraft.chess.blocks;
 
-import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.BlockContainer;
@@ -22,15 +21,12 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessGuiHandler;
-import net.torocraft.chess.control.ChessPieceSearchPredicate;
 import net.torocraft.chess.control.TileEntityChessControl;
-import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class BlockChessControl extends BlockContainer {
@@ -41,7 +37,7 @@ public class BlockChessControl extends BlockContainer {
 
 	public static Item ITEM_INSTANCE;
 
-	private static final BlockPos A8_OFFSET = new BlockPos(-4, 1, -4);
+	public static final BlockPos A8_OFFSET = new BlockPos(-4, 1, -4);
 
 	public static void init() {
 		INSTANCE = new BlockChessControl();
@@ -83,7 +79,9 @@ public class BlockChessControl extends BlockContainer {
 			placer.move(MoverType.SELF, 0, 2, 0);
 		}
 		if (!world.isRemote) {
-			new ChessGameGenerator(world, pos.add(A8_OFFSET)).generate();
+			BlockPos a8 = pos.add(A8_OFFSET);
+			new ChessGameGenerator(world, a8).generate();
+			((TileEntityChessControl) world.getTileEntity(pos)).setA8(a8);
 		}
 	}
 
@@ -117,14 +115,7 @@ public class BlockChessControl extends BlockContainer {
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntityChessControl control = (TileEntityChessControl) world.getTileEntity(pos);
-
-		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
-				new ChessPieceSearchPredicate(control.getGameId()));
-
-		for (EntityChessPiece piece : pieces) {
-			piece.setDead();
-		}
-
+		control.clearBoard();
 		super.breakBlock(world, pos, state);
 	}
 

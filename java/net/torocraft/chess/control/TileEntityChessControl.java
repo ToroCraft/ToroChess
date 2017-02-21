@@ -19,6 +19,7 @@ import net.torocraft.chess.engine.MoveResult;
 import net.torocraft.chess.engine.impl.ChessRuleEngine;
 import net.torocraft.chess.enities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
+import net.torocraft.chess.gen.ChessGameGenerator;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
 
 public class TileEntityChessControl extends TileEntity {
@@ -27,11 +28,13 @@ public class TileEntityChessControl extends TileEntity {
 	private static final String NBT_SELECTED_FILE = "chessposfile";
 	private static final String NBT_GAME_ID = "chessgameid";
 	private static final String NBT_TURN = "chessturn";
+	private static final String NBT_A8 = "chessa8";
 
 	private UUID gameId;
 	private Position selectedPiece;
 	private Side turn = Side.WHITE;
 	private IChessRuleEngine ruleEngine;
+	private BlockPos a8;
 
 	public static void init() {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
@@ -45,12 +48,19 @@ public class TileEntityChessControl extends TileEntity {
 	}
 
 	public void resetBoard() {
-		// TODO
-		System.out.println("reset board requested");
+		System.out.println("reset board");
+		clearBoard();
+		ChessGameGenerator.placePieces(world, a8, gameId);
 	}
 
 	public void clearBoard() {
-		// TODO
+		System.out.println("clear board");
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+				new ChessPieceSearchPredicate(gameId));
+
+		for (EntityChessPiece piece : pieces) {
+			piece.setDead();
+		}
 	}
 
 	public void forfeit() {
@@ -184,6 +194,7 @@ public class TileEntityChessControl extends TileEntity {
 		}
 		gameId = c.getUniqueId(NBT_GAME_ID);
 		turn = CheckerBoardUtil.castSide(c.getBoolean(NBT_TURN));
+		a8 = BlockPos.fromLong(a8.toLong());
 	}
 
 	@Override
@@ -198,6 +209,7 @@ public class TileEntityChessControl extends TileEntity {
 		}
 		c.setUniqueId(NBT_GAME_ID, gameId);
 		c.setBoolean(NBT_TURN, CheckerBoardUtil.castSide(turn));
+		c.setLong(NBT_A8, a8.toLong());
 		markDirty();
 		return c;
 	}
@@ -216,18 +228,31 @@ public class TileEntityChessControl extends TileEntity {
 
 	public void setGameId(UUID gameId) {
 		this.gameId = gameId;
+		markDirty();
 	}
 
 	public void setSelectedPiece(Position selectedPiece) {
 		this.selectedPiece = selectedPiece;
+		markDirty();
 	}
 
 	public void setTurn(Side turn) {
 		this.turn = turn;
+		markDirty();
 	}
 
 	public void setRuleEngine(IChessRuleEngine ruleEngine) {
 		this.ruleEngine = ruleEngine;
+		markDirty();
+	}
+
+	public BlockPos getA8() {
+		return a8;
+	}
+
+	public void setA8(BlockPos a8) {
+		this.a8 = a8;
+		markDirty();
 	}
 
 }
