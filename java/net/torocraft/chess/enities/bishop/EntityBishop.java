@@ -2,6 +2,7 @@ package net.torocraft.chess.enities.bishop;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -41,6 +42,14 @@ public class EntityBishop extends EntityChessPiece implements IChessPiece {
 
 	public float getEyeHeight() {
 		return 1.62F;
+	}
+
+	protected SoundEvent getHurtSound() {
+		return SoundEvents.ENTITY_WITCH_HURT;
+	}
+
+	protected SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_WITCH_DEATH;
 	}
 
 }

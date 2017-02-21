@@ -2,6 +2,7 @@ package net.torocraft.chess.enities.queen;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -41,6 +42,14 @@ public class EntityQueen extends EntityChessPiece implements IChessPiece {
 	@Override
 	protected SoundEvent getAmbientSound() {
 		return null;
+	}
+
+	protected SoundEvent getHurtSound() {
+		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+	}
+
+	protected SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
 	}
 
 }

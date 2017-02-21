@@ -24,4 +24,7 @@ public interface IChessPiece {
 
 	void setA8(BlockPos pos);
 
+	boolean isInitialMove();
+
+	void setInitialMove(boolean initialMove);
 }
