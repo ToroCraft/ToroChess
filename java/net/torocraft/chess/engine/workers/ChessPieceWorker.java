@@ -40,8 +40,7 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
     }
 
     protected boolean isSpaceFree(Position position) {
-        if (position == null ||
-                !(position.rank.ordinal() >= 0 && position.rank.ordinal() < 8)) {
+        if (position == null || !(position.rank.ordinal() >= 0 && position.rank.ordinal() < 8)) {
             return false;
         }
         return positionArray[position.rank.ordinal()][position.file.ordinal()]

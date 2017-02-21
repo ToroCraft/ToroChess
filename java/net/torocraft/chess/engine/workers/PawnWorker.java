@@ -5,8 +5,6 @@ import net.torocraft.chess.engine.MoveResult;
 
 import static net.torocraft.chess.engine.ChessPieceState.Position;
 import static net.torocraft.chess.engine.ChessPieceState.Side;
-import static net.torocraft.chess.engine.ChessPieceState.Rank;
-import static net.torocraft.chess.engine.ChessPieceState.File;
 
 import java.util.List;
 
@@ -96,7 +94,7 @@ public class PawnWorker extends ChessPieceWorker {
     }
 
     private boolean isSpaceFreePawn(Position positionToCheck) {
-        return positionToCheck!= null
+        return positionToCheck != null
                 && isSpaceFree(positionToCheck)
                 && !willPutKingInCheck(positionToCheck);
     }
