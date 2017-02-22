@@ -11,7 +11,11 @@ import net.torocraft.chess.ToroChess;
 
 public class MessageChessControl implements IMessage {
 
+	public static final int COMMAND_CLEAR = 0;
+	public static final int COMMAND_RESET = 1;
+
 	public BlockPos controlBlockPos;
+	public int command;
 
 	public static void init(int packetId) {
 		ToroChess.NETWORK.registerMessage(MessageChessControl.Handler.class, MessageChessControl.class, packetId, Side.SERVER);
@@ -21,13 +25,15 @@ public class MessageChessControl implements IMessage {
 
 	}
 
-	public MessageChessControl(BlockPos controlBlockPos) {
+	public MessageChessControl(BlockPos controlBlockPos, int command) {
 		this.controlBlockPos = controlBlockPos;
+		this.command = command;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		controlBlockPos = BlockPos.fromLong(buf.readLong());
+		command = buf.readInt();
 	}
 
 	@Override
@@ -37,6 +43,7 @@ public class MessageChessControl implements IMessage {
 		} else {
 			buf.writeLong(controlBlockPos.toLong());
 		}
+		buf.writeInt(command);
 	}
 
 	public static class Handler implements IMessageHandler<MessageChessControl, IMessage> {
@@ -59,11 +66,17 @@ public class MessageChessControl implements IMessage {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			TileEntityChessControl te = (TileEntityChessControl) player.world.getTileEntity(message.controlBlockPos);
 
-			System.out.println("chess control message worker for " + message.controlBlockPos);
+			if (message.command == COMMAND_CLEAR) {
+				te.clearBoard();
+				return;
+			}
 
-			((TileEntityChessControl) player.world.getTileEntity(message.controlBlockPos)).resetBoard();
+			if (message.command == COMMAND_RESET) {
+				te.resetBoard();
+				return;
+			}
 
 		}
 

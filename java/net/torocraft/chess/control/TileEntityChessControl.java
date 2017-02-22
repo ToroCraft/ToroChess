@@ -194,7 +194,7 @@ public class TileEntityChessControl extends TileEntity {
 		}
 		gameId = c.getUniqueId(NBT_GAME_ID);
 		turn = CheckerBoardUtil.castSide(c.getBoolean(NBT_TURN));
-		a8 = BlockPos.fromLong(a8.toLong());
+		a8 = BlockPos.fromLong(c.getLong(NBT_A8));
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package net.torocraft.chess.control.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.BlockPos;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.control.MessageChessControl;
@@ -11,7 +12,7 @@ public class ChessControlGui extends GuiScreen {
 	private final BlockPos controlBlockPos;
 
 	private GuiButton buttonResetGame;
-	private GuiButton b;
+	private GuiButton buttonClearGame;
 
 	public ChessControlGui(BlockPos controlBlockPos) {
 		this.controlBlockPos = controlBlockPos;
@@ -30,19 +31,19 @@ public class ChessControlGui extends GuiScreen {
 
 	@Override
 	public void initGui() {
-		buttonList.add(buttonResetGame = new GuiButton(0, width / 2 - 100, height / 2 - 24, "Reset Game"));
-		buttonList.add(b = new GuiButton(1, width / 2 - 100, height / 2 + 4, "This is button b"));
+		buttonList.add(buttonResetGame = new GuiButton(0, width / 2 - 100, height / 2 - 24, I18n.format("gui.chesscontrol.reset", (Object) null)));
+		buttonList.add(buttonClearGame = new GuiButton(1, width / 2 - 100, height / 2 + 4, I18n.format("gui.chesscontrol.clear", (Object) null)));
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if (button == buttonResetGame) {
-			ToroChess.NETWORK.sendToServer(new MessageChessControl(controlBlockPos));
+			ToroChess.NETWORK.sendToServer(new MessageChessControl(controlBlockPos, MessageChessControl.COMMAND_RESET));
 			closeGui();
 		}
 
-		if (button == b) {
-			// Main.packetHandler.sendToServer(...);
+		if (button == buttonClearGame) {
+			ToroChess.NETWORK.sendToServer(new MessageChessControl(controlBlockPos, MessageChessControl.COMMAND_CLEAR));
 			closeGui();
 		}
 	}
