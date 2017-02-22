@@ -22,10 +22,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
-import net.torocraft.chess.engine.ChessPieceState.File;
-import net.torocraft.chess.engine.ChessPieceState.Rank;
-import net.torocraft.chess.engine.ChessPieceState.Position;
-import net.torocraft.chess.engine.ChessPieceState.Side;
+import net.torocraft.chess.engine.GamePieceState.File;
+import net.torocraft.chess.engine.GamePieceState.Position;
+import net.torocraft.chess.engine.GamePieceState.Rank;
+import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.items.ItemChessControlWand;
 
 @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)

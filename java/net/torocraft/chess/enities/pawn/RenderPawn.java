@@ -1,13 +1,13 @@
 package net.torocraft.chess.enities.pawn;
 
+import static net.torocraft.chess.engine.GamePieceState.Side.BLACK;
+
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
-
-import static net.torocraft.chess.engine.ChessPieceState.Side.BLACK;
 
 @SideOnly(Side.CLIENT)
 public class RenderPawn extends RenderLiving<EntityPawn> {

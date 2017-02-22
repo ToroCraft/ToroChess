@@ -18,10 +18,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.torocraft.chess.engine.ChessPieceState.File;
-import net.torocraft.chess.engine.ChessPieceState.Position;
-import net.torocraft.chess.engine.ChessPieceState.Rank;
-import net.torocraft.chess.engine.ChessPieceState.Side;
+import net.torocraft.chess.engine.GamePieceState.File;
+import net.torocraft.chess.engine.GamePieceState.Position;
+import net.torocraft.chess.engine.GamePieceState.Rank;
+import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.enities.ai.EntityAILookDownBoard;
 import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
 

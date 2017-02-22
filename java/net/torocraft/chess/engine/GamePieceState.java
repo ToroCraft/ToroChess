@@ -1,10 +1,8 @@
 package net.torocraft.chess.engine;
 
-public class ChessPieceState {
-	public enum Type {
-		PAWN, BISHOP, KING, KNIGHT, QUEEN, ROOK
-	}
+import net.torocraft.chess.engine.chess.ChessPieceState.Type;
 
+public abstract class GamePieceState {
 	public enum Side {
 		WHITE, BLACK
 	}
@@ -84,5 +82,4 @@ public class ChessPieceState {
 		}
 	}
 
-	//TODO add deep copy for king check testing purposes
 }

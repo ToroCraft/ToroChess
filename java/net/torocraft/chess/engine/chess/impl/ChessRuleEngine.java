@@ -1,27 +1,27 @@
-package net.torocraft.chess.engine.impl;
+package net.torocraft.chess.engine.chess.impl;
 
-import net.torocraft.chess.engine.ChessPieceState;
-import net.torocraft.chess.engine.IChessRuleEngine;
-import net.torocraft.chess.engine.MoveResult;
-import net.torocraft.chess.engine.workers.*;
+import net.torocraft.chess.engine.chess.ChessPieceState;
+import net.torocraft.chess.engine.chess.IChessRuleEngine;
+import net.torocraft.chess.engine.chess.ChessMoveResult;
+import net.torocraft.chess.engine.chess.workers.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.torocraft.chess.engine.MoveResult.Condition;
-import static net.torocraft.chess.engine.ChessPieceState.Side;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Side;
+import static net.torocraft.chess.engine.chess.ChessMoveResult.Condition;
 
 //TODO add support for castling
 //TODO add support for en passant
 //TODO add support for pawn promotion
 public class ChessRuleEngine implements IChessRuleEngine {
-    private MoveResult moveResult;
+    private ChessMoveResult moveResult;
     private List<ChessPieceState> internalState;
     private ChessPieceState internalChessPieceToMove;
     private IChessPieceWorker chessPieceWorker;
 
     @Override
-    public MoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+    public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
         internalState = state;
         internalChessPieceToMove = chessPieceToMove;
 
@@ -53,7 +53,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 chessPieceWorker = new RookWorker(internalState, internalChessPieceToMove);
                 break;
             default:
-                return new MoveResult();
+                return new ChessMoveResult();
         }
 
         getLegalMoveWithWorker();
@@ -69,29 +69,29 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
         if (isKingInCheck()) {
             if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
-                moveResult.blackCondition = MoveResult.Condition.CHECK;
-                moveResult.whiteCondition = MoveResult.Condition.CLEAR;
+                moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
+                moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
             } else {
-                moveResult.blackCondition = MoveResult.Condition.CLEAR;
-                moveResult.whiteCondition = MoveResult.Condition.CHECK;
+                moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+                moveResult.whiteCondition = ChessMoveResult.Condition.CHECK;
             }
         } else {
-            moveResult.blackCondition = MoveResult.Condition.CLEAR;
-            moveResult.whiteCondition = MoveResult.Condition.CLEAR;
+            moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+            moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
         }
     }
 
     private boolean isAKingInCheckMate() {
         //TODO
         if (isSideInCheckmate(Side.BLACK)) {
-            moveResult = new MoveResult();
-            moveResult.blackCondition = MoveResult.Condition.CHECKMATE;
-            moveResult.whiteCondition = MoveResult.Condition.CLEAR;
+            moveResult = new ChessMoveResult();
+            moveResult.blackCondition = ChessMoveResult.Condition.CHECKMATE;
+            moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
             moveResult.legalPositions = new ArrayList<>();
         } else if (isSideInCheckmate(Side.WHITE)){
-            moveResult = new MoveResult();
-            moveResult.blackCondition = MoveResult.Condition.CLEAR;
-            moveResult.whiteCondition = MoveResult.Condition.CHECKMATE;
+            moveResult = new ChessMoveResult();
+            moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+            moveResult.whiteCondition = ChessMoveResult.Condition.CHECKMATE;
             moveResult.legalPositions = new ArrayList<>();
             return true;
         }
@@ -106,7 +106,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
     private boolean isAKingInStalemate() {
         //TODO
         if (isThereAStalemate()) {
-            moveResult = new MoveResult();
+            moveResult = new ChessMoveResult();
             moveResult.blackCondition = Condition.STALEMATE;
             moveResult.whiteCondition = Condition.STALEMATE;
             moveResult.legalPositions = new ArrayList<>();

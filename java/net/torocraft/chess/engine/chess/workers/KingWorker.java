@@ -1,11 +1,11 @@
-package net.torocraft.chess.engine.workers;
+package net.torocraft.chess.engine.chess.workers;
 
-import net.torocraft.chess.engine.ChessPieceState;
-import net.torocraft.chess.engine.MoveResult;
+import net.torocraft.chess.engine.chess.ChessPieceState;
+import net.torocraft.chess.engine.chess.ChessMoveResult;
 
-import static net.torocraft.chess.engine.ChessPieceState.Position;
-import static net.torocraft.chess.engine.ChessPieceState.Rank;
-import static net.torocraft.chess.engine.ChessPieceState.File;
+import static net.torocraft.chess.engine.chess.ChessPieceState.File;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Position;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Rank;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class KingWorker extends ChessPieceWorker {
     }
 
     @Override
-    public MoveResult getLegalMoves() {
+    public ChessMoveResult getLegalMoves() {
         Position chessPiecePosition = chessPieceToMove.position;
         checkIfLegalMove(tryCreatePosition(chessPiecePosition.rank.ordinal()-1,
                 chessPiecePosition.file.ordinal()-1));

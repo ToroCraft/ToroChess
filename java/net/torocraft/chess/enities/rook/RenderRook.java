@@ -1,6 +1,6 @@
 package net.torocraft.chess.enities.rook;
 
-import static net.torocraft.chess.engine.ChessPieceState.Side.BLACK;
+import static net.torocraft.chess.engine.GamePieceState.Side.BLACK;
 
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
