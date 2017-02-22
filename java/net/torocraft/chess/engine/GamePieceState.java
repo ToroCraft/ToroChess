@@ -1,7 +1,5 @@
 package net.torocraft.chess.engine;
 
-import net.torocraft.chess.engine.chess.ChessPieceState.Type;
-
 public abstract class GamePieceState {
 	public enum Side {
 		WHITE, BLACK
