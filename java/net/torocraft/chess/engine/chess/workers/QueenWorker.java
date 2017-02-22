@@ -12,7 +12,15 @@ public class QueenWorker extends ChessPieceWorker {
 
     @Override
     public ChessMoveResult getLegalMoves() {
-        //TODO get legal moves for this piece
-        return null;
+        AdjacentChessPieceWorker adjacentWorker = new AdjacentChessPieceWorker(state,chessPieceToMove);
+        DiagonalChessPieceWorker diagonalWorker = new DiagonalChessPieceWorker(state,chessPieceToMove);
+
+        ChessMoveResult adjacentMoves = adjacentWorker.getLegalMoves();
+        ChessMoveResult diagonalMoves = diagonalWorker.getLegalMoves();
+
+        moveResult.legalPositions.addAll(adjacentMoves.legalPositions);
+        moveResult.legalPositions.addAll(diagonalMoves.legalPositions);
+
+        return moveResult;
     }
 }
