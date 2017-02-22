@@ -13,5 +13,12 @@ public interface IGameRuleEngine<PieceState extends GamePieceState, MoveResults 
 	 * @return a list of possible moves, if no moves are possible an empty list
 	 *         is returned
 	 */
+
+	public enum Game {
+		CHECKERS, CHESS
+	}
+
+	Game getGameType();
+
 	MoveResults getMoves(List<PieceState> state, PieceState chessPieceToMove);
 }
