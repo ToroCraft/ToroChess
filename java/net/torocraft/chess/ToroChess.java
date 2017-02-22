@@ -21,7 +21,7 @@ public class ToroChess {
 	public static ToroChess INSTANCE;
 
 	public static SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(ToroChess.MODID);
-	
+
 	@SidedProxy(clientSide = "net.torocraft.chess.ClientProxy", serverSide = "net.torocraft.chess.ServerProxy")
 	public static CommonProxy proxy;
 
@@ -42,7 +42,7 @@ public class ToroChess {
 
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent e) {
-		e.registerServerCommand(new ToroChessCommand());
+
 	}
 
 }
