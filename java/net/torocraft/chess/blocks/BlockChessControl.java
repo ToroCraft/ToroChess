@@ -123,7 +123,10 @@ public class BlockChessControl extends BlockContainer {
 		}
 		if (!world.isRemote) {
 			BlockPos a8 = pos.add(A8_OFFSET);
-			new ChessGameGenerator(world, a8).generate();
+
+			BlockChessControl.EnumType type = state.getValue(BlockChessControl.VARIANT);
+
+			new ChessGameGenerator(world, a8, type).generate();
 			((TileEntityChessControl) world.getTileEntity(pos)).setA8(a8);
 		}
 	}

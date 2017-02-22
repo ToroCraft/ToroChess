@@ -19,6 +19,8 @@ public class CheckerBoardGenerator {
 	 * the coordinates of board position a8
 	 */
 	private final BlockPos a8;
+	private IBlockState whiteBlock = Blocks.QUARTZ_BLOCK.getDefaultState();
+	private IBlockState blackBlock = Blocks.OBSIDIAN.getDefaultState();
 
 	private static final IBlockState STAIRS_NORTH = stairsBlock(EnumFacing.NORTH);
 	private static final IBlockState STAIRS_SOUTH = stairsBlock(EnumFacing.SOUTH);
@@ -46,7 +48,7 @@ public class CheckerBoardGenerator {
 	}
 
 	public void generate() {
-		if(world.isRemote){
+		if (world.isRemote) {
 			return;
 		}
 		placeCheckerBlocks();
@@ -56,7 +58,6 @@ public class CheckerBoardGenerator {
 		// TODO clear top
 	}
 
-	
 	private static final BlockPos WHITE_PODIUM = new BlockPos(3, -1, -2);
 	private static final BlockPos BLACK_PODIUM = new BlockPos(3, -1, 9);
 
@@ -226,9 +227,9 @@ public class CheckerBoardGenerator {
 
 	private IBlockState defineCheckerBlock() {
 		if (isWhiteBlock()) {
-			return Blocks.QUARTZ_BLOCK.getDefaultState();
+			return whiteBlock;
 		} else {
-			return Blocks.OBSIDIAN.getDefaultState();
+			return blackBlock;
 		}
 	}
 
@@ -242,5 +243,21 @@ public class CheckerBoardGenerator {
 
 	private static IBlockState stairsBlock(EnumFacing facing) {
 		return Blocks.QUARTZ_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, facing);
+	}
+
+	public IBlockState getWhiteBlock() {
+		return whiteBlock;
+	}
+
+	public void setWhiteBlock(IBlockState whiteBlock) {
+		this.whiteBlock = whiteBlock;
+	}
+
+	public IBlockState getBlackBlock() {
+		return blackBlock;
+	}
+
+	public void setBlackBlock(IBlockState blackBlock) {
+		this.blackBlock = blackBlock;
 	}
 }
