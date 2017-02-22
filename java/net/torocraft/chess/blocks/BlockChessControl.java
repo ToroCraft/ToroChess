@@ -2,8 +2,13 @@ package net.torocraft.chess.blocks;
 
 import java.util.UUID;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -20,16 +25,23 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessGuiHandler;
 import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class BlockChessControl extends BlockContainer {
+
+	public static final PropertyEnum<BlockChessControl.EnumType> VARIANT = PropertyEnum.<BlockChessControl.EnumType> create("variant",
+			BlockChessControl.EnumType.class);
 
 	public static final String NAME = "chess_control";
 
@@ -49,8 +61,39 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
 
-		GameRegistry.addRecipe(new ItemStack(BlockChessControl.ITEM_INSTANCE), " Q ", "OSQ", "   ", 'Q', new ItemStack(Blocks.QUARTZ_BLOCK, 32), 'O',
-				new ItemStack(Blocks.OBSIDIAN, 32), 'S', Items.GOLDEN_SWORD);
+		initRecipes();
+	}
+
+	private static void initRecipes() {
+
+		addRecipe(Blocks.QUARTZ_BLOCK, Blocks.OBSIDIAN, EnumType.QUARTZ_OBSIDIAN);
+
+		// addRecipe(Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR,
+		// EnumDyeColor.WHITE),
+		// Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR,
+		// EnumDyeColor.BLACK), EnumType.GLASS);
+	}
+
+	private static void addRecipe(Block white, Block black, EnumType type) {
+
+		ItemStack controlBlock = new ItemStack(BlockChessControl.ITEM_INSTANCE);
+		controlBlock.setItemDamage(type.meta);
+
+		GameRegistry.addRecipe(controlBlock,
+
+				"   ", "BSF", "WDB",
+
+				'D', new ItemStack(Items.DIAMOND),
+
+				'W', new ItemStack(white, 32),
+
+				'B', new ItemStack(black, 32),
+
+				'S', new ItemStack(Items.GOLDEN_SWORD),
+
+				'B', new ItemStack(Items.BONE, 32),
+
+				'F', new ItemStack(Items.ROTTEN_FLESH, 32));
 	}
 
 	@Override
@@ -129,5 +172,92 @@ public class BlockChessControl extends BlockContainer {
 		player.openGui(ToroChess.INSTANCE, ToroChessGuiHandler.CHESS_CONTROL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
 
 		return true;
+	}
+
+	/**
+	 * returns a list of blocks with the same ID, but different meta (eg: wood
+	 * returns 4 blocks)
+	 */
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
+		for (BlockPlanks.EnumType blockplanks$enumtype : BlockPlanks.EnumType.values()) {
+			list.add(new ItemStack(itemIn, 1, blockplanks$enumtype.getMetadata()));
+		}
+	}
+
+	/**
+	 * Convert the given metadata into a BlockState for this Block
+	 */
+	public IBlockState getStateFromMeta(int meta) {
+		return this.getDefaultState().withProperty(VARIANT, BlockChessControl.EnumType.byMetadata(meta));
+	}
+
+	/**
+	 * Convert the BlockState into the correct metadata value
+	 */
+	public int getMetaFromState(IBlockState state) {
+		return ((BlockChessControl.EnumType) state.getValue(VARIANT)).getMetadata();
+	}
+
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { VARIANT });
+	}
+
+	public static enum EnumType implements IStringSerializable {
+
+		QUARTZ_OBSIDIAN(0, "quartz_obsidian"),
+		GLASS(1, "glass"),
+		WOOD(2, "wood"),
+		METAL(3, "metal"),
+		DIAMOND_LAPIS(4, "lapis"),
+		NETHER(5, "nether"),
+		DIORITE_GRANITE(6, "diorite_granite"),
+		WOOL(7, "wool"),
+		ENDSTONE_GLOWSTONE(8, "endstone_glowstone");
+
+		private static final EnumType[] META_LOOKUP = new EnumType[values().length];
+		private final int meta;
+		private final String name;
+		private final String unlocalizedName;
+
+		private EnumType(int metaIn, String nameIn) {
+			this(metaIn, nameIn, nameIn);
+		}
+
+		private EnumType(int metaIn, String nameIn, String unlocalizedNameIn) {
+			this.meta = metaIn;
+			this.name = nameIn;
+			this.unlocalizedName = unlocalizedNameIn;
+		}
+
+		public int getMetadata() {
+			return this.meta;
+		}
+
+		public String toString() {
+			return this.name;
+		}
+
+		public static BlockChessControl.EnumType byMetadata(int meta) {
+			if (meta < 0 || meta >= META_LOOKUP.length) {
+				meta = 0;
+			}
+
+			return META_LOOKUP[meta];
+		}
+
+		public String getName() {
+			return this.name;
+		}
+
+		public String getUnlocalizedName() {
+			return this.unlocalizedName;
+		}
+
+		static {
+			for (BlockChessControl.EnumType type : values()) {
+				META_LOOKUP[type.getMetadata()] = type;
+			}
+		}
 	}
 }
