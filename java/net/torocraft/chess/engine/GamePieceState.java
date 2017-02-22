@@ -15,7 +15,6 @@ public abstract class GamePieceState {
 		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
 	}
 
-	public Type type;
 	public Position position;
 	public Side side;
 	public boolean isInitialMove;
