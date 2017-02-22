@@ -7,5 +7,6 @@ public class ChessPieceState extends GamePieceState {
 		PAWN, BISHOP, KING, KNIGHT, QUEEN, ROOK
 	}
 
-	// TODO add deep copy for king check testing purposes
+	public Type type;
+
 }

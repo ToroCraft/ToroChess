@@ -1,7 +1,5 @@
 package net.torocraft.chess.engine;
 
-import net.torocraft.chess.engine.chess.ChessPieceState.Type;
-
 public abstract class GamePieceState {
 	public enum Side {
 		WHITE, BLACK
@@ -15,7 +13,6 @@ public abstract class GamePieceState {
 		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
 	}
 
-	public Type type;
 	public Position position;
 	public Side side;
 	public boolean isInitialMove;
