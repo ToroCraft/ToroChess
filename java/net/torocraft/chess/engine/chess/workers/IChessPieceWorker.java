@@ -5,5 +5,4 @@ import net.torocraft.chess.engine.IGamePieceWorker;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 
 public interface IChessPieceWorker extends IGamePieceWorker<ChessMoveResult> {
-	boolean willPutKingInCheck(Position positionToMoveCurrentPieceTo);
 }

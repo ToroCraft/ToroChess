@@ -9,4 +9,14 @@ public class ChessPieceState extends GamePieceState {
 
 	public Type type;
 
+	public ChessPieceState() {
+
+    }
+
+	public ChessPieceState(ChessPieceState chessPieceState) {
+	    this.type = chessPieceState.type;
+	    this.side = chessPieceState.side;
+	    this.isInitialMove = chessPieceState.isInitialMove;
+	    this.position = new Position(chessPieceState.position);
+    }
 }
