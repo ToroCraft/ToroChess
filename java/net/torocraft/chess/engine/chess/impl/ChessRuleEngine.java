@@ -9,120 +9,145 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static net.torocraft.chess.engine.chess.ChessPieceState.Side;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Type;
+import static net.torocraft.chess.engine.GamePieceState.Position;
 import static net.torocraft.chess.engine.chess.ChessMoveResult.Condition;
 
 //TODO add support for castling
 //TODO add support for en passant
 //TODO add support for pawn promotion
 public class ChessRuleEngine implements IChessRuleEngine {
-    private ChessMoveResult moveResult;
-    private List<ChessPieceState> internalState;
-    private ChessPieceState internalChessPieceToMove;
-    private IChessPieceWorker chessPieceWorker;
+	private ChessMoveResult moveResult;
+	private List<ChessPieceState> internalState;
+	private ChessPieceState internalChessPieceToMove;
+    private ChessPieceState currentKingState;
+	private boolean isKingInCheck = false;
 
-    @Override
-    public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
-        internalState = state;
-        internalChessPieceToMove = chessPieceToMove;
+	@Override
+	public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+		internalState = state;
+		internalChessPieceToMove = chessPieceToMove;
 
-        if (isAKingInCheckMate()) {
-            return moveResult;
-        }
+        currentKingState = getCurrentKingState();
+		isKingInCheck = isKingInCheck();
+		if (isKingInCheckMate() || isKingInStalemate()) {
+			return moveResult;
+		}
 
-        if (isAKingInStalemate()) {
-            return moveResult;
-        }
+		IChessPieceWorker chessPieceWorker = getChessPieceWorker(internalChessPieceToMove);
+		if (chessPieceWorker == null) {
+			return new ChessMoveResult();
+		}
+		moveResult = chessPieceWorker.getLegalMoves();
 
-        switch (chessPieceToMove.type) {
-            case BISHOP:
-                chessPieceWorker = new BishopWorker(internalState, internalChessPieceToMove);
-                break;
-            case KING:
-                chessPieceWorker = new KingWorker(internalState, internalChessPieceToMove);
-                break;
-            case KNIGHT:
-                chessPieceWorker = new KnightWorker(internalState, internalChessPieceToMove);
-                break;
-            case PAWN:
-                chessPieceWorker = new PawnWorker(internalState, internalChessPieceToMove);
-                break;
-            case QUEEN:
-                chessPieceWorker = new QueenWorker(internalState, internalChessPieceToMove);
-                break;
-            case ROOK:
-                chessPieceWorker = new RookWorker(internalState, internalChessPieceToMove);
-                break;
-            default:
-                return new ChessMoveResult();
-        }
+		updateBoardCondition();
 
-        getLegalMoveWithWorker();
+		System.out.println("\nCURRENT BOARD STATE:" +
+				"\nBlack: " + moveResult.blackCondition.toString() +
+				"\n White: " + moveResult.whiteCondition.toString());
+		return moveResult;
+	}
 
-        return moveResult;
-    }
-
-    private void getLegalMoveWithWorker() {
-        if (chessPieceWorker == null) {
-            return;
-        }
-        moveResult = chessPieceWorker.getLegalMoves();
-
-        if (isKingInCheck()) {
-            if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
-                moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
-                moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
-            } else {
-                moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
-                moveResult.whiteCondition = ChessMoveResult.Condition.CHECK;
+	private ChessPieceState getCurrentKingState() {
+	    for (ChessPieceState currentChessPieceState : internalState) {
+	        if (currentChessPieceState.side.equals(internalChessPieceToMove.side)
+                    && currentChessPieceState.type.equals(Type.KING)) {
+	            return currentChessPieceState;
             }
-        } else {
-            moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
-            moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
         }
+        return null;
     }
 
-    private boolean isAKingInCheckMate() {
-        //TODO
-        if (isSideInCheckmate(Side.BLACK)) {
-            moveResult = new ChessMoveResult();
-            moveResult.blackCondition = ChessMoveResult.Condition.CHECKMATE;
-            moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
-            moveResult.legalPositions = new ArrayList<>();
-        } else if (isSideInCheckmate(Side.WHITE)){
-            moveResult = new ChessMoveResult();
-            moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
-            moveResult.whiteCondition = ChessMoveResult.Condition.CHECKMATE;
-            moveResult.legalPositions = new ArrayList<>();
-            return true;
-        }
-        return false;
-    }
+	private ChessPieceWorker getChessPieceWorker(ChessPieceState chessPieceToCheck) {
+		if (chessPieceToCheck == null) {
+			return null;
+		}
+		switch (chessPieceToCheck.type) {
+			case BISHOP:
+				return new BishopWorker(internalState, chessPieceToCheck);
+			case KING:
+				return new KingWorker(internalState, chessPieceToCheck);
+			case KNIGHT:
+				return new KnightWorker(internalState, chessPieceToCheck);
+			case PAWN:
+				return new PawnWorker(internalState, chessPieceToCheck);
+			case QUEEN:
+				return new QueenWorker(internalState, chessPieceToCheck);
+			case ROOK:
+				return new RookWorker(internalState, chessPieceToCheck);
+			default:
+				return null;
+		}
+	}
 
-    private boolean isSideInCheckmate(Side side) {
-        //TODO logic checking if side is in checkmate
-        return false;
-    }
+	private void updateBoardCondition() {
+		if (isKingInCheck) {
+			if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
+				moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
+				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
+			} else {
+				moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+				moveResult.whiteCondition = ChessMoveResult.Condition.CHECK;
+			}
+		} else {
+			moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+			moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
+		}
+	}
 
-    private boolean isAKingInStalemate() {
-        //TODO
-        if (isThereAStalemate()) {
-            moveResult = new ChessMoveResult();
-            moveResult.blackCondition = Condition.STALEMATE;
-            moveResult.whiteCondition = Condition.STALEMATE;
-            moveResult.legalPositions = new ArrayList<>();
-            return true;
-        }
-        return false;
-    }
+	private boolean isKingInCheckMate() {
+		if (isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
+			if (internalChessPieceToMove.side.equals(Side.BLACK)) {
+				moveResult = new ChessMoveResult();
+				moveResult.blackCondition = ChessMoveResult.Condition.CHECKMATE;
+				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
+				moveResult.legalPositions = new ArrayList<>();
+			} else {
+				moveResult = new ChessMoveResult();
+				moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
+				moveResult.whiteCondition = ChessMoveResult.Condition.CHECKMATE;
+				moveResult.legalPositions = new ArrayList<>();
+			}
+			return true;
+		}
+		return false;
+	}
 
-    private boolean isThereAStalemate() {
-        //TODO logic checking if side is in stalemate
-        //TODO look at piece wanting to move
-        return false;
-    }
+	private boolean isKingInStalemate() {
+		if (!isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
+			moveResult = new ChessMoveResult();
+			moveResult.blackCondition = Condition.STALEMATE;
+			moveResult.whiteCondition = Condition.STALEMATE;
+			moveResult.legalPositions = new ArrayList<>();
+			return true;
+		}
+		return false;
+	}
 
-    private boolean isKingInCheck() {
-        //TODO check is king is currently in check for current side
-        return false;
-    }
+	private boolean areAnyLegalMovesForCurrentSide() {
+		for (ChessPieceState chessPieceState : internalState) {
+			if (chessPieceState.side.equals(internalChessPieceToMove.side)) {
+				ChessMoveResult moveResult = getChessPieceWorker(chessPieceState).getLegalMoves();
+				if (moveResult.legalPositions.size() > 1) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isKingInCheck() {
+		for (ChessPieceState chessPieceState : internalState) {
+			if (!chessPieceState.side.equals(internalChessPieceToMove.side)) {
+				ChessMoveResult moveResult = getChessPieceWorker(chessPieceState).getLegalMoves();
+				for (Position position : moveResult.legalPositions) {
+				    if (position.rank.equals(currentKingState.position.rank)
+                            && position.file.equals(currentKingState.position.file)) {
+				        return true;
+                    }
+                }
+			}
+		}
+		return false;
+	}
 }
