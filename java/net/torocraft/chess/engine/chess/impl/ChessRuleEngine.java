@@ -20,15 +20,20 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	private ChessMoveResult moveResult;
 	private List<ChessPieceState> internalState;
 	private ChessPieceState internalChessPieceToMove;
-    private ChessPieceState currentKingState;
+	private ChessPieceState currentKingState;
 	private boolean isKingInCheck = false;
+
+	@Override
+	public Game getGameType() {
+		return Game.CHESS;
+	}
 
 	@Override
 	public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
 		internalState = state;
 		internalChessPieceToMove = chessPieceToMove;
 
-        currentKingState = getCurrentKingState();
+		currentKingState = getCurrentKingState();
 		isKingInCheck = isKingInCheck();
 		if (isKingInCheckMate() || isKingInStalemate()) {
 			return moveResult;
@@ -49,14 +54,14 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	}
 
 	private ChessPieceState getCurrentKingState() {
-	    for (ChessPieceState currentChessPieceState : internalState) {
-	        if (currentChessPieceState.side.equals(internalChessPieceToMove.side)
-                    && currentChessPieceState.type.equals(Type.KING)) {
-	            return currentChessPieceState;
-            }
-        }
-        return null;
-    }
+		for (ChessPieceState currentChessPieceState : internalState) {
+			if (currentChessPieceState.side.equals(internalChessPieceToMove.side)
+					&& currentChessPieceState.type.equals(Type.KING)) {
+				return currentChessPieceState;
+			}
+		}
+		return null;
+	}
 
 	private ChessPieceWorker getChessPieceWorker(ChessPieceState chessPieceToCheck) {
 		if (chessPieceToCheck == null) {
@@ -141,11 +146,11 @@ public class ChessRuleEngine implements IChessRuleEngine {
 			if (!chessPieceState.side.equals(internalChessPieceToMove.side)) {
 				ChessMoveResult moveResult = getChessPieceWorker(chessPieceState).getLegalMoves();
 				for (Position position : moveResult.legalPositions) {
-				    if (position.rank.equals(currentKingState.position.rank)
-                            && position.file.equals(currentKingState.position.file)) {
-				        return true;
-                    }
-                }
+					if (position.rank.equals(currentKingState.position.rank)
+							&& position.file.equals(currentKingState.position.file)) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;

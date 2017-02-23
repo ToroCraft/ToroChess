@@ -3,9 +3,9 @@ package net.torocraft.chess.engine.chess.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.torocraft.chess.engine.chess.ChessMoveResult;
 import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
-import net.torocraft.chess.engine.chess.ChessMoveResult;
 
 public class TestingHighlightPiecesRuleEngine implements IChessRuleEngine {
 	@Override
@@ -16,5 +16,10 @@ public class TestingHighlightPiecesRuleEngine implements IChessRuleEngine {
 			r.legalPositions.add(pieceState.position);
 		}
 		return r;
+	}
+
+	@Override
+	public Game getGameType() {
+		return Game.CHESS;
 	}
 }
