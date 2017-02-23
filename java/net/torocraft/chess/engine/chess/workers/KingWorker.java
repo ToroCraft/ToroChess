@@ -55,10 +55,7 @@ public class KingWorker extends ChessPieceWorker {
         }
     }
 
-    private void checkCastleMoves(){
-        if (willPutKingInCheck(chessPieceToMove.position)) {
-            return;
-        }
+    private void checkCastleMoves() {
         checkIfCanCastleOnQueenSide();
         checkIfCanCastleOnKingSide();
     }
