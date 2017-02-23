@@ -6,6 +6,7 @@ import net.torocraft.chess.engine.chess.ChessMoveResult;
 import static net.torocraft.chess.engine.chess.ChessPieceState.File;
 import static net.torocraft.chess.engine.chess.ChessPieceState.Position;
 import static net.torocraft.chess.engine.chess.ChessPieceState.Rank;
+import static net.torocraft.chess.engine.chess.ChessPieceState.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
     protected final ChessPieceState chessPieceToMove;
     protected ChessMoveResult moveResult;
     protected ChessPieceState[][] positionArray;
+    private List<ChessPieceState> stateClone;
 
     public ChessPieceWorker(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
         this.state = state;
@@ -23,12 +25,6 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
         moveResult.legalPositions = new ArrayList<>();
         positionArray = new ChessPieceState[8][8];
         populatePositionArray();
-    }
-
-    @Override
-    public boolean willPutKingInCheck(Position positionToMoveCurrentPieceTo) {
-        //TODO, check updated state for king in check
-        return false;
     }
 
     private void populatePositionArray() {
@@ -42,8 +38,7 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
         if (position == null || !(position.rank.ordinal() >= 0 && position.rank.ordinal() < 8)) {
             return false;
         }
-        return positionArray[position.rank.ordinal()][position.file.ordinal()]
-                == null;
+        return positionArray[position.rank.ordinal()][position.file.ordinal()] == null;
     }
 
     protected boolean isEnemyOccupying(Position position) {
@@ -79,6 +74,54 @@ public abstract class ChessPieceWorker implements IChessPieceWorker {
         if (rank >= 0 && rank < 8 && file >= 0 && file < 8) {
             return new Position(File.values()[file],
                     Rank.values()[rank]);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean willPutKingInCheck(Position positionToMoveCurrentPieceTo) {
+        cloneState();
+        ChessPieceState spoofedChessPieceState = new ChessPieceState(chessPieceToMove);
+
+        spoofedChessPieceState.position = positionToMoveCurrentPieceTo;
+        stateClone.add(spoofedChessPieceState);
+        return isKingInCheck();
+    }
+
+    private void cloneState() {
+        stateClone = new ArrayList<>();
+        for (ChessPieceState pieceToClone : state) {
+            if (pieceToClone.type.equals(chessPieceToMove.type)
+                    && pieceToClone.position.rank.equals(chessPieceToMove.position.rank)
+                    && pieceToClone.position.file.equals(chessPieceToMove.position.file)) {
+                continue;
+            }
+            stateClone.add(new ChessPieceState(pieceToClone));
+        }
+    }
+
+    private boolean isKingInCheck() {
+        if (stateClone == null || stateClone.size() < 1) {
+            return false;
+        }
+        ChessPieceState currentKingState = getCurrentKingState();
+        if (currentKingState == null) {
+            return false;
+        }
+        //TODO pretend king is a queen, and a knight, and step outwards
+        //TODO until he hits the pieces, and if any are enemy and are a type that can eat him, then in check
+        return false;
+    }
+
+    private ChessPieceState getCurrentKingState() {
+        if (stateClone == null) {
+            return null;
+        }
+        for (ChessPieceState currentChessPieceState : stateClone) {
+            if (currentChessPieceState.side.equals(chessPieceToMove.side)
+                    && currentChessPieceState.type.equals(Type.KING)) {
+                return currentChessPieceState;
+            }
         }
         return null;
     }

@@ -142,6 +142,8 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	}
 
 	private boolean isKingInCheck() {
+		//TODO pretend king is a queen, and a knight, and step outwards
+		//TODO until he hits the pieces, and if any are enemy and are a type that can eat him, then in check
 		for (ChessPieceState chessPieceState : internalState) {
 			if (!chessPieceState.side.equals(internalChessPieceToMove.side)) {
 				ChessMoveResult moveResult = getChessPieceWorker(chessPieceState).getLegalMoves();

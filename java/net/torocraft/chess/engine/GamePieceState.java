@@ -1,6 +1,10 @@
 package net.torocraft.chess.engine;
 
 public abstract class GamePieceState {
+    public Position position;
+    public Side side;
+    public boolean isInitialMove;
+
 	public enum Side {
 		WHITE, BLACK
 	}
@@ -12,10 +16,6 @@ public abstract class GamePieceState {
 	public enum Rank {
 		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
 	}
-
-	public Position position;
-	public Side side;
-	public boolean isInitialMove;
 
 	public static class Position {
 		public File file;
@@ -31,6 +31,11 @@ public abstract class GamePieceState {
 			this.file = file;
 			this.rank = rank;
 		}
+
+		public Position(Position position) {
+		    this.file = position.file;
+		    this.rank = position.rank;
+        }
 
 		@Override
 		public String toString() {
