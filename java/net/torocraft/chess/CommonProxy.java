@@ -26,6 +26,8 @@ public class CommonProxy {
 		ExtendedReachHandler.init();
 		ToroChessGuiHandler.init();
 		ItemChessControlWand.init();
+		BlockChessControl.init();
+		BlockChessControl.initRecipes();
 	}
 
 	public void init(FMLInitializationEvent e) {
@@ -37,7 +39,7 @@ public class CommonProxy {
 		EntityQueen.init(entityId++);
 		EntityRook.init(entityId++);
 		TileEntityChessControl.init();
-		BlockChessControl.init();
+
 	}
 
 	public void postInit(FMLPostInitializationEvent e) {

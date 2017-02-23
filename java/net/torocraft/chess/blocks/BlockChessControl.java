@@ -4,11 +4,7 @@ import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -17,22 +13,19 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessGuiHandler;
 import net.torocraft.chess.control.TileEntityChessControl;
@@ -40,16 +33,12 @@ import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class BlockChessControl extends BlockContainer {
 
-	public static final PropertyEnum<BlockChessControl.EnumType> VARIANT = PropertyEnum.<BlockChessControl.EnumType> create("variant",
-			BlockChessControl.EnumType.class);
-
+	public static final String NBT_TYPE = "chesstype";
 	public static final String NAME = "chess_control";
+	public static final BlockPos A8_OFFSET = new BlockPos(-4, 1, -4);
 
 	public static BlockChessControl INSTANCE;
-
 	public static Item ITEM_INSTANCE;
-
-	public static final BlockPos A8_OFFSET = new BlockPos(-4, 1, -4);
 
 	public static void init() {
 		INSTANCE = new BlockChessControl();
@@ -61,12 +50,14 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
 
-		initRecipes();
+		// initRecipes();
 	}
 
-	private static void initRecipes() {
+	public static void initRecipes() {
 
-		addRecipe(Blocks.QUARTZ_BLOCK, Blocks.OBSIDIAN, EnumType.QUARTZ_OBSIDIAN);
+		// addRecipe(Blocks.QUARTZ_BLOCK, Blocks.OBSIDIAN,
+		// EnumType.QUARTZ_OBSIDIAN);
+		addRecipe(Blocks.GLASS, Blocks.GLASS, EnumType.GLASS);
 
 		// addRecipe(Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR,
 		// EnumDyeColor.WHITE),
@@ -77,23 +68,39 @@ public class BlockChessControl extends BlockContainer {
 	private static void addRecipe(Block white, Block black, EnumType type) {
 
 		ItemStack controlBlock = new ItemStack(BlockChessControl.ITEM_INSTANCE);
-		controlBlock.setItemDamage(type.meta);
+		NBTTagCompound c = new NBTTagCompound();
+		c.setInteger(NBT_TYPE, type.getMetadata());
+		controlBlock.setTagCompound(c);
 
-		GameRegistry.addRecipe(controlBlock,
+		System.out.println("created a recipe for meta " + type);
 
-				"   ", "BSF", "WDB",
+		/*
+		 * GameRegistry.addRecipe(controlBlock,
+		 * 
+		 * "   ", "BSF", "WDB",
+		 * 
+		 * 'D', new ItemStack(Blocks.DIAMOND_BLOCK),
+		 * 
+		 * 'W', new ItemStack(white, 32),
+		 * 
+		 * 'B', new ItemStack(black, 32),
+		 * 
+		 * 'S', new ItemStack(Items.GOLDEN_SWORD),
+		 * 
+		 * 'B', new ItemStack(Items.BONE, 32),
+		 * 
+		 * 'F', new ItemStack(Items.ROTTEN_FLESH, 32));
+		 */
 
-				'D', new ItemStack(Items.DIAMOND),
+		GameRegistry.addShapelessRecipe(controlBlock,
 
-				'W', new ItemStack(white, 32),
+				new ItemStack(white, 32));
 
-				'B', new ItemStack(black, 32),
-
-				'S', new ItemStack(Items.GOLDEN_SWORD),
-
-				'B', new ItemStack(Items.BONE, 32),
-
-				'F', new ItemStack(Items.ROTTEN_FLESH, 32));
+		// GameRegistry.addRecipe(controlBlock,
+		//
+		// " ", " ", " D ",
+		//
+		// 'D', new ItemStack(Blocks.DIAMOND_BLOCK));
 	}
 
 	@Override
@@ -124,7 +131,12 @@ public class BlockChessControl extends BlockContainer {
 		if (!world.isRemote) {
 			BlockPos a8 = pos.add(A8_OFFSET);
 
-			BlockChessControl.EnumType type = state.getValue(BlockChessControl.VARIANT);
+			BlockChessControl.EnumType type = BlockChessControl.EnumType.QUARTZ_OBSIDIAN;
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_TYPE)) {
+				type = BlockChessControl.EnumType.byMetadata(stack.getTagCompound().getInteger(NBT_TYPE));
+			}
+
+			System.out.println("onBlockPlacedBy: type=" + type);
 
 			new ChessGameGenerator(world, a8, type).generate();
 			((TileEntityChessControl) world.getTileEntity(pos)).setA8(a8);
@@ -175,35 +187,6 @@ public class BlockChessControl extends BlockContainer {
 		player.openGui(ToroChess.INSTANCE, ToroChessGuiHandler.CHESS_CONTROL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
 
 		return true;
-	}
-
-	/**
-	 * returns a list of blocks with the same ID, but different meta (eg: wood
-	 * returns 4 blocks)
-	 */
-	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
-		for (BlockPlanks.EnumType blockplanks$enumtype : BlockPlanks.EnumType.values()) {
-			list.add(new ItemStack(itemIn, 1, blockplanks$enumtype.getMetadata()));
-		}
-	}
-
-	/**
-	 * Convert the given metadata into a BlockState for this Block
-	 */
-	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(VARIANT, BlockChessControl.EnumType.byMetadata(meta));
-	}
-
-	/**
-	 * Convert the BlockState into the correct metadata value
-	 */
-	public int getMetaFromState(IBlockState state) {
-		return ((BlockChessControl.EnumType) state.getValue(VARIANT)).getMetadata();
-	}
-
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { VARIANT });
 	}
 
 	public static enum EnumType implements IStringSerializable {

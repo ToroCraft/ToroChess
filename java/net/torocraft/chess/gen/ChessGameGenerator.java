@@ -167,7 +167,7 @@ public class ChessGameGenerator {
 			return;
 		case GLASS:
 			whiteBlock = Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.WHITE);
-			blackBlock = Blocks.GLOWSTONE.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.BLACK);
+			blackBlock = Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.BLACK);
 			return;
 		case METAL:
 			whiteBlock = Blocks.IRON_BLOCK.getDefaultState();
