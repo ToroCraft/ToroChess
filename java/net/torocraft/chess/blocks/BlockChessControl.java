@@ -13,15 +13,18 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -101,6 +104,39 @@ public class BlockChessControl extends BlockContainer {
 		// " ", " ", " D ",
 		//
 		// 'D', new ItemStack(Blocks.DIAMOND_BLOCK));
+	}
+
+	public static class ChessControlRecipe implements IRecipe {
+
+		@Override
+		public boolean matches(InventoryCrafting inv, World worldIn) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public ItemStack getCraftingResult(InventoryCrafting inv) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int getRecipeSize() {
+			return 10;
+		}
+
+		@Override
+		public ItemStack getRecipeOutput() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	@Override
