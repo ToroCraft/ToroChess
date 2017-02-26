@@ -47,10 +47,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 		updateBoardCondition();
 		updateMoveResult();
-
-		System.out.println("\nCURRENT BOARD STATE:" +
-				"\nBlack: " + moveResult.blackCondition.toString() +
-				"\n White: " + moveResult.whiteCondition.toString());
+		
 		return moveResult;
 	}
 
@@ -88,6 +85,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	private void updateBoardCondition() {
 		if (isKingInCheck) {
+		    //TODO if king is in check, remove available castling positions
 			if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
 				moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
 				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
@@ -104,7 +102,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	private void updateMoveResult() {
 	    List<Position> positionListOverride = new ArrayList<>();
 	    for (Position position : moveResult.legalPositions) {
-            if (!willPutKingInCheck(position)) {
+            if (!willPutKingInCheck(internalChessPieceToMove, position)) {
                 positionListOverride.add(new Position(position));
             }
         }
@@ -112,7 +110,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
     }
 
 	private boolean isKingInCheckMate() {
-	    //TODO fix checkmate logic
 		if (isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
 			if (internalChessPieceToMove.side.equals(Side.BLACK)) {
 				moveResult = new ChessMoveResult();
@@ -131,7 +128,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	}
 
 	private boolean isKingInStalemate() {
-	    //TODO fix stalemate logic
 		if (!isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
 			moveResult = new ChessMoveResult();
 			moveResult.blackCondition = Condition.STALEMATE;
@@ -145,14 +141,24 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	private boolean areAnyLegalMovesForCurrentSide() {
 		for (ChessPieceState chessPieceState : internalState) {
 			if (chessPieceState.side.equals(internalChessPieceToMove.side)) {
-				ChessMoveResult moveResult = getChessPieceWorker(internalState, chessPieceState).getLegalMoves();
-				if (moveResult.legalPositions.size() > 1) {
+				ChessMoveResult legalMovesMoveResult = getChessPieceWorker(internalState, chessPieceState).getLegalMoves();
+				if (getLegalListOfPositions(chessPieceState, legalMovesMoveResult).size() > 0) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
+
+	private List<Position> getLegalListOfPositions(ChessPieceState chessPieceToMove, ChessMoveResult moveResultToCheck) {
+        List<Position> positionListOverride = new ArrayList<>();
+        for (Position position : moveResultToCheck.legalPositions) {
+            if (!willPutKingInCheck(chessPieceToMove, position)) {
+                positionListOverride.add(new Position(position));
+            }
+        }
+        return positionListOverride;
+    }
 
 	private boolean isKingInCheck() {
 		for (ChessPieceState chessPieceState : internalState) {
@@ -169,20 +175,20 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		return false;
 	}
 
-    public boolean willPutKingInCheck(Position positionToMoveCurrentPieceTo) {
-        List<ChessPieceState> stateClone = cloneState();
-        ChessPieceState spoofedChessPieceState = new ChessPieceState(internalChessPieceToMove);
+    public boolean willPutKingInCheck(ChessPieceState chessPieceToMove, Position positionToMoveCurrentPieceTo) {
+        List<ChessPieceState> stateClone = cloneState(chessPieceToMove);
+        ChessPieceState spoofedChessPieceState = new ChessPieceState(chessPieceToMove);
         spoofedChessPieceState.position = positionToMoveCurrentPieceTo;
         stateClone.add(spoofedChessPieceState);
         return isKingInCheckCloned(stateClone, spoofedChessPieceState);
     }
 
-    private List<ChessPieceState> cloneState() {
+    private List<ChessPieceState> cloneState(ChessPieceState chessPieceToMove) {
         List<ChessPieceState> stateClone = new ArrayList<>();
         for (ChessPieceState pieceToClone : internalState) {
-            if (pieceToClone.type.equals(internalChessPieceToMove.type)
-                    && pieceToClone.position.rank.equals(internalChessPieceToMove.position.rank)
-                    && pieceToClone.position.file.equals(internalChessPieceToMove.position.file)) {
+            if (pieceToClone.type.equals(chessPieceToMove.type)
+                    && pieceToClone.position.rank.equals(chessPieceToMove.position.rank)
+                    && pieceToClone.position.file.equals(chessPieceToMove.position.file)) {
                 continue;
             }
             stateClone.add(new ChessPieceState(pieceToClone));
