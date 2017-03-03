@@ -183,23 +183,22 @@ public class TileEntityChessControl extends TileEntity {
 	private void updateValidMoves(EntityChessPiece piece) {
 		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(piece), CheckerBoardUtil.convertToState(piece));
 
-        System.out.println(moves.blackCondition + " " + moves.whiteCondition);
 		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
-		    initiateCheckmate(Side.BLACK, piece);
-        } else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
-            initiateCheckmate(Side.WHITE, piece);
-        }
+			initiateCheckmate(Side.BLACK, piece);
+		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
+			initiateCheckmate(Side.WHITE, piece);
+		}
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
 	private void initiateCheckmate(Side losingSide, EntityChessPiece piece) {
-        for (ChessPieceState chessPieceState : CheckerBoardUtil.loadPiecesFromWorld(piece)) {
-            EntityChessPiece chessPiece = CheckerBoardUtil.getPiece(world, chessPieceState.position, a8, gameId);
-            if (chessPiece != null && !chessPiece.getSide().equals(losingSide)) {
-                chessPiece.initiateWinCondition();
-            }
-        }
-    }
+		for (ChessPieceState chessPieceState : CheckerBoardUtil.loadPiecesFromWorld(piece)) {
+			EntityChessPiece chessPiece = CheckerBoardUtil.getPiece(world, chessPieceState.position, a8, gameId);
+			if (chessPiece != null && !chessPiece.getSide().equals(losingSide)) {
+				chessPiece.initiateWinCondition();
+			}
+		}
+	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound c) {
