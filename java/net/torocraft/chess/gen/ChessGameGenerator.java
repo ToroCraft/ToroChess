@@ -19,13 +19,13 @@ import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
-import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.bishop.EntityBishop;
-import net.torocraft.chess.enities.king.EntityKing;
-import net.torocraft.chess.enities.knight.EntityKnight;
-import net.torocraft.chess.enities.pawn.EntityPawn;
-import net.torocraft.chess.enities.queen.EntityQueen;
-import net.torocraft.chess.enities.rook.EntityRook;
+import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.bishop.EntityBishop;
+import net.torocraft.chess.entities.king.EntityKing;
+import net.torocraft.chess.entities.knight.EntityKnight;
+import net.torocraft.chess.entities.pawn.EntityPawn;
+import net.torocraft.chess.entities.queen.EntityQueen;
+import net.torocraft.chess.entities.rook.EntityRook;
 import net.torocraft.chess.items.ItemChessControlWand;
 
 public class ChessGameGenerator {

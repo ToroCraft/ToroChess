@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.king;
+package net.torocraft.chess.entities.king;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.rook;
+package net.torocraft.chess.entities.rook;
 
 import static net.torocraft.chess.engine.GamePieceState.Side.BLACK;
 

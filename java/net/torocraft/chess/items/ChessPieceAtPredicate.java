@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.google.common.base.Predicate;
 
 import net.torocraft.chess.engine.GamePieceState.Position;
-import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
 
 public class ChessPieceAtPredicate implements Predicate<EntityChessPiece> {
 	private final Position chessPosition;

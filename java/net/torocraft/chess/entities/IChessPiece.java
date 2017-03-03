@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities;
+package net.torocraft.chess.entities;
 
 import java.util.UUID;
 

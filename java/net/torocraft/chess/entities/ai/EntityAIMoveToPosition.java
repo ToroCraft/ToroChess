@@ -1,8 +1,8 @@
-package net.torocraft.chess.enities.ai;
+package net.torocraft.chess.entities.ai;
 
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
-import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
 public class EntityAIMoveToPosition extends EntityAIBase {

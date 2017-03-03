@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.bishop;
+package net.torocraft.chess.entities.rook;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -10,29 +10,31 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.torocraft.chess.ToroChess;
-import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.IChessPiece;
 
-public class EntityBishop extends EntityChessPiece implements IChessPiece {
-	public static String NAME = "bishop";
+public class EntityRook extends EntityChessPiece implements IChessPiece {
+
+	public static String NAME = "rook";
 
 	public static void init(int entityId) {
-		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityBishop.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
-				true, 0xFFFFFF, 0x000000);
+		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityRook.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
+				true);
 	}
 
 	public static void registerRenders() {
-		RenderingRegistry.registerEntityRenderingHandler(EntityBishop.class, new IRenderFactory<EntityBishop>() {
+		RenderingRegistry.registerEntityRenderingHandler(EntityRook.class, new IRenderFactory<EntityRook>() {
 			@Override
-			public Render<EntityBishop> createRenderFor(RenderManager manager) {
-				return new RenderBishop(manager);
+			public Render<EntityRook> createRenderFor(RenderManager manager) {
+				return new RenderRook(manager);
 			}
 		});
 	}
 
-	public EntityBishop(World worldIn) {
+	public EntityRook(World worldIn) {
 		super(worldIn);
-		setSize(0.6F, 1.95F);
+		setSize(0.6F, 2.9F);
+		stepHeight = 1.0F;
 	}
 
 	@Override
@@ -40,16 +42,16 @@ public class EntityBishop extends EntityChessPiece implements IChessPiece {
 		return null;
 	}
 
+	@Override
 	public float getEyeHeight() {
-		return 1.62F;
+		return 2.55F;
 	}
 
 	protected SoundEvent getHurtSound() {
-		return SoundEvents.ENTITY_WITCH_HURT;
+		return SoundEvents.ENTITY_ENDERMEN_HURT;
 	}
 
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITCH_DEATH;
+		return SoundEvents.ENTITY_ENDERMEN_DEATH;
 	}
-
 }

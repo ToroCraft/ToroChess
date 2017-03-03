@@ -23,7 +23,7 @@ import net.torocraft.chess.blocks.BlockChessControl;
 import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Side;
-import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.items.extendedreach.IExtendedReach;
 

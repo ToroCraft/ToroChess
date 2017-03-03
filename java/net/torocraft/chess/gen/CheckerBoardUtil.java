@@ -15,12 +15,12 @@ import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.ChessPieceState.Type;
-import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.bishop.EntityBishop;
-import net.torocraft.chess.enities.king.EntityKing;
-import net.torocraft.chess.enities.knight.EntityKnight;
-import net.torocraft.chess.enities.queen.EntityQueen;
-import net.torocraft.chess.enities.rook.EntityRook;
+import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.bishop.EntityBishop;
+import net.torocraft.chess.entities.king.EntityKing;
+import net.torocraft.chess.entities.knight.EntityKnight;
+import net.torocraft.chess.entities.queen.EntityQueen;
+import net.torocraft.chess.entities.rook.EntityRook;
 import net.torocraft.chess.items.ChessPieceAtPredicate;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
 

@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.bishop;
+package net.torocraft.chess.entities.bishop;
 
 import net.minecraft.client.model.ModelWitch;
 import net.minecraftforge.fml.relauncher.Side;
