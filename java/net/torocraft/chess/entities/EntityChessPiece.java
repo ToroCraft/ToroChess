@@ -2,6 +2,8 @@ package net.torocraft.chess.entities;
 
 import java.util.UUID;
 
+import com.google.common.base.Predicate;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
@@ -203,8 +205,18 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	public void initiateWinCondition() {
-        this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityChessPiece.class, true));
-    }
+		Predicate<EntityChessPiece> isOtherSide = new Predicate<EntityChessPiece>() {
+
+			@Override
+			public boolean apply(EntityChessPiece e) {
+				return !getSide().equals(e.getSide());
+			}
+		};
+
+		this.targetTasks.addTask(1,
+				new EntityAINearestAttackableTarget<EntityChessPiece>(this, EntityChessPiece.class, 2, false, false, isOtherSide));
+
+	}
 
 	@Override
 	public void setChessPosition(Position position) {
