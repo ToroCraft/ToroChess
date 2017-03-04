@@ -2,13 +2,8 @@ package net.torocraft.chess.gen;
 
 import java.util.UUID;
 
-import net.minecraft.block.BlockColored;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.BlockStainedGlass;
-import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +32,7 @@ public class ChessGameGenerator {
 	private IBlockState whiteBlock = Blocks.QUARTZ_BLOCK.getDefaultState();
 	private IBlockState blackBlock = Blocks.OBSIDIAN.getDefaultState();
 
-	public ChessGameGenerator(World world, BlockPos a8, BlockChessControl.EnumType type) {
+	public ChessGameGenerator(World world, BlockPos a8, IBlockState whiteBlock, IBlockState blackBlock) {
 		if (world == null) {
 			throw new NullPointerException("null world");
 		}
@@ -47,12 +42,14 @@ public class ChessGameGenerator {
 		this.board = new CheckerBoardGenerator(world, a8);
 		this.world = world;
 		this.a8 = a8;
-		setBlockType(type);
 
-		System.out.println("block type: " + type);
+		if (whiteBlock != null) {
+			this.whiteBlock = whiteBlock;
+		}
 
-		System.out.println("white: " + whiteBlock);
-		System.out.println("black: " + blackBlock);
+		if (blackBlock != null) {
+			this.blackBlock = blackBlock;
+		}
 
 	}
 
@@ -148,51 +145,6 @@ public class ChessGameGenerator {
 			return true;
 		} else {
 			return false;
-		}
-	}
-
-	public void setBlockType(BlockChessControl.EnumType type) {
-		switch (type) {
-		case DIAMOND_LAPIS:
-			whiteBlock = Blocks.DIAMOND_BLOCK.getDefaultState();
-			blackBlock = Blocks.LAPIS_BLOCK.getDefaultState();
-			return;
-		case DIORITE_GRANITE:
-			whiteBlock = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH);
-			blackBlock = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
-			return;
-		case ENDSTONE_GLOWSTONE:
-			whiteBlock = Blocks.END_STONE.getDefaultState();
-			blackBlock = Blocks.GLOWSTONE.getDefaultState();
-			return;
-		case GLASS:
-			whiteBlock = Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.WHITE);
-			blackBlock = Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.BLACK);
-			return;
-		case METAL:
-			whiteBlock = Blocks.IRON_BLOCK.getDefaultState();
-			blackBlock = Blocks.GOLD_BLOCK.getDefaultState();
-			return;
-		case NETHER:
-			whiteBlock = Blocks.MAGMA.getDefaultState();
-			blackBlock = Blocks.NETHERRACK.getDefaultState();
-			return;
-		case QUARTZ_OBSIDIAN:
-			whiteBlock = Blocks.QUARTZ_BLOCK.getDefaultState();
-			blackBlock = Blocks.OBSIDIAN.getDefaultState();
-			return;
-		case WOOD:
-			whiteBlock = Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.BIRCH);
-			blackBlock = Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.DARK_OAK);
-			return;
-		case WOOL:
-			whiteBlock = Blocks.WOOL.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.WHITE);
-			blackBlock = Blocks.PLANKS.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLACK);
-			return;
-		default:
-			whiteBlock = Blocks.QUARTZ_BLOCK.getDefaultState();
-			blackBlock = Blocks.OBSIDIAN.getDefaultState();
-			return;
 		}
 	}
 

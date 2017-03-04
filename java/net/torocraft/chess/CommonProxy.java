@@ -27,7 +27,6 @@ public class CommonProxy {
 		ToroChessGuiHandler.init();
 		ItemChessControlWand.init();
 		BlockChessControl.init();
-		BlockChessControl.initRecipes();
 	}
 
 	public void init(FMLInitializationEvent e) {

@@ -2,7 +2,6 @@ package net.torocraft.chess.blocks;
 
 import java.util.UUID;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -12,18 +11,15 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -53,90 +49,7 @@ public class BlockChessControl extends BlockContainer {
 		ITEM_INSTANCE.setRegistryName(resourceName);
 		GameRegistry.register(ITEM_INSTANCE);
 
-		// initRecipes();
-	}
-
-	public static void initRecipes() {
-
-		// addRecipe(Blocks.QUARTZ_BLOCK, Blocks.OBSIDIAN,
-		// EnumType.QUARTZ_OBSIDIAN);
-		addRecipe(Blocks.GLASS, Blocks.GLASS, EnumType.GLASS);
-
-		// addRecipe(Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR,
-		// EnumDyeColor.WHITE),
-		// Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR,
-		// EnumDyeColor.BLACK), EnumType.GLASS);
-	}
-
-	private static void addRecipe(Block white, Block black, EnumType type) {
-
-		ItemStack controlBlock = new ItemStack(BlockChessControl.ITEM_INSTANCE);
-		NBTTagCompound c = new NBTTagCompound();
-		c.setInteger(NBT_TYPE, type.getMetadata());
-		controlBlock.setTagCompound(c);
-
-		System.out.println("created a recipe for meta " + type);
-
-		/*
-		 * GameRegistry.addRecipe(controlBlock,
-		 * 
-		 * "   ", "BSF", "WDB",
-		 * 
-		 * 'D', new ItemStack(Blocks.DIAMOND_BLOCK),
-		 * 
-		 * 'W', new ItemStack(white, 32),
-		 * 
-		 * 'B', new ItemStack(black, 32),
-		 * 
-		 * 'S', new ItemStack(Items.GOLDEN_SWORD),
-		 * 
-		 * 'B', new ItemStack(Items.BONE, 32),
-		 * 
-		 * 'F', new ItemStack(Items.ROTTEN_FLESH, 32));
-		 */
-
-		GameRegistry.addShapelessRecipe(controlBlock,
-
-				new ItemStack(white, 32));
-
-		// GameRegistry.addRecipe(controlBlock,
-		//
-		// " ", " ", " D ",
-		//
-		// 'D', new ItemStack(Blocks.DIAMOND_BLOCK));
-	}
-
-	public static class ChessControlRecipe implements IRecipe {
-
-		@Override
-		public boolean matches(InventoryCrafting inv, World worldIn) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public ItemStack getCraftingResult(InventoryCrafting inv) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getRecipeSize() {
-			return 10;
-		}
-
-		@Override
-		public ItemStack getRecipeOutput() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		GameRegistry.addRecipe(new ChessControlRecipe());
 	}
 
 	@Override
@@ -167,16 +80,30 @@ public class BlockChessControl extends BlockContainer {
 		if (!world.isRemote) {
 			BlockPos a8 = pos.add(A8_OFFSET);
 
-			BlockChessControl.EnumType type = BlockChessControl.EnumType.QUARTZ_OBSIDIAN;
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_TYPE)) {
-				type = BlockChessControl.EnumType.byMetadata(stack.getTagCompound().getInteger(NBT_TYPE));
+			NBTTagCompound c = stack.getTagCompound();
+
+			IBlockState whiteBlock = null;
+			IBlockState blackBlock = null;
+
+			if (c != null) {
+				NonNullList<ItemStack> list = NonNullList.<ItemStack> withSize(2, ItemStack.EMPTY);
+				ItemStackHelper.loadAllItems(c, list);
+				whiteBlock = getBlockState(world, pos, placer, list.get(0));
+				blackBlock = getBlockState(world, pos, placer, list.get(1));
 			}
 
-			System.out.println("onBlockPlacedBy: type=" + type);
-
-			new ChessGameGenerator(world, a8, type).generate();
+			new ChessGameGenerator(world, a8, whiteBlock, blackBlock).generate();
 			((TileEntityChessControl) world.getTileEntity(pos)).setA8(a8);
 		}
+	}
+
+	private IBlockState getBlockState(World world, BlockPos pos, EntityLivingBase placer, ItemStack stack) {
+		if (stack == null || !(stack.getItem() instanceof ItemBlock)) {
+			return null;
+		}
+
+		return ((ItemBlock) stack.getItem()).getBlock().getStateForPlacement(world, pos, EnumFacing.DOWN, 0f, 0f, 0f, stack.getMetadata(), placer,
+				EnumHand.MAIN_HAND);
 	}
 
 	@Override
@@ -225,61 +152,4 @@ public class BlockChessControl extends BlockContainer {
 		return true;
 	}
 
-	public static enum EnumType implements IStringSerializable {
-
-		QUARTZ_OBSIDIAN(0, "quartz_obsidian"),
-		GLASS(1, "glass"),
-		WOOD(2, "wood"),
-		METAL(3, "metal"),
-		DIAMOND_LAPIS(4, "lapis"),
-		NETHER(5, "nether"),
-		DIORITE_GRANITE(6, "diorite_granite"),
-		WOOL(7, "wool"),
-		ENDSTONE_GLOWSTONE(8, "endstone_glowstone");
-
-		private static final EnumType[] META_LOOKUP = new EnumType[values().length];
-		private final int meta;
-		private final String name;
-		private final String unlocalizedName;
-
-		private EnumType(int metaIn, String nameIn) {
-			this(metaIn, nameIn, nameIn);
-		}
-
-		private EnumType(int metaIn, String nameIn, String unlocalizedNameIn) {
-			this.meta = metaIn;
-			this.name = nameIn;
-			this.unlocalizedName = unlocalizedNameIn;
-		}
-
-		public int getMetadata() {
-			return this.meta;
-		}
-
-		public String toString() {
-			return this.name;
-		}
-
-		public static BlockChessControl.EnumType byMetadata(int meta) {
-			if (meta < 0 || meta >= META_LOOKUP.length) {
-				meta = 0;
-			}
-
-			return META_LOOKUP[meta];
-		}
-
-		public String getName() {
-			return this.name;
-		}
-
-		public String getUnlocalizedName() {
-			return this.unlocalizedName;
-		}
-
-		static {
-			for (BlockChessControl.EnumType type : values()) {
-				META_LOOKUP[type.getMetadata()] = type;
-			}
-		}
-	}
 }

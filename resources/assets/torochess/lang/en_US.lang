@@ -3,14 +3,4 @@ commands.chesscreate.usage=/chesscreate
 item.chess_control_wand.name=Chess Wand
 gui.chesscontrol.clear=Clear Game Board
 gui.chesscontrol.reset=Reset Game Board
-
-
-tile.chess_control.name=Chess Control (Quartz/Obsidian)
-tile.chess_control.quartz_obsidian.name=Chess Control (Quartz/Obsidian)
-tile.chess_control.glass.name=Chess Control (Glass)
-tile.chess_control.wood.name=Chess Control (Wood)
-tile.chess_control.metal.name=Chess Control (Metal)
-tile.chess_control.lapis.name=Chess Control (Diamond)
-tile.chess_control.nether.name=Chess Control (Nether)
-tile.chess_control.wool.name=Chess Control (Wool)
-tile.chess_control.endstone_glowstone.name=Chess Control (Endstone/Glowstone)
+tile.chess_control.name=Chess Control
