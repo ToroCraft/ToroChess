@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.queen;
+package net.torocraft.chess.entities.queen;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -10,8 +10,8 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.torocraft.chess.ToroChess;
-import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.IChessPiece;
 
 public class EntityQueen extends EntityChessPiece implements IChessPiece {
 	public static String NAME = "queen";

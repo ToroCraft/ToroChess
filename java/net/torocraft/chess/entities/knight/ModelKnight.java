@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.knight;
+package net.torocraft.chess.entities.knight;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraftforge.fml.relauncher.Side;

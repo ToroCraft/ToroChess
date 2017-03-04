@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.bishop;
+package net.torocraft.chess.entities.bishop;
 
 import static net.torocraft.chess.engine.GamePieceState.Side.BLACK;
 

@@ -1,11 +1,15 @@
-package net.torocraft.chess.enities;
+package net.torocraft.chess.entities;
 
 import java.util.UUID;
+
+import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
+import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -22,8 +26,8 @@ import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
-import net.torocraft.chess.enities.ai.EntityAILookDownBoard;
-import net.torocraft.chess.enities.ai.EntityAIMoveToPosition;
+import net.torocraft.chess.entities.ai.EntityAILookDownBoard;
+import net.torocraft.chess.entities.ai.EntityAIMoveToPosition;
 
 public abstract class EntityChessPiece extends EntityCreature implements IChessPiece {
 
@@ -44,6 +48,8 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	double x = 0;
 	double z = 0;
 	boolean initialMove = true;
+	boolean gameOver = false;
+	int gameOverCountdown = 0;
 
 	public EntityChessPiece(World worldIn) {
 		super(worldIn);
@@ -127,6 +133,16 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	public void onLivingUpdate() {
 		this.updateArmSwingProgress();
 		super.onLivingUpdate();
+		if (gameOver) {
+			gameOverCountdown += 1;
+			if (gameOverCountdown >= 120) {
+				BlockPos pos = this.getPosition();
+				EntityTNTPrimed tnt = new EntityTNTPrimed(world);
+				tnt.setPosition(pos.getX(), pos.getY(), pos.getZ());
+				world.spawnEntity(tnt);
+				this.setDead();
+			}
+		}
 	}
 
 	@Override
@@ -199,6 +215,21 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		if (!isMissingValues()) {
 			return;
 		}
+	}
+
+	public void initiateWinCondition() {
+		gameOver = true;
+		Predicate<EntityChessPiece> isOtherSide = new Predicate<EntityChessPiece>() {
+
+			@Override
+			public boolean apply(EntityChessPiece e) {
+				return !getSide().equals(e.getSide());
+			}
+		};
+
+		this.targetTasks.addTask(1,
+				new EntityAINearestAttackableTarget<EntityChessPiece>(this, EntityChessPiece.class, 2, false, false, isOtherSide));
+
 	}
 
 	@Override

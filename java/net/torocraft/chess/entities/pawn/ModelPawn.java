@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.pawn;
+package net.torocraft.chess.entities.pawn;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraftforge.fml.relauncher.Side;

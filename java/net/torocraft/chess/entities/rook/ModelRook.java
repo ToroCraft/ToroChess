@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.rook;
+package net.torocraft.chess.entities.rook;
 
 import net.minecraft.client.model.ModelEnderman;
 import net.minecraftforge.fml.relauncher.Side;

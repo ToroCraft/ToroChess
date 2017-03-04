@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.king;
+package net.torocraft.chess.entities.king;
 
 import static net.torocraft.chess.engine.GamePieceState.Side.BLACK;
 

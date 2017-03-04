@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.google.common.base.Predicate;
 
 import net.minecraft.init.MobEffects;
-import net.torocraft.chess.enities.EntityChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
 
 public class HighlightedChessPiecePredicate implements Predicate<EntityChessPiece> {
 

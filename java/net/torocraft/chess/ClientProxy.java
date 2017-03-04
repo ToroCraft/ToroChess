@@ -5,12 +5,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.torocraft.chess.blocks.BlockChessControl;
 import net.torocraft.chess.control.CheckerBoardOverlay;
-import net.torocraft.chess.enities.bishop.EntityBishop;
-import net.torocraft.chess.enities.king.EntityKing;
-import net.torocraft.chess.enities.knight.EntityKnight;
-import net.torocraft.chess.enities.pawn.EntityPawn;
-import net.torocraft.chess.enities.queen.EntityQueen;
-import net.torocraft.chess.enities.rook.EntityRook;
+import net.torocraft.chess.entities.bishop.EntityBishop;
+import net.torocraft.chess.entities.king.EntityKing;
+import net.torocraft.chess.entities.knight.EntityKnight;
+import net.torocraft.chess.entities.pawn.EntityPawn;
+import net.torocraft.chess.entities.queen.EntityQueen;
+import net.torocraft.chess.entities.rook.EntityRook;
 import net.torocraft.chess.items.ItemChessControlWand;
 
 public class ClientProxy extends CommonProxy {

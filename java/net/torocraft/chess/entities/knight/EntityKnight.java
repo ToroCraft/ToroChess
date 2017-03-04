@@ -1,4 +1,4 @@
-package net.torocraft.chess.enities.knight;
+package net.torocraft.chess.entities.knight;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -12,8 +12,8 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.torocraft.chess.ToroChess;
-import net.torocraft.chess.enities.EntityChessPiece;
-import net.torocraft.chess.enities.IChessPiece;
+import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.IChessPiece;
 
 public class EntityKnight extends EntityChessPiece implements IChessPiece {
 	public static String NAME = "knight";
