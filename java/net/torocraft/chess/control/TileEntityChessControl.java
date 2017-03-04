@@ -182,9 +182,6 @@ public class TileEntityChessControl extends TileEntity {
 	 */
 	private void updateValidMoves(EntityChessPiece piece) {
 		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(piece), CheckerBoardUtil.convertToState(piece));
-
-		initiateCheckmate(Side.WHITE, piece);
-
 		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
 			initiateCheckmate(Side.BLACK, piece);
 		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
