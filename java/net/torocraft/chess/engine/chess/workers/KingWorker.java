@@ -1,5 +1,6 @@
 package net.torocraft.chess.engine.chess.workers;
 
+import net.torocraft.chess.engine.chess.CastleMove;
 import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 
@@ -80,7 +81,13 @@ public class KingWorker extends ChessPieceWorker {
             return;
         }
 
-        addLegalMove(new Position(File.values()[2],currentRank));
+        CastleMove queenSideCastleMove = new CastleMove();
+        queenSideCastleMove.positionOfKing = chessPieceToMove.position;
+        queenSideCastleMove.positionOfRook = pieceInRookCastlingPosition.position;
+        queenSideCastleMove.positionToMoveKingTo = new Position(File.values()[2],currentRank);
+        queenSideCastleMove.positionToMoveRookTo = new Position(File.values()[3], currentRank);
+        
+        moveResult.queenSideCastleMove = queenSideCastleMove;
     }
 
     private void checkIfCanCastleOnKingSide(){
@@ -103,6 +110,12 @@ public class KingWorker extends ChessPieceWorker {
             return;
         }
 
-        addLegalMove(new Position(File.values()[6],currentRank));
+        CastleMove kingSideCastleMove = new CastleMove();
+        kingSideCastleMove.positionOfKing = chessPieceToMove.position;
+        kingSideCastleMove.positionOfRook = pieceInRookCastlingPosition.position;
+        kingSideCastleMove.positionToMoveKingTo = new Position(File.values()[6],currentRank);
+        kingSideCastleMove.positionToMoveRookTo = new Position(File.values()[5], currentRank);
+
+        moveResult.kingSideCastleMove = kingSideCastleMove;
     }
 }
