@@ -1,9 +1,11 @@
 package net.torocraft.chess.engine.chess.impl;
 
+import net.torocraft.chess.engine.GamePieceState;
 import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 import net.torocraft.chess.engine.chess.workers.*;
+import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,6 @@ import static net.torocraft.chess.engine.chess.ChessPieceState.Type;
 import static net.torocraft.chess.engine.GamePieceState.Position;
 import static net.torocraft.chess.engine.chess.ChessMoveResult.Condition;
 
-//TODO add support for castling
 //TODO add support for en passant
 //TODO add support for pawn promotion
 public class ChessRuleEngine implements IChessRuleEngine {
@@ -47,7 +48,8 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 		updateBoardCondition();
 		updateMoveResult();
-		
+        Mouse.setGrabbed(false);
+        Mouse.setGrabbed(true);
 		return moveResult;
 	}
 
@@ -85,7 +87,8 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	private void updateBoardCondition() {
 		if (isKingInCheck) {
-		    //TODO if king is in check, remove available castling positions
+		    moveResult.kingSideCastleMove = null;
+		    moveResult.queenSideCastleMove = null;
 			if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
 				moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
 				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
@@ -106,8 +109,29 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 positionListOverride.add(new Position(position));
             }
         }
+        //TODO checkCastlingMoveTo();
         moveResult.legalPositions = positionListOverride;
     }
+//TODO
+   /* private void checkCastlingMoveTo() {
+	    //checking positions king is moving through and ultimately to, to make sure none of them would put him in check
+	    if (moveResult.queenSideCastleMove != null) {
+            if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {
+                moveResult.queenSideCastleMove = null;
+            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.queenSideCastleMove.positionToMoveKingTo.rank))) {
+                moveResult.queenSideCastleMove = null;
+            }
+        }
+        if (moveResult.kingSideCastleMove != null) {
+            if (willPutKingInCheck(internalChessPieceToMove, moveResult.kingSideCastleMove.positionToMoveKingTo)) {
+                moveResult.kingSideCastleMove = null;
+            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
+                moveResult.kingSideCastleMove = null;
+            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.F, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
+                moveResult.kingSideCastleMove = null;
+            }
+        }
+    }*/
 
 	private boolean isKingInCheckMate() {
 		if (isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
