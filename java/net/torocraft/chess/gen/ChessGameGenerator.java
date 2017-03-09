@@ -8,8 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.torocraft.chess.blocks.BlockChessControl;
-import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
@@ -28,11 +26,12 @@ public class ChessGameGenerator {
 	private final CheckerBoardGenerator board;
 	private final World world;
 	private final BlockPos a8;
-	private final UUID gameId = UUID.randomUUID();
+	private final BlockPos controlPos;
+	private final UUID gameId;
 	private IBlockState whiteBlock = Blocks.QUARTZ_BLOCK.getDefaultState();
 	private IBlockState blackBlock = Blocks.OBSIDIAN.getDefaultState();
 
-	public ChessGameGenerator(World world, BlockPos a8, IBlockState whiteBlock, IBlockState blackBlock) {
+	public ChessGameGenerator(World world, BlockPos a8, BlockPos controlPos, UUID gameId, IBlockState whiteBlock, IBlockState blackBlock) {
 		if (world == null) {
 			throw new NullPointerException("null world");
 		}
@@ -42,6 +41,8 @@ public class ChessGameGenerator {
 		this.board = new CheckerBoardGenerator(world, a8);
 		this.world = world;
 		this.a8 = a8;
+		this.controlPos = controlPos;
+		this.gameId = gameId;
 
 		if (whiteBlock != null) {
 			this.whiteBlock = whiteBlock;
@@ -50,7 +51,6 @@ public class ChessGameGenerator {
 		if (blackBlock != null) {
 			this.blackBlock = blackBlock;
 		}
-
 	}
 
 	public void generate() {
@@ -62,7 +62,7 @@ public class ChessGameGenerator {
 		board.generate();
 		addWand();
 		placePieces(world, a8, gameId);
-		saveGameData();
+		// saveGameData();
 	}
 
 	public static void placePieces(World world, BlockPos a8, UUID gameId) {
@@ -104,6 +104,7 @@ public class ChessGameGenerator {
 	}
 
 	private void addWand() {
+		// TODO fix bug where if chest can not be created game crashes
 		for (int i = 0; i < 4; i++) {
 			board.getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
 			board.getBlackChest().setInventorySlotContents(i, createWand(Side.BLACK));
@@ -116,6 +117,7 @@ public class ChessGameGenerator {
 		c.setLong(ItemChessControlWand.NBT_A8_POS, a8.toLong());
 		c.setBoolean(ItemChessControlWand.NBT_SIDE, castSide(side));
 		c.setUniqueId(ItemChessControlWand.NBT_GAME_ID, gameId);
+		c.setLong(ItemChessControlWand.NBT_CONTROL_POS, controlPos.toLong());
 		wand.setTagCompound(c);
 		return wand;
 	}
@@ -130,14 +132,6 @@ public class ChessGameGenerator {
 		e.setA8(a8);
 		e.setInitialMove(true);
 		world.spawnEntity(e);
-	}
-
-	private void saveGameData() {
-		TileEntityChessControl control = BlockChessControl.getChessControl(world, a8);
-		control.setGameId(gameId);
-		control.setSelectedPiece(null);
-		control.setTurn(Side.WHITE);
-		control.markDirty();
 	}
 
 	private Boolean castSide(Side side) {

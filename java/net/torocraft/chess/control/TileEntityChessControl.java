@@ -49,6 +49,12 @@ public class TileEntityChessControl extends TileEntity {
 	}
 
 	public void resetBoard() {
+		if (gameId == null) {
+			throw new NullPointerException("gameId is null");
+		}
+		if (a8 == null) {
+			throw new NullPointerException("gameId is null");
+		}
 		System.out.println("reset board");
 		clearBoard();
 		ChessGameGenerator.placePieces(world, a8, gameId);
@@ -222,10 +228,17 @@ public class TileEntityChessControl extends TileEntity {
 			c.setInteger(NBT_SELECTED_FILE, selectedPiece.file.ordinal());
 			c.setInteger(NBT_SELECTED_RANK, selectedPiece.rank.ordinal());
 		}
-		c.setUniqueId(NBT_GAME_ID, gameId);
+
+		if (gameId != null) {
+			c.setUniqueId(NBT_GAME_ID, gameId);
+		}
+
 		c.setBoolean(NBT_TURN, CheckerBoardUtil.castSide(turn));
-		c.setLong(NBT_A8, a8.toLong());
-		markDirty();
+
+		if (a8 != null) {
+			c.setLong(NBT_A8, a8.toLong());
+		}
+
 		return c;
 	}
 
