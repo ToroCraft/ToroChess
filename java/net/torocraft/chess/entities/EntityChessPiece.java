@@ -49,6 +49,8 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	double z = 0;
 	boolean initialMove = true;
 	boolean gameOver = false;
+	// TODO store in NBT
+	boolean moveInProgress = true;
 	int gameOverCountdown = 0;
 
 	public EntityChessPiece(World worldIn) {
@@ -237,6 +239,11 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		moved = true;
 		chessPosition = position;
 		initialMove = false;
+		moveInProgress = true;
+	}
+
+	public void onMoveComplete() {
+		moveInProgress = false;
 	}
 
 	@Override
@@ -300,5 +307,13 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 
 	protected SoundEvent getFallSound(int heightIn) {
 		return heightIn > 4 ? SoundEvents.ENTITY_HOSTILE_BIG_FALL : SoundEvents.ENTITY_HOSTILE_SMALL_FALL;
+	}
+
+	public boolean isMoveInProgress() {
+		return moveInProgress;
+	}
+
+	public void setMoveInProgress(boolean moveInProgress) {
+		this.moveInProgress = moveInProgress;
 	}
 }

@@ -49,8 +49,6 @@ public class EntityAILookDownBoard extends EntityAIBase {
 		double lookToX = entity.posX;
 		double lookToY = entity.posY + entity.getEyeHeight();
 
-		// System.out.println("Look side [" + entity.getSide() + " ]");
-
 		double lookToZ;
 		if (Side.BLACK.equals(entity.getSide())) {
 			lookToZ = entity.posZ - 200;

@@ -122,16 +122,22 @@ public class ChessGameGenerator {
 		return wand;
 	}
 
-	private static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
+	public static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
-		e.setChessPosition(new Position(file, rank));
 		e.setPosition(x, a8.getY() + 1, z);
+		setGameDataToEntity(world, a8, gameId, e, side, file, rank);
+		world.spawnEntity(e);
+	}
+
+	public static void setGameDataToEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
+		e.setChessPosition(new Position(file, rank));
 		e.setSide(side);
 		e.setGameId(gameId);
 		e.setA8(a8);
 		e.setInitialMove(true);
-		world.spawnEntity(e);
+		BlockPos pos = CheckerBoardUtil.toWorldCoords(a8, new Position(file, rank));
+		e.setPosition(pos.getX(), a8.getY() + 1, pos.getZ());
 	}
 
 	private Boolean castSide(Side side) {
