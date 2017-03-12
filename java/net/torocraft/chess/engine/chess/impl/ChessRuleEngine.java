@@ -109,11 +109,14 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 positionListOverride.add(new Position(position));
             }
         }
-        //TODO checkCastlingMoveTo();
+        checkCastlingMoveTo();
         moveResult.legalPositions = positionListOverride;
     }
-//TODO
-   /* private void checkCastlingMoveTo() {
+
+   private void checkCastlingMoveTo() {
+	    if (!internalChessPieceToMove.type.equals(Type.KING)) {
+	        return;
+        }
 	    //checking positions king is moving through and ultimately to, to make sure none of them would put him in check
 	    if (moveResult.queenSideCastleMove != null) {
             if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {
@@ -131,7 +134,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
                 moveResult.kingSideCastleMove = null;
             }
         }
-    }*/
+    }
 
 	private boolean isKingInCheckMate() {
 		if (isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
@@ -199,7 +202,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		return false;
 	}
 
-    public boolean willPutKingInCheck(ChessPieceState chessPieceToMove, Position positionToMoveCurrentPieceTo) {
+    private boolean willPutKingInCheck(ChessPieceState chessPieceToMove, Position positionToMoveCurrentPieceTo) {
         List<ChessPieceState> stateClone = cloneState(chessPieceToMove);
         ChessPieceState spoofedChessPieceState = new ChessPieceState(chessPieceToMove);
         spoofedChessPieceState.position = positionToMoveCurrentPieceTo;
