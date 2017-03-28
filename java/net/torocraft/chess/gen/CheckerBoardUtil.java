@@ -85,12 +85,7 @@ public class CheckerBoardUtil {
 		return false;
 	}
 
-	public static List<ChessPieceState> loadPiecesFromWorld(EntityChessPiece referenceEntity) {
-
-		World world = referenceEntity.world;
-		UUID gameId = referenceEntity.getGameId();
-		BlockPos a8 = referenceEntity.getA8();
-
+	public static List<ChessPieceState> loadPiecesFromWorld(World world, UUID gameId, BlockPos a8) {
 		List<ChessPieceState> pieces = new ArrayList<>();
 
 		List<EntityChessPiece> entityPieces = world.getEntitiesWithinAABB(EntityChessPiece.class,

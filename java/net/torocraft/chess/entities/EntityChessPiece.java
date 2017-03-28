@@ -22,6 +22,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
@@ -42,6 +44,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 			DataSerializers.BOOLEAN);
 
 	private Position chessPosition;
+	private Position prevChessPosition;
 	private BlockPos a8;
 	private UUID gameId;
 	private boolean moved = true;
@@ -237,13 +240,22 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	@Override
 	public void setChessPosition(Position position) {
 		moved = true;
+		prevChessPosition = chessPosition;
 		chessPosition = position;
 		initialMove = false;
+		if (prevChessPosition == null) {
+			return;
+		}
 		moveInProgress = true;
+		MinecraftForge.EVENT_BUS.post(new MoveEvent.Start(world, gameId, this, prevChessPosition, chessPosition));
 	}
 
 	public void onMoveComplete() {
 		moveInProgress = false;
+		if (prevChessPosition == null) {
+			return;
+		}
+		MinecraftForge.EVENT_BUS.post(new MoveEvent.Finish(world, gameId, this, prevChessPosition, chessPosition));
 	}
 
 	@Override
@@ -313,7 +325,4 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		return moveInProgress;
 	}
 
-	public void setMoveInProgress(boolean moveInProgress) {
-		this.moveInProgress = moveInProgress;
-	}
 }

@@ -3,13 +3,19 @@ package net.torocraft.chess.control;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+
 import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
@@ -19,6 +25,7 @@ import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
 import net.torocraft.chess.engine.chess.impl.ChessRuleEngine;
 import net.torocraft.chess.entities.EntityChessPiece;
+import net.torocraft.chess.entities.king.EntityKing;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
@@ -41,6 +48,10 @@ public class TileEntityChessControl extends TileEntity {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
 	}
 
+	public TileEntityChessControl() {
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
 	public IChessRuleEngine getRuleEngine() {
 		if (ruleEngine == null) {
 			ruleEngine = new ChessRuleEngine();
@@ -55,27 +66,17 @@ public class TileEntityChessControl extends TileEntity {
 		if (a8 == null) {
 			throw new NullPointerException("gameId is null");
 		}
-		System.out.println("reset board");
 		clearBoard();
 		ChessGameGenerator.placePieces(world, a8, gameId);
 	}
 
 	public void clearBoard() {
-		System.out.println("clear board");
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
 				new ChessPieceSearchPredicate(gameId));
 
 		for (EntityChessPiece piece : pieces) {
 			piece.setDead();
 		}
-	}
-
-	public void forfeit() {
-		// TODO
-	}
-
-	public void rewind() {
-		// TODO?
 	}
 
 	public boolean movePiece(BlockPos a8, Position to) {
@@ -120,6 +121,14 @@ public class TileEntityChessControl extends TileEntity {
 		return true;
 	}
 
+	@SubscribeEvent
+	public void onMoveFinish(MoveEvent.Finish event) {
+		if (gameId == null || !gameId.equals(event.getGameId())) {
+			return;
+		}
+		updateValidMoves(event.getPiece());
+	}
+
 	private boolean isNotYourTurn(EntityChessPiece attacker) {
 		return !attacker.getSide().equals(turn);
 	}
@@ -130,14 +139,13 @@ public class TileEntityChessControl extends TileEntity {
 		} else {
 			turn = Side.WHITE;
 		}
-		System.out.println(turn.toString().toLowerCase() + "'s trun");
+		System.out.println(turn.toString().toLowerCase() + "'s turn");
 	}
 
 	private boolean isSameSide(EntityChessPiece target, EntityChessPiece victum) {
 		return victum != null && victum.getSide().equals(target.getSide());
 	}
 
-	// TODO sync highlights on startup
 	public boolean selectEntity(EntityChessPiece target) {
 		if (target == null) {
 			throw new NullPointerException("target is null");
@@ -183,21 +191,42 @@ public class TileEntityChessControl extends TileEntity {
 		}
 	}
 
-	/*
-	 * TODO this needs to happen on the client, via a packet?
-	 */
 	private void updateValidMoves(EntityChessPiece piece) {
-		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(piece), CheckerBoardUtil.convertToState(piece));
-		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
-			initiateCheckmate(Side.BLACK, piece);
-		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
-			initiateCheckmate(Side.WHITE, piece);
+		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8),
+				CheckerBoardUtil.convertToState(piece));
+
+		if (moves == null) {
+			return;
 		}
+
+		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
+			initiateCheckmate(Side.BLACK);
+		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
+			initiateCheckmate(Side.WHITE);
+		}
+
+		EntityKing whiteKing = getKing(Side.WHITE);
+		EntityKing blackKing = getKing(Side.BLACK);
+
+		if (whiteKing != null) {
+			whiteKing.setInCheck(moves.whiteCondition.equals(ChessMoveResult.Condition.CHECK));
+		}
+		if (blackKing != null) {
+			blackKing.setInCheck(moves.blackCondition.equals(ChessMoveResult.Condition.CHECK));
+		}
+
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
-	private void initiateCheckmate(Side losingSide, EntityChessPiece piece) {
-		for (ChessPieceState chessPieceState : CheckerBoardUtil.loadPiecesFromWorld(piece)) {
+	private EntityKing getKing(Side side) {
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+				Predicates.and(new ChessPieceSearchPredicate(gameId), new KingSelector(side)));
+
+		return pieces == null || pieces.size() < 1 ? null : (EntityKing) pieces.get(0);
+	}
+
+	private void initiateCheckmate(Side losingSide) {
+		for (ChessPieceState chessPieceState : CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8)) {
 			EntityChessPiece chessPiece = CheckerBoardUtil.getPiece(world, chessPieceState.position, a8, gameId);
 			if (chessPiece != null && !chessPiece.getSide().equals(losingSide)) {
 				chessPiece.initiateWinCondition();
@@ -283,4 +312,16 @@ public class TileEntityChessControl extends TileEntity {
 		markDirty();
 	}
 
+	private static class KingSelector implements Predicate<EntityChessPiece> {
+		private final Side side;
+
+		public KingSelector(Side side) {
+			this.side = side;
+		}
+
+		@Override
+		public boolean apply(EntityChessPiece piece) {
+			return piece != null && piece instanceof EntityKing && side.equals(piece.getSide());
+		}
+	};
 }

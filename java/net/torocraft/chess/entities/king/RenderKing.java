@@ -28,4 +28,10 @@ public class RenderKing extends RenderLiving<EntityKing> {
 		}
 	}
 
+	protected void applyRotations(EntityKing entityLiving, float p_77043_2_, float p_77043_3_, float partialTicks) {
+		if (entityLiving.isInCheck()) {
+			p_77043_3_ += (float) (Math.cos((double) entityLiving.ticksExisted * 3.25D) * Math.PI * 0.5D);
+		}
+		super.applyRotations(entityLiving, p_77043_2_, p_77043_3_, partialTicks);
+	}
 }
