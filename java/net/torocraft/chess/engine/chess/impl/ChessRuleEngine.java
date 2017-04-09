@@ -23,6 +23,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	private ChessPieceState internalChessPieceToMove;
 	private ChessPieceState currentKingState;
 	private boolean isKingInCheck = false;
+	private Side currentSide;
 
 	@Override
 	public Game getGameType() {
@@ -33,10 +34,13 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
 		internalState = state;
 		internalChessPieceToMove = chessPieceToMove;
+		currentSide = chessPieceToMove.side;
+
+		moveResult = new ChessMoveResult();
 
 		currentKingState = getCurrentKingState();
 		isKingInCheck = isKingInCheck();
-		if (isKingInCheckMate() || isKingInStalemate()) {
+		if (checkIfKingIsInCheckmate() || checkIfKingIsInStalemate()) {
 			return moveResult;
 		}
 
@@ -48,14 +52,27 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 		updateBoardCondition();
 		updateMoveResult();
-        Mouse.setGrabbed(false);
-        Mouse.setGrabbed(true);
+		Mouse.setGrabbed(false);
+		Mouse.setGrabbed(true);
+		return moveResult;
+	}
+
+	@Override
+	public ChessMoveResult getBoardConditionForSide(List<ChessPieceState> state, Side sideToCheck) {
+		internalState = state;
+		currentSide = sideToCheck;
+
+		currentKingState = getCurrentKingState();
+		isKingInCheck = isKingInCheck();
+		checkIfKingIsInCheckmate();
+		checkIfKingIsInStalemate();
+
 		return moveResult;
 	}
 
 	private ChessPieceState getCurrentKingState() {
 		for (ChessPieceState currentChessPieceState : internalState) {
-			if (currentChessPieceState.side.equals(internalChessPieceToMove.side)
+			if (currentChessPieceState.side.equals(currentSide)
 					&& currentChessPieceState.type.equals(Type.KING)) {
 				return currentChessPieceState;
 			}
@@ -87,9 +104,9 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	private void updateBoardCondition() {
 		if (isKingInCheck) {
-		    moveResult.kingSideCastleMove = null;
-		    moveResult.queenSideCastleMove = null;
-			if (internalChessPieceToMove.side.equals(ChessPieceState.Side.BLACK)) {
+			moveResult.kingSideCastleMove = null;
+			moveResult.queenSideCastleMove = null;
+			if (currentSide.equals(ChessPieceState.Side.BLACK)) {
 				moveResult.blackCondition = ChessMoveResult.Condition.CHECK;
 				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
 			} else {
@@ -103,48 +120,46 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	}
 
 	private void updateMoveResult() {
-	    List<Position> positionListOverride = new ArrayList<>();
-	    for (Position position : moveResult.legalPositions) {
-            if (!willPutKingInCheck(internalChessPieceToMove, position)) {
-                positionListOverride.add(new Position(position));
-            }
-        }
-        checkCastlingMoveTo();
-        moveResult.legalPositions = positionListOverride;
-    }
+		List<Position> positionListOverride = new ArrayList<>();
+		for (Position position : moveResult.legalPositions) {
+			if (!willPutKingInCheck(internalChessPieceToMove, position)) {
+				positionListOverride.add(new Position(position));
+			}
+		}
+		checkCastlingMoveTo();
+		moveResult.legalPositions = positionListOverride;
+	}
 
    private void checkCastlingMoveTo() {
-	    if (!internalChessPieceToMove.type.equals(Type.KING)) {
-	        return;
-        }
-	    //checking positions king is moving through and ultimately to, to make sure none of them would put him in check
-	    if (moveResult.queenSideCastleMove != null) {
-            if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {
-                moveResult.queenSideCastleMove = null;
-            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.queenSideCastleMove.positionToMoveKingTo.rank))) {
-                moveResult.queenSideCastleMove = null;
-            }
-        }
-        if (moveResult.kingSideCastleMove != null) {
-            if (willPutKingInCheck(internalChessPieceToMove, moveResult.kingSideCastleMove.positionToMoveKingTo)) {
-                moveResult.kingSideCastleMove = null;
-            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
-                moveResult.kingSideCastleMove = null;
-            } else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.F, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
-                moveResult.kingSideCastleMove = null;
-            }
-        }
-    }
+		if (!internalChessPieceToMove.type.equals(Type.KING)) {
+			return;
+		}
+		//checking positions king is moving through and ultimately to, to make sure none of them would put him in check
+		if (moveResult.queenSideCastleMove != null) {
+			if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {
+				moveResult.queenSideCastleMove = null;
+			} else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.queenSideCastleMove.positionToMoveKingTo.rank))) {
+				moveResult.queenSideCastleMove = null;
+			}
+		}
+		if (moveResult.kingSideCastleMove != null) {
+			if (willPutKingInCheck(internalChessPieceToMove, moveResult.kingSideCastleMove.positionToMoveKingTo)) {
+				moveResult.kingSideCastleMove = null;
+			} else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
+				moveResult.kingSideCastleMove = null;
+			} else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.F, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
+				moveResult.kingSideCastleMove = null;
+			}
+		}
+	}
 
-	private boolean isKingInCheckMate() {
+	private boolean checkIfKingIsInCheckmate() {
 		if (isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
-			if (internalChessPieceToMove.side.equals(Side.BLACK)) {
-				moveResult = new ChessMoveResult();
+			if (currentSide.equals(Side.BLACK)) {
 				moveResult.blackCondition = ChessMoveResult.Condition.CHECKMATE;
 				moveResult.whiteCondition = ChessMoveResult.Condition.CLEAR;
 				moveResult.legalPositions = new ArrayList<>();
 			} else {
-				moveResult = new ChessMoveResult();
 				moveResult.blackCondition = ChessMoveResult.Condition.CLEAR;
 				moveResult.whiteCondition = ChessMoveResult.Condition.CHECKMATE;
 				moveResult.legalPositions = new ArrayList<>();
@@ -154,9 +169,8 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		return false;
 	}
 
-	private boolean isKingInStalemate() {
+	private boolean checkIfKingIsInStalemate() {
 		if (!isKingInCheck && !areAnyLegalMovesForCurrentSide()) {
-			moveResult = new ChessMoveResult();
 			moveResult.blackCondition = Condition.STALEMATE;
 			moveResult.whiteCondition = Condition.STALEMATE;
 			moveResult.legalPositions = new ArrayList<>();
@@ -167,7 +181,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	private boolean areAnyLegalMovesForCurrentSide() {
 		for (ChessPieceState chessPieceState : internalState) {
-			if (chessPieceState.side.equals(internalChessPieceToMove.side)) {
+			if (chessPieceState.side.equals(currentSide)) {
 				ChessMoveResult legalMovesMoveResult = getChessPieceWorker(internalState, chessPieceState).getLegalMoves();
 				if (getLegalListOfPositions(chessPieceState, legalMovesMoveResult).size() > 0) {
 					return true;
@@ -178,19 +192,19 @@ public class ChessRuleEngine implements IChessRuleEngine {
 	}
 
 	private List<Position> getLegalListOfPositions(ChessPieceState chessPieceToMove, ChessMoveResult moveResultToCheck) {
-        List<Position> positionListOverride = new ArrayList<>();
-        for (Position position : moveResultToCheck.legalPositions) {
-            if (!willPutKingInCheck(chessPieceToMove, position)) {
-                positionListOverride.add(new Position(position));
-            }
-        }
-        return positionListOverride;
-    }
+		List<Position> positionListOverride = new ArrayList<>();
+		for (Position position : moveResultToCheck.legalPositions) {
+			if (!willPutKingInCheck(chessPieceToMove, position)) {
+				positionListOverride.add(new Position(position));
+			}
+		}
+		return positionListOverride;
+	}
 
 	private boolean isKingInCheck() {
 		for (ChessPieceState chessPieceState : internalState) {
-			if (!chessPieceState.side.equals(internalChessPieceToMove.side)) {
-                ChessMoveResult moveResult = getChessPieceWorker(internalState, chessPieceState).getLegalMoves();
+			if (!chessPieceState.side.equals(currentSide)) {
+				ChessMoveResult moveResult = getChessPieceWorker(internalState, chessPieceState).getLegalMoves();
 				for (Position position : moveResult.legalPositions) {
 					if (position.rank.equals(currentKingState.position.rank)
 							&& position.file.equals(currentKingState.position.file)) {
@@ -202,63 +216,63 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		return false;
 	}
 
-    private boolean willPutKingInCheck(ChessPieceState chessPieceToMove, Position positionToMoveCurrentPieceTo) {
-        List<ChessPieceState> stateClone = cloneState(chessPieceToMove);
-        ChessPieceState spoofedChessPieceState = new ChessPieceState(chessPieceToMove);
-        spoofedChessPieceState.position = positionToMoveCurrentPieceTo;
-        stateClone.add(spoofedChessPieceState);
-        return isKingInCheckCloned(stateClone, spoofedChessPieceState);
-    }
+	private boolean willPutKingInCheck(ChessPieceState chessPieceToMove, Position positionToMoveCurrentPieceTo) {
+		List<ChessPieceState> stateClone = cloneState(chessPieceToMove);
+		ChessPieceState spoofedChessPieceState = new ChessPieceState(chessPieceToMove);
+		spoofedChessPieceState.position = positionToMoveCurrentPieceTo;
+		stateClone.add(spoofedChessPieceState);
+		return isKingInCheckCloned(stateClone, spoofedChessPieceState);
+	}
 
-    private List<ChessPieceState> cloneState(ChessPieceState chessPieceToMove) {
-        List<ChessPieceState> stateClone = new ArrayList<>();
-        for (ChessPieceState pieceToClone : internalState) {
-            if (pieceToClone.type.equals(chessPieceToMove.type)
-                    && pieceToClone.position.rank.equals(chessPieceToMove.position.rank)
-                    && pieceToClone.position.file.equals(chessPieceToMove.position.file)) {
-                continue;
-            }
-            stateClone.add(new ChessPieceState(pieceToClone));
-        }
-        return stateClone;
-    }
+	private List<ChessPieceState> cloneState(ChessPieceState chessPieceToMove) {
+		List<ChessPieceState> stateClone = new ArrayList<>();
+		for (ChessPieceState pieceToClone : internalState) {
+			if (pieceToClone.type.equals(chessPieceToMove.type)
+					&& pieceToClone.position.rank.equals(chessPieceToMove.position.rank)
+					&& pieceToClone.position.file.equals(chessPieceToMove.position.file)) {
+				continue;
+			}
+			stateClone.add(new ChessPieceState(pieceToClone));
+		}
+		return stateClone;
+	}
 
-    private boolean isKingInCheckCloned(List<ChessPieceState> stateClone, ChessPieceState chessPieceMoving) {
-        if (stateClone == null || stateClone.size() < 1) {
-            return false;
-        }
-        ChessPieceState currentKingState = getCurrentKingStateCloned(stateClone);
-        if (currentKingState == null) {
-            return false;
-        }
-        for (ChessPieceState chessPieceState : stateClone) {
-            if (!chessPieceState.side.equals(internalChessPieceToMove.side)
-                    && !(chessPieceState.position.rank.equals(chessPieceMoving.position.rank)
-                        && chessPieceState.position.file.equals(chessPieceMoving.position.file))
-                ) {
-                ChessMoveResult moveResult = getChessPieceWorker(stateClone, chessPieceState).getLegalMoves();
-                for (Position position : moveResult.legalPositions) {
-                    if (position.rank.equals(currentKingState.position.rank)
-                            && position.file.equals(currentKingState.position.file)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+	private boolean isKingInCheckCloned(List<ChessPieceState> stateClone, ChessPieceState chessPieceMoving) {
+		if (stateClone == null || stateClone.size() < 1) {
+			return false;
+		}
+		ChessPieceState currentKingState = getCurrentKingStateCloned(stateClone);
+		if (currentKingState == null) {
+			return false;
+		}
+		for (ChessPieceState chessPieceState : stateClone) {
+			if (!chessPieceState.side.equals(currentSide)
+					&& !(chessPieceState.position.rank.equals(chessPieceMoving.position.rank)
+						&& chessPieceState.position.file.equals(chessPieceMoving.position.file))
+				) {
+				ChessMoveResult moveResult = getChessPieceWorker(stateClone, chessPieceState).getLegalMoves();
+				for (Position position : moveResult.legalPositions) {
+					if (position.rank.equals(currentKingState.position.rank)
+							&& position.file.equals(currentKingState.position.file)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
-    private ChessPieceState getCurrentKingStateCloned(List<ChessPieceState> stateClone) {
-        if (stateClone == null) {
-            return null;
-        }
-        for (ChessPieceState currentChessPieceState : stateClone) {
-            if (currentChessPieceState.side.equals(internalChessPieceToMove.side)
-                    && currentChessPieceState.type.equals(Type.KING)) {
-                return currentChessPieceState;
-            }
-        }
-        return null;
-    }
+	private ChessPieceState getCurrentKingStateCloned(List<ChessPieceState> stateClone) {
+		if (stateClone == null) {
+			return null;
+		}
+		for (ChessPieceState currentChessPieceState : stateClone) {
+			if (currentChessPieceState.side.equals(currentSide)
+					&& currentChessPieceState.type.equals(Type.KING)) {
+				return currentChessPieceState;
+			}
+		}
+		return null;
+	}
 
 }
