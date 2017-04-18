@@ -119,7 +119,7 @@ public class CheckerBoardGenerator {
 
 		onlyPlaceIfAir = true;
 
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 4; i++) {
 			z--;
 			x--;
 			y--;
