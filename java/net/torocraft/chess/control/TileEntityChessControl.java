@@ -126,7 +126,30 @@ public class TileEntityChessControl extends TileEntity {
 		if (gameId == null || !gameId.equals(event.getGameId())) {
 			return;
 		}
-		updateValidMoves(event.getPiece());
+
+		Side thisSide = event.getPiece().getSide();
+		Side otherSide = otherSide(thisSide);
+		
+		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
+		
+		ChessPieceState otherKing = null;
+		
+		for(ChessPieceState state : boardState){
+			if(state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)){
+				otherKing = state;
+			}
+		}
+		
+		ChessMoveResult moves = getRuleEngine().getMoves(boardState, otherKing);
+		updateBoardCondition(moves);
+	}
+
+	private Side otherSide(Side thisSide) {
+		if (Side.WHITE.equals(thisSide)) {
+			return Side.BLACK;
+		} else {
+			return Side.WHITE;
+		}
 	}
 
 	private boolean isNotYourTurn(EntityChessPiece attacker) {
@@ -194,7 +217,14 @@ public class TileEntityChessControl extends TileEntity {
 	private void updateValidMoves(EntityChessPiece piece) {
 		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8),
 				CheckerBoardUtil.convertToState(piece));
+		if (moves == null) {
+			return;
+		}
+		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
+		updateBoardCondition(moves);
+	}
 
+	private void updateBoardCondition(ChessMoveResult moves) {
 		if (moves == null) {
 			return;
 		}
@@ -214,8 +244,6 @@ public class TileEntityChessControl extends TileEntity {
 		if (blackKing != null) {
 			blackKing.setInCheck(moves.blackCondition.equals(ChessMoveResult.Condition.CHECK));
 		}
-
-		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
 	private EntityKing getKing(Side side) {

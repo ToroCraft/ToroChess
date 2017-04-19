@@ -61,7 +61,9 @@ public class EntityKing extends EntityChessPiece implements IChessPiece {
 	}
 
 	public void setInCheck(boolean inCheck) {
-		System.out.println("Set Check: " + inCheck);
+		if(inCheck == isInCheck()){
+			return;
+		}
 		getDataManager().set(IN_CHECK, Boolean.valueOf(inCheck));
 		if (inCheck) {
 			world.setEntityState(this, (byte) 16);
