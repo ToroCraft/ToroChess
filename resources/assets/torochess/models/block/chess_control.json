@@ -1,13 +1,11 @@
 {
     "parent": "block/cube",
     "textures": {
-        "down": "torochess:blocks/chess_control",
-        "up": "torochess:blocks/chess_control",
-        "north": "torochess:blocks/chess_control",
-        "south": "torochess:blocks/chess_control",
-        "east": "torochess:blocks/chess_control",
-        "west": "torochess:blocks/chess_control",
-        "particle": "torochess:blocks/chess_control"
-
+        "down": "torochess:blocks/chess_control_queen",
+        "up": "torochess:blocks/chess_control_bishop",
+        "north": "torochess:blocks/chess_control_knight",
+        "south": "torochess:blocks/chess_control_pawn",
+        "east": "torochess:blocks/chess_control_rook",
+        "west": "torochess:blocks/chess_control_king"
     }
 }
