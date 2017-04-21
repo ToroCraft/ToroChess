@@ -87,7 +87,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		}
 
 		Position to = CheckerBoardUtil.getChessPosition(a8, pos);
-
+		
 		if (control.movePiece(a8, to)) {
 			yupSound(player);
 		} else {
@@ -116,6 +116,15 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
 		if (control == null) {
 			return false;
+		}
+		
+		if(player.isSneaking()){
+			if (control.castlePiece(a8, piece.getChessPosition())) {
+				yupSound(player);
+			} else {
+				nopeSound(player);
+			}
+			return true;
 		}
 
 		if (canAttack(wand, piece)) {

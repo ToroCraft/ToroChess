@@ -20,12 +20,14 @@ import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
+import net.torocraft.chess.engine.chess.CastleMove;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
 import net.torocraft.chess.engine.chess.impl.ChessRuleEngine;
 import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.king.EntityKing;
+import net.torocraft.chess.entities.rook.EntityRook;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
@@ -43,6 +45,7 @@ public class TileEntityChessControl extends TileEntity {
 	private Side turn = Side.WHITE;
 	private IChessRuleEngine ruleEngine;
 	private BlockPos a8;
+	ChessMoveResult moves;
 
 	public static void init() {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
@@ -67,6 +70,7 @@ public class TileEntityChessControl extends TileEntity {
 			throw new NullPointerException("gameId is null");
 		}
 		clearBoard();
+		turn = Side.WHITE;
 		ChessGameGenerator.placePieces(world, a8, gameId);
 	}
 
@@ -77,6 +81,93 @@ public class TileEntityChessControl extends TileEntity {
 		for (EntityChessPiece piece : pieces) {
 			piece.setDead();
 		}
+	}
+
+	public boolean castlePiece(BlockPos a8, Position to) {
+		if (selectedPiece == null) {
+			System.out.println("No piece has been selected");
+			return false;
+		}
+
+		Position from = selectedPiece;
+		EntityChessPiece king = CheckerBoardUtil.getPiece(world, from, a8, gameId);
+
+		if (king == null) {
+			System.out.println("No piece has been selected");
+			return false;
+		}
+
+		if (!(king instanceof EntityKing)) {
+			System.out.println("A king must be selected to castle");
+			return false;
+		}
+
+		if (isNotYourTurn(king)) {
+			System.out.println("It's not " + king.getSide().toString().toLowerCase() + "'s turn!");
+			return false;
+		}
+
+		EntityChessPiece rook = CheckerBoardUtil.getPiece(world, to, a8, gameId);
+		
+		System.out.println("Intial Rook Move: " + rook.isInitialMove());
+		System.out.println("Intial King Move: " + king.isInitialMove());
+
+		if (rook == null || !(rook instanceof EntityRook)) {
+			System.out.println("Only a rook can be castled");
+			return false;
+		}
+
+		if (!isSameSide(king, rook)) {
+			System.out.println("Must castle with friendly piece");
+			return false;
+		}
+
+		System.out.println("Request Castle:  " + from + " -> " + to);
+
+		if (moves == null) {
+			updateValidMoves(king);
+		}
+
+		if (moves == null) {
+			return false;
+		}
+
+		System.out.println("moves.kingSideCastleMove");
+		if (moves.kingSideCastleMove != null) {
+			System.out.println("positionToMoveKingTo: " + moves.kingSideCastleMove.positionToMoveKingTo);
+			System.out.println("positionToMoveRookTo: " + moves.kingSideCastleMove.positionToMoveRookTo);
+		}
+
+		System.out.println("moves.queenSideCastleMove");
+		if (moves.queenSideCastleMove != null) {
+			System.out.println("positionToMoveKingTo: " + moves.queenSideCastleMove.positionToMoveKingTo);
+			System.out.println("positionToMoveRookTo: " + moves.queenSideCastleMove.positionToMoveRookTo);
+		}
+
+		if (moves.kingSideCastleMove != null) {
+			if (moves.kingSideCastleMove.positionOfRook.equals(rook.getChessPosition())) {
+				startCastle(moves.kingSideCastleMove, rook, king);
+				return true;
+			}
+		}
+
+		if (moves.queenSideCastleMove != null) {
+			if (moves.queenSideCastleMove.positionOfRook.equals(rook.getChessPosition())) {
+				startCastle(moves.queenSideCastleMove, rook, king);
+				return true;
+			}
+		}
+
+		System.out.println("Castling is not allowed at this time");
+
+		return false;
+	};
+
+	private void startCastle(CastleMove castleMove, EntityChessPiece rook, EntityChessPiece king) {
+		deselectEntity();
+		rook.setChessPosition(castleMove.positionToMoveRookTo);
+		king.setChessPosition(castleMove.positionToMoveKingTo);
+		switchTurns();
 	}
 
 	public boolean movePiece(BlockPos a8, Position to) {
@@ -129,19 +220,19 @@ public class TileEntityChessControl extends TileEntity {
 
 		Side thisSide = event.getPiece().getSide();
 		Side otherSide = otherSide(thisSide);
-		
+
 		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
-		
+
 		ChessPieceState otherKing = null;
-		
-		for(ChessPieceState state : boardState){
-			if(state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)){
+
+		for (ChessPieceState state : boardState) {
+			if (state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)) {
 				otherKing = state;
 			}
 		}
-		
-		ChessMoveResult moves = getRuleEngine().getMoves(boardState, otherKing);
-		updateBoardCondition(moves);
+
+		moves = getRuleEngine().getMoves(boardState, otherKing);
+		updateBoardCondition();
 	}
 
 	private Side otherSide(Side thisSide) {
@@ -215,20 +306,27 @@ public class TileEntityChessControl extends TileEntity {
 	}
 
 	private void updateValidMoves(EntityChessPiece piece) {
-		ChessMoveResult moves = getRuleEngine().getMoves(CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8),
-				CheckerBoardUtil.convertToState(piece));
+
+		moves = null;
+
+		ChessPieceState thisPiece = CheckerBoardUtil.convertToState(piece);
+		List<ChessPieceState> allPieces = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
+
+		moves = getRuleEngine().getMoves(allPieces, thisPiece);
+
 		if (moves == null) {
 			return;
 		}
+
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
-		updateBoardCondition(moves);
+		updateBoardCondition();
 	}
 
-	private void updateBoardCondition(ChessMoveResult moves) {
-		if (moves == null) {
+	private void updateBoardCondition() {
+		if (moves == null || moves.blackCondition == null) {
 			return;
 		}
-
+		
 		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
 			initiateCheckmate(Side.BLACK);
 		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
@@ -351,5 +449,6 @@ public class TileEntityChessControl extends TileEntity {
 		public boolean apply(EntityChessPiece piece) {
 			return piece != null && piece instanceof EntityKing && side.equals(piece.getSide());
 		}
-	};
+	}
+
 }

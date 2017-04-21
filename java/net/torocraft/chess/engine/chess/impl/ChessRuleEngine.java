@@ -134,6 +134,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		if (!internalChessPieceToMove.type.equals(Type.KING)) {
 			return;
 		}
+		//TODO review this logic
 		//checking positions king is moving through and ultimately to, to make sure none of them would put him in check
 		if (moveResult.queenSideCastleMove != null) {
 			if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {

@@ -57,65 +57,66 @@ public class KingWorker extends ChessPieceWorker {
     }
 
     private void checkCastleMoves() {
-        checkIfCanCastleOnQueenSide();
-        checkIfCanCastleOnKingSide();
+        moveResult.queenSideCastleMove = computeCastleMoveFor(0, 2, 3);
+        moveResult.kingSideCastleMove = computeCastleMoveFor(7, 6, 5);
     }
 
-    private void checkIfCanCastleOnQueenSide() {
+    
+    private CastleMove computeCastleMoveFor(int rookStart, int kingFinish, int rookFinish){
         if (!chessPieceToMove.isInitialMove) {
-            return;
+        	System.out.println("king is not in intial move");
+            return null;
         }
-        Rank currentRank = chessPieceToMove.position.rank;
-        for(int file = 3; file>0; file--){
-            Position position = new Position(File.values()[file], currentRank);
-            if(!isSpaceFreeFullCheck(position)){
-                return;
-            }
-        }
-
-        ChessPieceState pieceInRookCastlingPosition = positionArray[currentRank.ordinal()][7];
-        if (pieceInRookCastlingPosition == null
-            || !pieceInRookCastlingPosition.type.equals(ChessPieceState.Type.ROOK)
-            || !pieceInRookCastlingPosition.side.equals(chessPieceToMove.side)
-            || !pieceInRookCastlingPosition.isInitialMove) {
-            return;
-        }
-
-        CastleMove queenSideCastleMove = new CastleMove();
-        queenSideCastleMove.positionOfKing = chessPieceToMove.position;
-        queenSideCastleMove.positionOfRook = pieceInRookCastlingPosition.position;
-        queenSideCastleMove.positionToMoveKingTo = new Position(File.values()[2],currentRank);
-        queenSideCastleMove.positionToMoveRookTo = new Position(File.values()[3], currentRank);
         
-        moveResult.queenSideCastleMove = queenSideCastleMove;
-    }
-
-    private void checkIfCanCastleOnKingSide(){
-        if (!chessPieceToMove.isInitialMove) {
-            return;
+        int kingFile = chessPieceToMove.position.file.ordinal();
+        
+        Rank rank = chessPieceToMove.position.rank;
+        ChessPieceState rook = positionArray[rank.ordinal()][rookStart];
+        
+        if(!rangeIsClear(rank, kingFile, rookStart)) {
+        	System.out.println("range is not clear " + kingFile + " -> " + rookStart);
+            return null;
         }
-        Rank currentRank = chessPieceToMove.position.rank;
-        for(int file = 5; file<7; file++){
+        
+        if(rookIncorrect(rook)) {
+        	System.out.println("Rook is incorrect");
+            return null;
+        }
+
+        return buildCastleMove(rank, rook, kingFinish, rookFinish);
+    }
+    
+    private boolean rangeIsClear(Rank currentRank, int fromFile, int toFile) {
+    	
+    	if(fromFile > toFile){
+    		int toFileBackup = toFile;
+    		toFile = fromFile;
+    		fromFile = toFileBackup;
+    	}
+    	
+    	for(int file = fromFile + 1; file < toFile - 1; file++){
             Position position = new Position(File.values()[file], currentRank);
             if(!isSpaceFreeFullCheck(position)){
-                return;
+                return false;
             }
         }
-
-        ChessPieceState pieceInRookCastlingPosition = positionArray[currentRank.ordinal()][0];
-        if (pieceInRookCastlingPosition == null
-                || !pieceInRookCastlingPosition.type.equals(ChessPieceState.Type.ROOK)
-                || !pieceInRookCastlingPosition.side.equals(chessPieceToMove.side)
-                || !pieceInRookCastlingPosition.isInitialMove) {
-            return;
-        }
-
-        CastleMove kingSideCastleMove = new CastleMove();
-        kingSideCastleMove.positionOfKing = chessPieceToMove.position;
-        kingSideCastleMove.positionOfRook = pieceInRookCastlingPosition.position;
-        kingSideCastleMove.positionToMoveKingTo = new Position(File.values()[6],currentRank);
-        kingSideCastleMove.positionToMoveRookTo = new Position(File.values()[5], currentRank);
-
-        moveResult.kingSideCastleMove = kingSideCastleMove;
+    	return true;
     }
+
+	private CastleMove buildCastleMove(Rank currentRank, ChessPieceState rook, int kingFile, int rookFile) {
+		CastleMove kingSideCastleMove = new CastleMove();
+        kingSideCastleMove.positionOfKing = chessPieceToMove.position;
+        kingSideCastleMove.positionOfRook = rook.position;
+        kingSideCastleMove.positionToMoveKingTo = new Position(File.values()[kingFile], currentRank);
+        kingSideCastleMove.positionToMoveRookTo = new Position(File.values()[rookFile], currentRank);
+        System.out.println("returning castle move");
+		return kingSideCastleMove;
+	}
+
+	private boolean rookIncorrect(ChessPieceState rook) {
+		return rook == null
+                || !rook.type.equals(ChessPieceState.Type.ROOK)
+                || !rook.side.equals(chessPieceToMove.side)
+                || !rook.isInitialMove;
+	}
 }
