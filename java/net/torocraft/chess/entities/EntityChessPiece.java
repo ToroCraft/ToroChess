@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
-import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -51,8 +50,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	double x = 0;
 	double z = 0;
 	boolean initialMove = true;
-	boolean gameOver = false;
-	// TODO store in NBT
 	boolean moveInProgress = true;
 	int gameOverCountdown = 0;
 
@@ -138,16 +135,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	public void onLivingUpdate() {
 		this.updateArmSwingProgress();
 		super.onLivingUpdate();
-		if (gameOver) {
-			gameOverCountdown += 1;
-			if (gameOverCountdown >= 120) {
-				BlockPos pos = this.getPosition();
-				EntityTNTPrimed tnt = new EntityTNTPrimed(world);
-				tnt.setPosition(pos.getX(), pos.getY(), pos.getZ());
-				world.spawnEntity(tnt);
-				this.setDead();
-			}
-		}
 	}
 
 	@Override
@@ -223,9 +210,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	public void initiateWinCondition() {
-		gameOver = true;
 		Predicate<EntityChessPiece> isOtherSide = new Predicate<EntityChessPiece>() {
-
 			@Override
 			public boolean apply(EntityChessPiece e) {
 				return !getSide().equals(e.getSide());
@@ -234,7 +219,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 
 		this.targetTasks.addTask(1,
 				new EntityAINearestAttackableTarget<EntityChessPiece>(this, EntityChessPiece.class, 2, false, false, isOtherSide));
-
 	}
 
 	@Override

@@ -1,17 +1,24 @@
 package net.torocraft.chess.control;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.minecraft.entity.item.EntityFireworkRocket;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -32,7 +39,7 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
 import net.torocraft.chess.items.HighlightedChessPiecePredicate;
 
-public class TileEntityChessControl extends TileEntity {
+public class TileEntityChessControl extends TileEntity implements ITickable {
 
 	private static final String NBT_SELECTED_RANK = "chessposrank";
 	private static final String NBT_SELECTED_FILE = "chessposfile";
@@ -46,6 +53,7 @@ public class TileEntityChessControl extends TileEntity {
 	private IChessRuleEngine ruleEngine;
 	private BlockPos a8;
 	ChessMoveResult moves;
+	private int fireworksRunCounter = -1;
 
 	public static void init() {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
@@ -105,7 +113,7 @@ public class TileEntityChessControl extends TileEntity {
 		}
 
 		EntityChessPiece rook = CheckerBoardUtil.getPiece(world, to, a8, gameId);
-		
+
 		if (rook == null || !(rook instanceof EntityRook)) {
 			return false;
 		}
@@ -284,7 +292,6 @@ public class TileEntityChessControl extends TileEntity {
 	}
 
 	private void updateValidMoves(EntityChessPiece piece) {
-
 		moves = null;
 
 		ChessPieceState thisPiece = CheckerBoardUtil.convertToState(piece);
@@ -304,11 +311,13 @@ public class TileEntityChessControl extends TileEntity {
 		if (moves == null || moves.blackCondition == null) {
 			return;
 		}
-		
+
 		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
 			initiateCheckmate(Side.BLACK);
+			return;
 		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
 			initiateCheckmate(Side.WHITE);
+			return;
 		}
 
 		EntityKing whiteKing = getKing(Side.WHITE);
@@ -336,6 +345,7 @@ public class TileEntityChessControl extends TileEntity {
 				chessPiece.initiateWinCondition();
 			}
 		}
+		startFireworkDisplay();
 	}
 
 	@Override
@@ -426,6 +436,82 @@ public class TileEntityChessControl extends TileEntity {
 		@Override
 		public boolean apply(EntityChessPiece piece) {
 			return piece != null && piece instanceof EntityKing && side.equals(piece.getSide());
+		}
+	}
+
+	private void buildFirework(World world, BlockPos pos) {
+		ItemStack item = new ItemStack(Items.FIREWORKS);
+
+		NBTTagCompound explosion1 = buildFireworkExplosive(world.rand);
+
+		NBTTagList explosions = new NBTTagList();
+		explosions.appendTag(explosion1);
+
+		NBTTagCompound fireworks = new NBTTagCompound();
+		fireworks.setTag("Explosions", explosions);
+		fireworks.setInteger("Flight", 0 + world.rand.nextInt(2));
+
+		NBTTagCompound c = new NBTTagCompound();
+		c.setTag("Fireworks", fireworks);
+
+		item.setTagCompound(c);
+
+		EntityFireworkRocket firework = new EntityFireworkRocket(world, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, item);
+
+		world.spawnEntity(firework);
+	}
+
+	private NBTTagCompound buildFireworkExplosive(Random rand) {
+		NBTTagCompound explosion1 = new NBTTagCompound();
+		explosion1.setBoolean("Flicker", true);
+		explosion1.setBoolean("Trail", true);
+		explosion1.setInteger("Type", rand.nextInt(5));
+		explosion1.setIntArray("Colors", new int[] { getColor(rand) });
+		return explosion1;
+	}
+
+	private int getColor(Random rand) {
+		switch (rand.nextInt(6)) {
+		case 0:
+			return 0xFF0000;
+		case 1:
+			return 0x00FF00;
+		case 2:
+			return 0xFFFF00;
+		case 3:
+			return 0x00FFFF;
+		case 4:
+			return 0xFF00FF;
+		case 5:
+			return 0x0000FF;
+		}
+		return 0xFF0000;
+	}
+
+	private void startFireworkDisplay() {
+		fireworksRunCounter = 0;
+	}
+
+	@Override
+	public void update() {
+		updateFireworks();
+	}
+
+	private void updateFireworks() {
+		if (fireworksRunCounter < 0) {
+			return;
+		}
+
+		if (world.getTotalWorldTime() % (2 + world.rand.nextInt(10)) != 0) {
+			return;
+		}
+
+		buildFirework(world, a8.add(world.rand.nextInt(8), 0, world.rand.nextInt(8)));
+
+		fireworksRunCounter++;
+
+		if (fireworksRunCounter > 30) {
+			fireworksRunCounter = -1;
 		}
 	}
 
