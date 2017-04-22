@@ -2,11 +2,21 @@ package net.torocraft.chess.gen;
 
 import java.util.UUID;
 
+import net.minecraft.block.BlockStandingSign;
+import net.minecraft.block.BlockWallSign;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.BannerPattern;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityBanner;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
@@ -62,6 +72,7 @@ public class ChessGameGenerator {
 		board.generate();
 		addWand();
 		placePieces(world, a8, gameId);
+		placeBanners(world, a8);
 		// saveGameData();
 	}
 
@@ -146,6 +157,39 @@ public class ChessGameGenerator {
 		} else {
 			return false;
 		}
+	}
+
+	private void placeBanners(World world, BlockPos a8) {
+		Side side = Side.BLACK;
+		placeBanner(world, new BlockPos(a8.getX() + 8, a8.getY() + 1, a8.getZ() + 8), side);
+		placeBanner(world, new BlockPos(a8.getX() - 1, a8.getY() + 1, a8.getZ() + 8), side);
+		side = Side.WHITE;
+		placeBanner(world, new BlockPos(a8.getX() + 8, a8.getY() + 1, a8.getZ() - 1), side);
+		placeBanner(world, new BlockPos(a8.getX() - 1, a8.getY() + 1, a8.getZ() - 1), side);
+	}
+
+	private void placeBanner(World worldIn, BlockPos pos, Side side) {
+		int rotation = Side.BLACK.equals(side) ? 0 : 8;
+		IBlockState banner = Blocks.STANDING_BANNER.getDefaultState().withProperty(BlockStandingSign.ROTATION, Integer.valueOf(rotation));
+		worldIn.setBlockState(pos, banner, 3);
+		TileEntity tileentity = worldIn.getTileEntity(pos);
+		if (tileentity instanceof TileEntityBanner) {
+			((TileEntityBanner) tileentity).setItemValues(createBannerItem(side), true);
+		}
+	}
+
+	private ItemStack createBannerItem(Side side) {
+		ItemStack itemstack = new ItemStack(Items.BANNER);
+
+		int color = Side.BLACK.equals(side) ? 0 : 15;
+		
+		NBTTagCompound blockEntityTag = new NBTTagCompound();
+		blockEntityTag.setInteger("Base", color);
+
+		NBTTagCompound c = new NBTTagCompound();
+		c.setTag("BlockEntityTag", blockEntityTag);
+		itemstack.setTagCompound(c);
+		return itemstack;
 	}
 
 }
