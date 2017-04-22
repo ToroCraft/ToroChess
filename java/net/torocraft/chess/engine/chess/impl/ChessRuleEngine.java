@@ -5,7 +5,6 @@ import net.torocraft.chess.engine.chess.ChessPieceState;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 import net.torocraft.chess.engine.chess.workers.*;
-import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +50,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 		updateBoardCondition();
 		updateMoveResult();
-		Mouse.setGrabbed(false);
-		Mouse.setGrabbed(true);
 		return moveResult;
 	}
 
