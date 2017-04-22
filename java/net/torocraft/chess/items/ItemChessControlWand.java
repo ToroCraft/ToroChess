@@ -39,8 +39,6 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	public static final String NBT_CONTROL_POS = "chesscontrol";
 	public static final String NBT_GAME_ID = "chessgameid";
 	public static final String NAME = "chess_control_wand";
-	public static final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
-	public static final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
 
 	public static ItemChessControlWand INSTANCE;
 
@@ -49,7 +47,11 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		GameRegistry.register(INSTANCE, new ResourceLocation(ToroChess.MODID, NAME));
 	}
 
+	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 	public static void registerRenders() {
+		ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
+		ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
+		
 		ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
 			@Override
 			public ModelResourceLocation getModelLocation(ItemStack stack) {

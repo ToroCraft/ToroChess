@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
@@ -178,7 +179,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		System.out.println("Request Move:  " + from + " -> " + to);
 
-		if (CheckerBoardUtil.isInvalidMove(gameId, a8, from, to)) {
+		if (isInvalidMove(gameId, a8, from, to)) {
 			System.out.println("INVALID MOVE");
 			return false;
 		}
@@ -195,6 +196,24 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		attacker.setAttackTarget(victim);
 		attacker.setChessPosition(to);
 
+		return true;
+	}
+	
+
+	public boolean isInvalidMove(UUID gameId, BlockPos a8, Position from, Position to) {
+		if (from == null || to == null) {
+			return true;
+		}
+		
+		if(moves == null){
+			return false;
+		}
+
+		for (Position move : moves.legalPositions) {
+			if (move.equals(to)) {
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -302,9 +321,18 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (moves == null) {
 			return;
 		}
-
-		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
+		
+		if(world.isRemote){
+			updateValidMovesOverlay();
+		}
+		
 		updateBoardCondition();
+	}
+
+	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+	private void updateValidMovesOverlay() {
+		System.out.println("setting valid moves");
+		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
 	private void updateBoardCondition() {
