@@ -228,15 +228,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
 
-		ChessPieceState otherKing = null;
-
-		for (ChessPieceState state : boardState) {
-			if (state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)) {
-				otherKing = state;
-			}
-		}
-
-		moves = getRuleEngine().getMoves(boardState, otherKing);
+		moves = getRuleEngine().getBoardConditionForSide(boardState, otherSide);
 		updateBoardCondition();
 	}
 
@@ -336,7 +328,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	}
 
 	private void updateBoardCondition() {
-		if (moves == null || moves.blackCondition == null) {
+		if (moves == null || moves.blackCondition == null || moves.whiteCondition == null) {
 			return;
 		}
 
