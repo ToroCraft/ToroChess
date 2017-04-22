@@ -85,7 +85,6 @@ public class TileEntityChessControl extends TileEntity {
 
 	public boolean castlePiece(BlockPos a8, Position to) {
 		if (selectedPiece == null) {
-			System.out.println("No piece has been selected");
 			return false;
 		}
 
@@ -93,12 +92,10 @@ public class TileEntityChessControl extends TileEntity {
 		EntityChessPiece king = CheckerBoardUtil.getPiece(world, from, a8, gameId);
 
 		if (king == null) {
-			System.out.println("No piece has been selected");
 			return false;
 		}
 
 		if (!(king instanceof EntityKing)) {
-			System.out.println("A king must be selected to castle");
 			return false;
 		}
 
@@ -109,16 +106,11 @@ public class TileEntityChessControl extends TileEntity {
 
 		EntityChessPiece rook = CheckerBoardUtil.getPiece(world, to, a8, gameId);
 		
-		System.out.println("Intial Rook Move: " + rook.isInitialMove());
-		System.out.println("Intial King Move: " + king.isInitialMove());
-
 		if (rook == null || !(rook instanceof EntityRook)) {
-			System.out.println("Only a rook can be castled");
 			return false;
 		}
 
 		if (!isSameSide(king, rook)) {
-			System.out.println("Must castle with friendly piece");
 			return false;
 		}
 
@@ -130,18 +122,6 @@ public class TileEntityChessControl extends TileEntity {
 
 		if (moves == null) {
 			return false;
-		}
-
-		System.out.println("moves.kingSideCastleMove");
-		if (moves.kingSideCastleMove != null) {
-			System.out.println("positionToMoveKingTo: " + moves.kingSideCastleMove.positionToMoveKingTo);
-			System.out.println("positionToMoveRookTo: " + moves.kingSideCastleMove.positionToMoveRookTo);
-		}
-
-		System.out.println("moves.queenSideCastleMove");
-		if (moves.queenSideCastleMove != null) {
-			System.out.println("positionToMoveKingTo: " + moves.queenSideCastleMove.positionToMoveKingTo);
-			System.out.println("positionToMoveRookTo: " + moves.queenSideCastleMove.positionToMoveRookTo);
 		}
 
 		if (moves.kingSideCastleMove != null) {
@@ -157,8 +137,6 @@ public class TileEntityChessControl extends TileEntity {
 				return true;
 			}
 		}
-
-		System.out.println("Castling is not allowed at this time");
 
 		return false;
 	};

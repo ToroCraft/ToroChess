@@ -64,7 +64,6 @@ public class KingWorker extends ChessPieceWorker {
     
     private CastleMove computeCastleMoveFor(int rookStart, int kingFinish, int rookFinish){
         if (!chessPieceToMove.isInitialMove) {
-        	System.out.println("king is not in intial move");
             return null;
         }
         
@@ -74,12 +73,10 @@ public class KingWorker extends ChessPieceWorker {
         ChessPieceState rook = positionArray[rank.ordinal()][rookStart];
         
         if(!rangeIsClear(rank, kingFile, rookStart)) {
-        	System.out.println("range is not clear " + kingFile + " -> " + rookStart);
             return null;
         }
         
         if(rookIncorrect(rook)) {
-        	System.out.println("Rook is incorrect");
             return null;
         }
 
@@ -108,7 +105,6 @@ public class KingWorker extends ChessPieceWorker {
         kingSideCastleMove.positionOfRook = rook.position;
         kingSideCastleMove.positionToMoveKingTo = new Position(File.values()[kingFile], currentRank);
         kingSideCastleMove.positionToMoveRookTo = new Position(File.values()[rookFile], currentRank);
-        System.out.println("returning castle move");
 		return kingSideCastleMove;
 	}
 
