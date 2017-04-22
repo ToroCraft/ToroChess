@@ -3,20 +3,14 @@ package net.torocraft.chess.gen;
 import java.util.UUID;
 
 import net.minecraft.block.BlockStandingSign;
-import net.minecraft.block.BlockWallSign;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.BannerPattern;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
@@ -30,6 +24,7 @@ import net.torocraft.chess.entities.pawn.EntityPawn;
 import net.torocraft.chess.entities.queen.EntityQueen;
 import net.torocraft.chess.entities.rook.EntityRook;
 import net.torocraft.chess.items.ItemChessControlWand;
+import net.torocraft.chess.items.util.BookCreator;
 
 public class ChessGameGenerator {
 
@@ -73,7 +68,13 @@ public class ChessGameGenerator {
 		addWand();
 		placePieces(world, a8, gameId);
 		placeBanners(world, a8);
+		placeInstructions(world, a8);
 		// saveGameData();
+	}
+
+	private void placeInstructions(World world2, BlockPos a82) {
+		board.getBlackChest().setInventorySlotContents(6, BookCreator.createBook("chess_instructions"));
+		board.getWhiteChest().setInventorySlotContents(6, BookCreator.createBook("chess_instructions"));
 	}
 
 	public static void placePieces(World world, BlockPos a8, UUID gameId) {

@@ -1,0 +1,15 @@
+ToroChess Instructions
+ToroCraft
+
+Each side has four control wands that can be used to control the pieces for that side.
+If you want sole control over your side, take all of them, or share with friends.  Just make sure not to lose them.
+
+Right click with a wand to select a piece.
+Then right click the wand on a square or enemy piece to move.
+
+To perform a castle move select the king then shift right click the rook you want to castle with.
+Castling will only work when the king and rook have not moved, no pieces are between them and the king will not be in check in any squares it moves through.
+
+The chess control block can be found under the board.
+Right click the control block to reset or clear the board.
+The control block can be mined with a pick and replaced in a more convenient nearby location. 
