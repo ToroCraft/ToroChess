@@ -87,14 +87,13 @@ public class KingWorker extends ChessPieceWorker {
     }
     
     private boolean rangeIsClear(Rank currentRank, int fromFile, int toFile) {
-    	
     	if(fromFile > toFile){
     		int toFileBackup = toFile;
     		toFile = fromFile;
     		fromFile = toFileBackup;
     	}
     	
-    	for(int file = fromFile + 1; file < toFile - 1; file++){
+    	for(int file = fromFile + 1; file <= toFile - 1; file++){
             Position position = new Position(File.values()[file], currentRank);
             if(!isSpaceFreeFullCheck(position)){
                 return false;

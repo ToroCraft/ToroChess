@@ -32,11 +32,10 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	@Override
 	public ChessMoveResult getMoves(List<ChessPieceState> state, ChessPieceState chessPieceToMove) {
+		initialize();
 		internalState = state;
 		internalChessPieceToMove = chessPieceToMove;
 		currentSide = chessPieceToMove.side;
-
-		moveResult = new ChessMoveResult();
 
 		currentKingState = getCurrentKingState();
 		isKingInCheck = isKingInCheck();
@@ -59,6 +58,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 
 	@Override
 	public ChessMoveResult getBoardConditionForSide(List<ChessPieceState> state, Side sideToCheck) {
+		initialize();
 		internalState = state;
 		currentSide = sideToCheck;
 
@@ -68,6 +68,15 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		checkIfKingIsInStalemate();
 
 		return moveResult;
+	}
+
+	private void initialize() {
+		moveResult = new ChessMoveResult();
+		internalState = null;
+		internalChessPieceToMove = null;
+		currentKingState = null;
+		isKingInCheck = false;
+		currentSide = null;
 	}
 
 	private ChessPieceState getCurrentKingState() {
@@ -134,7 +143,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		if (!internalChessPieceToMove.type.equals(Type.KING)) {
 			return;
 		}
-		//TODO review this logic
 		//checking positions king is moving through and ultimately to, to make sure none of them would put him in check
 		if (moveResult.queenSideCastleMove != null) {
 			if (willPutKingInCheck(internalChessPieceToMove, moveResult.queenSideCastleMove.positionToMoveKingTo)) {
@@ -145,8 +153,6 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		}
 		if (moveResult.kingSideCastleMove != null) {
 			if (willPutKingInCheck(internalChessPieceToMove, moveResult.kingSideCastleMove.positionToMoveKingTo)) {
-				moveResult.kingSideCastleMove = null;
-			} else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.D, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
 				moveResult.kingSideCastleMove = null;
 			} else if (willPutKingInCheck(internalChessPieceToMove, new Position(GamePieceState.File.F, moveResult.kingSideCastleMove.positionToMoveKingTo.rank))) {
 				moveResult.kingSideCastleMove = null;
