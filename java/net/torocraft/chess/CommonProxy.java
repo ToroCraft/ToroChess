@@ -4,6 +4,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.torocraft.chess.blocks.BlockChessControl;
+import net.torocraft.chess.control.MessageChessChat;
 import net.torocraft.chess.control.MessageChessControl;
 import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.entities.bishop.EntityBishop;
@@ -22,7 +23,8 @@ public class CommonProxy {
 		int packetId = 0;
 		MessageExtendedReachInteract.init(packetId++);
 		MessageChessControl.init(packetId++);
-
+		MessageChessChat.init(packetId++);
+		
 		ExtendedReachHandler.init();
 		ToroChessGuiHandler.init();
 		ItemChessControlWand.init();

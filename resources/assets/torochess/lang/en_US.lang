@@ -1,6 +1,9 @@
+#PARSE_ESCAPES
 commands.checkerboardcreate.usage=/checkerboardcreate
 commands.chesscreate.usage=/chesscreate
 item.chess_control_wand.name=Chess Wand
 gui.chesscontrol.clear=Clear Game Board
 gui.chesscontrol.reset=Reset Game Board
 tile.chess_control.name=Chess Control
+message.move=Move %1$s  %2$s  %3$s
+

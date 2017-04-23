@@ -21,8 +21,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
@@ -109,7 +112,6 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(king)) {
-			System.out.println("It's not " + king.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
@@ -123,7 +125,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 			return false;
 		}
 
-		System.out.println("Request Castle:  " + from + " -> " + to);
+		sendChatMessage("message.castle", king, from, to);
 
 		if (moves == null) {
 			updateValidMoves(king);
@@ -160,7 +162,6 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	public boolean movePiece(BlockPos a8, Position to) {
 
 		if (selectedPiece == null) {
-			System.out.println("No piece has been selected");
 			return false;
 		}
 
@@ -173,14 +174,10 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(attacker)) {
-			System.out.println("It's not " + attacker.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
-		System.out.println("Request Move:  " + from + " -> " + to);
-
 		if (isInvalidMove(gameId, a8, from, to)) {
-			System.out.println("INVALID MOVE");
 			return false;
 		}
 
@@ -190,6 +187,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 			return false;
 		}
 
+		sendChatMessage("message.move", attacker, from, to);
+		
 		deselectEntity();
 		switchTurns();
 
@@ -266,6 +265,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	}
 
 	public boolean selectEntity(EntityChessPiece target) {
+		
 		if (target == null) {
 			throw new NullPointerException("target is null");
 		}
@@ -277,7 +277,6 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(target)) {
-			System.out.println("It's not " + target.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
@@ -286,6 +285,11 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		updateValidMoves(target);
 		markDirty();
 		return true;
+	}
+
+	private void sendChatMessage(String message, EntityChessPiece piece, Position from, Position to) {
+		NetworkRegistry.TargetPoint p = new TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 20);
+		ToroChess.NETWORK.sendToAllAround(new MessageChessChat(message, piece.getSide(), piece.getName(), from, to), p);
 	}
 
 	public void deselectEntity() {
@@ -331,7 +335,6 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 	private void updateValidMovesOverlay() {
-		System.out.println("setting valid moves");
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
