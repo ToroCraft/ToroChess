@@ -12,9 +12,9 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.11.2-3.1"
-group= "net.torocraft.toroquest"
-archivesBaseName = "toroquest"
+version = "1.11.2-0.1"
+group= "net.torocraft.torochess"
+archivesBaseName = "torochess"
 
 minecraft {
     version = "1.11.2-13.20.0.2226"
