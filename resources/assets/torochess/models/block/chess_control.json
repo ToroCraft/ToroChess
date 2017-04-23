@@ -6,6 +6,7 @@
         "north": "torochess:blocks/chess_control_knight",
         "south": "torochess:blocks/chess_control_pawn",
         "east": "torochess:blocks/chess_control_rook",
-        "west": "torochess:blocks/chess_control_king"
+        "west": "torochess:blocks/chess_control_king",
+        "particle": "torochess:blocks/chess_control_queen"
     }
 }
