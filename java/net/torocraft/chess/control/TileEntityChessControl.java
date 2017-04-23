@@ -4,18 +4,24 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import org.omg.CORBA.TRANSACTION_UNAVAILABLE;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
 import net.minecraft.entity.item.EntityFireworkRocket;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -55,6 +61,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	private BlockPos a8;
 	ChessMoveResult moves;
 	private int fireworksRunCounter = -1;
+	private int turnBellCounter = -1;
+	private int turnBellTimes = 0;
 
 	public static void init() {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
@@ -229,8 +237,14 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		// updateBoardCondition(otherSide, boardState);
 		updateBoardCondition_theSlowButWorkingWay(otherSide, boardState);
-
 		handleBoardCondition();
+
+		playTurnSwitchBell();
+	}
+
+	private void playTurnSwitchBell() {
+		turnBellTimes = 2;
+		turnBellCounter = 12;
 	}
 
 	private void updateBoardCondition_theSlowButWorkingWay(Side otherSide, List<ChessPieceState> boardState) {
@@ -531,6 +545,29 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	@Override
 	public void update() {
 		updateFireworks();
+		updateTurnBell();
+	}
+
+	private void updateTurnBell() {
+		if (turnBellCounter < 0) {
+			return;
+		}
+
+		turnBellCounter--;
+
+		if (turnBellCounter < 2) {
+
+			SoundEvent sound = SoundEvents.BLOCK_NOTE_BASS;
+
+			world.playSound((EntityPlayer) null, a8.getX() + 4, a8.getY() + 2, a8.getZ() + 4, sound, SoundCategory.NEUTRAL, 1f, 1f);
+
+			if (turnBellTimes > 1) {
+				turnBellTimes--;
+				turnBellCounter = 5;
+			} else {
+				turnBellCounter = -1;
+			}
+		}
 	}
 
 	private void updateFireworks() {
