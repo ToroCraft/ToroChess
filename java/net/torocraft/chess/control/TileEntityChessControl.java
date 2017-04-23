@@ -109,7 +109,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(king)) {
-			//System.out.println("It's not " + king.getSide().toString().toLowerCase() + "'s turn!");
+			// System.out.println("It's not " +
+			// king.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
@@ -123,7 +124,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 			return false;
 		}
 
-		//System.out.println("Request Castle:  " + from + " -> " + to);
+		// System.out.println("Request Castle: " + from + " -> " + to);
 
 		if (moves == null) {
 			updateValidMoves(king);
@@ -160,7 +161,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	public boolean movePiece(BlockPos a8, Position to) {
 
 		if (selectedPiece == null) {
-			//System.out.println("No piece has been selected");
+			// System.out.println("No piece has been selected");
 			return false;
 		}
 
@@ -173,14 +174,15 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(attacker)) {
-			//System.out.println("It's not " + attacker.getSide().toString().toLowerCase() + "'s turn!");
+			// System.out.println("It's not " +
+			// attacker.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
-		//System.out.println("Request Move:  " + from + " -> " + to);
+		// System.out.println("Request Move: " + from + " -> " + to);
 
 		if (isInvalidMove(gameId, a8, from, to)) {
-			//System.out.println("INVALID MOVE");
+			// System.out.println("INVALID MOVE");
 			return false;
 		}
 
@@ -198,14 +200,13 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		return true;
 	}
-	
 
 	public boolean isInvalidMove(UUID gameId, BlockPos a8, Position from, Position to) {
 		if (from == null || to == null) {
 			return true;
 		}
-		
-		if(moves == null){
+
+		if (moves == null) {
 			return false;
 		}
 
@@ -222,14 +223,29 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (gameId == null || !gameId.equals(event.getGameId())) {
 			return;
 		}
-
 		Side thisSide = event.getPiece().getSide();
 		Side otherSide = otherSide(thisSide);
-
 		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
 
+		// updateBoardCondition(otherSide, boardState);
+		updateBoardCondition_theSlowButWorkingWay(otherSide, boardState);
+
+		handleBoardCondition();
+	}
+
+	private void updateBoardCondition_theSlowButWorkingWay(Side otherSide, List<ChessPieceState> boardState) {
+		ChessPieceState otherKing = null;
+		for (ChessPieceState state : boardState) {
+			if (state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)) {
+				otherKing = state;
+			}
+		}
+		moves = getRuleEngine().getMoves(boardState, otherKing);
+	}
+
+	@SuppressWarnings("unused")
+	private void updateBoardCondition(Side otherSide, List<ChessPieceState> boardState) {
 		moves = getRuleEngine().getBoardConditionForSide(boardState, otherSide);
-		updateBoardCondition();
 	}
 
 	private Side otherSide(Side thisSide) {
@@ -250,7 +266,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		} else {
 			turn = Side.WHITE;
 		}
-		//System.out.println(turn.toString().toLowerCase() + "'s turn");
+		// System.out.println(turn.toString().toLowerCase() + "'s turn");
 	}
 
 	private boolean isSameSide(EntityChessPiece target, EntityChessPiece victum) {
@@ -269,7 +285,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		if (isNotYourTurn(target)) {
-			//System.out.println("It's not " + target.getSide().toString().toLowerCase() + "'s turn!");
+			// System.out.println("It's not " +
+			// target.getSide().toString().toLowerCase() + "'s turn!");
 			return false;
 		}
 
@@ -313,12 +330,12 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (moves == null) {
 			return;
 		}
-		
-		if(world.isRemote){
+
+		if (world.isRemote) {
 			updateValidMovesOverlay();
 		}
-		
-		updateBoardCondition();
+
+		handleBoardCondition();
 	}
 
 	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
@@ -326,7 +343,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
-	private void updateBoardCondition() {
+	private void handleBoardCondition() {
 		if (moves == null || moves.blackCondition == null || moves.whiteCondition == null) {
 			return;
 		}
