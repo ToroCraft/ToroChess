@@ -7,6 +7,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -17,6 +18,7 @@ import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.IChessPiece;
 import net.torocraft.chess.entities.queen.EntityQueen;
+import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class EntityPawn extends EntityChessPiece implements IChessPiece {
@@ -79,14 +81,11 @@ public class EntityPawn extends EntityChessPiece implements IChessPiece {
 
 	private void convertToQueen() {
 		world.playSound((EntityPlayer) null, posX, posY, posZ, SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, SoundCategory.NEUTRAL, 1f, 1f);
-		// TODO add particles
-
 		EntityQueen queen = new EntityQueen(world);
-
 		ChessGameGenerator.setGameDataToEntity(world, getA8(), getGameId(), queen, getSide(), getChessPosition().file, getChessPosition().rank);
-
+		BlockPos pos = CheckerBoardUtil.toWorldCoords(getA8(), getChessPosition());
+		queen.setPosition(pos.getX() + 0.5, getA8().getY() + 1, pos.getZ() + 0.5);
 		setDead();
-
 		world.spawnEntity(queen);
 	}
 }
