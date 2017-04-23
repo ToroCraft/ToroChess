@@ -148,8 +148,6 @@ public class ChessGameGenerator {
 		e.setGameId(gameId);
 		e.setA8(a8);
 		e.setInitialMove(true);
-		BlockPos pos = CheckerBoardUtil.toWorldCoords(a8, new Position(file, rank));
-		e.setPosition(pos.getX(), a8.getY() + 1, pos.getZ());
 	}
 
 	private Boolean castSide(Side side) {

@@ -7,7 +7,6 @@ import java.util.UUID;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.torocraft.chess.control.CheckerBoardOverlay;
 import net.torocraft.chess.control.ChessPieceSearchPredicate;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
