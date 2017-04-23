@@ -49,8 +49,8 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
 	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 	public static void registerRenders() {
-		ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
-		ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
+		final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
+		final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
 		
 		ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
 			@Override
