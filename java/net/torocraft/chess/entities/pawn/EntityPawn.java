@@ -20,7 +20,7 @@ import net.torocraft.chess.entities.queen.EntityQueen;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class EntityPawn extends EntityChessPiece implements IChessPiece {
-	public static String NAME = "pawn";
+	public static String NAME = ToroChess.MODID + "_pawn";
 
 	public static void init(int entityId) {
 		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityPawn.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,

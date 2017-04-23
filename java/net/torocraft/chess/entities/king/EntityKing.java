@@ -21,7 +21,7 @@ import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.IChessPiece;
 
 public class EntityKing extends EntityChessPiece implements IChessPiece {
-	public static String NAME = "king";
+	public static String NAME = ToroChess.MODID + "_king";
 
 	private static final String NBT_IN_CHECK_KEY = "inCheck";
 

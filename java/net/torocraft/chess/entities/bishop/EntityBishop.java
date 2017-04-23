@@ -14,7 +14,7 @@ import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.IChessPiece;
 
 public class EntityBishop extends EntityChessPiece implements IChessPiece {
-	public static String NAME = "bishop";
+	public static String NAME = ToroChess.MODID + "_bishop";
 
 	public static void init(int entityId) {
 		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityBishop.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
