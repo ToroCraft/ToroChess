@@ -235,8 +235,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		Side otherSide = otherSide(thisSide);
 		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
 
-		// updateBoardCondition(otherSide, boardState);
-		updateBoardCondition_theSlowButWorkingWay(otherSide, boardState);
+		moves = getRuleEngine().getBoardConditionForSide(boardState, otherSide);
 		handleBoardCondition();
 
 		playTurnSwitchBell();
@@ -245,21 +244,6 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	private void playTurnSwitchBell() {
 		turnBellTimes = 2;
 		turnBellCounter = 12;
-	}
-
-	private void updateBoardCondition_theSlowButWorkingWay(Side otherSide, List<ChessPieceState> boardState) {
-		ChessPieceState otherKing = null;
-		for (ChessPieceState state : boardState) {
-			if (state.side.equals(otherSide) && ChessPieceState.Type.KING.equals(state.type)) {
-				otherKing = state;
-			}
-		}
-		moves = getRuleEngine().getMoves(boardState, otherKing);
-	}
-
-	@SuppressWarnings("unused")
-	private void updateBoardCondition(Side otherSide, List<ChessPieceState> boardState) {
-		moves = getRuleEngine().getBoardConditionForSide(boardState, otherSide);
 	}
 
 	private Side otherSide(Side thisSide) {

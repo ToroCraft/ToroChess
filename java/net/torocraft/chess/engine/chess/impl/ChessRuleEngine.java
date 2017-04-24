@@ -63,7 +63,7 @@ public class ChessRuleEngine implements IChessRuleEngine {
 		isKingInCheck = isKingInCheck();
 		checkIfKingIsInCheckmate();
 		checkIfKingIsInStalemate();
-
+		updateBoardCondition();
 		return moveResult;
 	}
 
