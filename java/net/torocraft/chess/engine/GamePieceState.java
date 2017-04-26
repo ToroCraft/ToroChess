@@ -1,9 +1,9 @@
 package net.torocraft.chess.engine;
 
 public abstract class GamePieceState {
-    public Position position;
-    public Side side;
-    public boolean isInitialMove;
+	public Position position;
+	public Side side;
+	public boolean isInitialMove;
 
 	public enum Side {
 		WHITE, BLACK
@@ -33,13 +33,25 @@ public abstract class GamePieceState {
 		}
 
 		public Position(Position position) {
-		    this.file = position.file;
-		    this.rank = position.rank;
-        }
+			this.file = position.file;
+			this.rank = position.rank;
+		}
 
 		@Override
 		public String toString() {
 			return file.toString().toLowerCase() + (rank.ordinal() + 1);
+		}
+
+		public static Position unpack(byte b) {
+			int high = (b & 0xf0) >>> 4;
+			int low = b & 0x0f;
+			return new Position(File.values()[low], Rank.values()[high]);
+		}
+
+		public byte pack() {
+			int high = (byte) rank.ordinal();
+			int low = (byte) file.ordinal();
+			return (byte) ((high << 4) | low);
 		}
 
 		@Override

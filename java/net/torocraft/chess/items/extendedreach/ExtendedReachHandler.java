@@ -4,8 +4,10 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -55,8 +57,22 @@ public class ExtendedReachHandler {
 
 		if (raytrace.entityHit != null) {
 			ToroChess.NETWORK.sendToServer(new MessageExtendedReachInteract(raytrace.entityHit.getEntityId()));
+			
+			/*
+			 * send to client
+			 */
+			((IExtendedReach) (stack.getItem())).itemInteractionForEntityExtended(stack, player, (EntityLivingBase) raytrace.entityHit,
+					EnumHand.MAIN_HAND);
 		} else if (RayTraceResult.Type.BLOCK.equals(raytrace.typeOfHit)) {
 			ToroChess.NETWORK.sendToServer(new MessageExtendedReachInteract(raytrace.getBlockPos()));
+
+			/*
+			 * send to client
+			 */
+			Vec3d vec = player.getPositionVector();
+			((IExtendedReach) (stack.getItem())).onItemUseExtended(player, player.world, raytrace.getBlockPos(), EnumHand.MAIN_HAND, null,
+					(float) vec.xCoord, (float) vec.yCoord, (float) vec.zCoord);
+
 		}
 
 	}

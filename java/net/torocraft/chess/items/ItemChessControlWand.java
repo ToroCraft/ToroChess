@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.blocks.BlockChessControl;
+import net.torocraft.chess.control.MessageLegalMovesRequest;
 import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Side;
@@ -77,12 +78,16 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
 		ItemStack wand = player.getHeldItem(hand);
 
-		if (wand == null || world.isRemote || !wand.hasTagCompound() || !(wand.getItem() instanceof ItemChessControlWand)) {
+		if (wand == null || !wand.hasTagCompound() || !(wand.getItem() instanceof ItemChessControlWand)) {
 			return EnumActionResult.PASS;
 		}
 
 		BlockPos a8 = getA8(wand);
 		TileEntityChessControl control = getChessControlAt(world, wand);
+
+		if (world.isRemote) {
+			return EnumActionResult.PASS;
+		}
 
 		if (control == null) {
 			return EnumActionResult.PASS;
@@ -101,7 +106,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
 	@Override
 	public boolean itemInteractionForEntityExtended(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
-		if (player.world.isRemote || !(target instanceof EntityChessPiece)) {
+		if (!(target instanceof EntityChessPiece)) {
 			return false;
 		}
 
@@ -115,6 +120,11 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		BlockPos a8 = getA8(wand);
 
 		TileEntityChessControl control = getChessControlAt(player.world, wand);
+
+		if (player.world.isRemote) {
+			ToroChess.NETWORK.sendToServer(new MessageLegalMovesRequest(getChessControlPos(wand)));
+			return false;
+		}
 
 		if (control == null) {
 			return false;
@@ -202,11 +212,13 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 			return null;
 		}
 
-		if (!((TileEntityChessControl) te).getGameId().equals(gameId)) {
+		TileEntityChessControl control = (TileEntityChessControl) te;
+
+		if (control.getGameId() == null || !control.getGameId().equals(gameId)) {
 			return null;
 		}
 
-		return (TileEntityChessControl) te;
+		return control;
 	}
 
 	private void nopeSound(EntityPlayer player) {
@@ -247,6 +259,9 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	}
 
 	public static UUID getGameId(ItemStack stack) {
+		if (stack == null || stack.isEmpty() || stack.getTagCompound() == null) {
+			return null;
+		}
 		return stack.getTagCompound().getUniqueId(ItemChessControlWand.NBT_GAME_ID);
 	}
 

@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import org.omg.CORBA.TRANSACTION_UNAVAILABLE;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
@@ -27,8 +25,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
 import net.torocraft.chess.engine.GamePieceState.Position;
@@ -59,7 +58,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	private Side turn = Side.WHITE;
 	private IChessRuleEngine ruleEngine;
 	private BlockPos a8;
-	ChessMoveResult moves;
+	private ChessMoveResult moves;
 	private int fireworksRunCounter = -1;
 	private int turnBellCounter = -1;
 	private int turnBellTimes = 0;
@@ -264,7 +263,12 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		} else {
 			turn = Side.WHITE;
 		}
-		// System.out.println(turn.toString().toLowerCase() + "'s turn");
+		sendTurnChangeMessage();
+	}
+
+	private void sendTurnChangeMessage() {
+		TargetPoint p = new TargetPoint(world.provider.getDimension(), a8.getX() + 4, a8.getY(), a8.getZ() + 4, 40);
+		ToroChess.NETWORK.sendToAllAround(new MessageTurnChangeEvent(turn, gameId), p);
 	}
 
 	private boolean isSameSide(EntityChessPiece target, EntityChessPiece victum) {
@@ -329,16 +333,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 			return;
 		}
 
-		if (world.isRemote) {
-			updateValidMovesOverlay();
-		}
-
 		handleBoardCondition();
-	}
-
-	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
-	private void updateValidMovesOverlay() {
-		CheckerBoardOverlay.INSTANCE.setValidMoves(moves.legalPositions);
 	}
 
 	private void handleBoardCondition() {
@@ -541,7 +536,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		if (turnBellCounter < 2) {
 
-			SoundEvent sound = SoundEvents.BLOCK_NOTE_BASS;
+			// SoundEvent sound = SoundEvents.BLOCK_NOTE_BASS;
+			SoundEvent sound = SoundEvents.BLOCK_NOTE_HARP;
 
 			world.playSound((EntityPlayer) null, a8.getX() + 4, a8.getY() + 2, a8.getZ() + 4, sound, SoundCategory.NEUTRAL, 1f, 1f);
 
@@ -570,6 +566,10 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (fireworksRunCounter > 30) {
 			fireworksRunCounter = -1;
 		}
+	}
+
+	public ChessMoveResult getMoves() {
+		return moves;
 	}
 
 }
