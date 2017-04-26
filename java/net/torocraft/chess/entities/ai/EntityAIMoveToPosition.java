@@ -71,7 +71,7 @@ public class EntityAIMoveToPosition extends EntityAIBase {
 		}
 
 		if (distance < 1) {
-			entity.setPosition(targetX, targetY, targetZ);
+			entity.setPosition(targetX, entity.posY, targetZ);
 			timeoutCounter = 0;
 			isAboveDestination = true;
 			return;
