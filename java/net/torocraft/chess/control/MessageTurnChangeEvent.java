@@ -74,8 +74,8 @@ public class MessageTurnChangeEvent implements IMessage {
 				return null;
 			}
 
-			IThreadListener mainThread = Minecraft.getMinecraft();
-			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			final IThreadListener mainThread = Minecraft.getMinecraft();
+			final EntityPlayerSP player = Minecraft.getMinecraft().player;
 
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
