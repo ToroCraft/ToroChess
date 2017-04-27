@@ -69,7 +69,7 @@ Castling will only work when the king and rook have not moved, no pieces are bet
 
 ## Future Plans
 - En passant support
-- Simplist Chess AI (easy mode only)
+- Simplistic Chess AI (easy mode only)
 - Move timers
 
 ## Development Environment Setup
