@@ -34,7 +34,6 @@ Avaliable functions ...
 Usuable block types for the white and black blocks
 - OBSIDIAN
 - PLANKS
-- PLANKS
 - STAINED_GLASS,
 - STAINED_HARDENED_CLAY
 - WOOL
