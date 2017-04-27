@@ -14,6 +14,10 @@ Control block explaination ...
 
 Avaliable functions ...
 
+<a href="http://i.imgur.com/M7egWqR.gifv" target="_blank"><img src="http://i.imgur.com/c0nBYmU.png/"></a>
+
+
+
 ##### Recipe example using quartz and obsidian
 ![Recipe Example 1](http://i.imgur.com/A32HOAe.png)
 
