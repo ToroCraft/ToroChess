@@ -1,7 +1,7 @@
 
 # ToroChess
 
-![Screen Shot](http://i.imgur.com/hdqS74k.png)
+![Screen Shot](http://i.imgur.com/yN4Agb1.png)
 
 ## Development Environment Setup
 Download the desired version of Forge MDK from https://files.minecraftforge.net/ and unzip the MDK into a new directory. After the MDK is unzipped, clone this repo into the `src` directory as `main`. Then you will need to either copy or link the `build.gradle` from the repository to the root of the MDK, replacing the original one. 
