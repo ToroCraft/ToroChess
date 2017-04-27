@@ -49,6 +49,8 @@ Usuable block types for the white and black blocks
 - SANDSTONE
 - MOSSY_COBBLESTONE
 
+Board reconstruction ...
+
 ## Gameplay
 
 ## Limitations
