@@ -52,6 +52,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	boolean initialMove = true;
 	boolean moveInProgress = true;
 	int gameOverCountdown = 0;
+	private boolean clearCondition = false;
 
 	public EntityChessPiece(World worldIn) {
 		super(worldIn);
@@ -124,6 +125,11 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	private boolean canBeAttackedBy(DamageSource source) {
+
+		if (clearCondition) {
+			return true;
+		}
+
 		if (source.getEntity() == null || !(source.getEntity() instanceof EntityChessPiece)) {
 			return false;
 		}
@@ -209,7 +215,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		}
 	}
 
-	public void initiateWinCondition() {
+	public void setAttackAllMode() {
 		Predicate<EntityChessPiece> isOtherSide = new Predicate<EntityChessPiece>() {
 			@Override
 			public boolean apply(EntityChessPiece e) {
@@ -219,6 +225,12 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 
 		this.targetTasks.addTask(1,
 				new EntityAINearestAttackableTarget<EntityChessPiece>(this, EntityChessPiece.class, 2, false, false, isOtherSide));
+
+		clearCondition = true;
+	}
+	
+	public void setClearCondition() {
+		clearCondition = true;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.torocraft.chess.control;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -17,6 +18,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -62,6 +65,9 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	private int fireworksRunCounter = -1;
 	private int turnBellCounter = -1;
 	private int turnBellTimes = 0;
+	private boolean resetOnClear = false;
+
+	private int clearBoardTimer = -1;
 
 	public static void init() {
 		GameRegistry.registerTileEntity(TileEntityChessControl.class, "chess_control_tile_entity");
@@ -85,18 +91,41 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (a8 == null) {
 			throw new NullPointerException("gameId is null");
 		}
+
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+				new ChessPieceSearchPredicate(gameId));
+
+		for (EntityChessPiece chessPiece : pieces) {
+			chessPiece.setClearCondition();
+		}
+
+		resetOnClear = true;
+
 		clearBoard();
+
+	}
+	
+	private List<EntityChessPiece> piecesToPlace;
+
+	private void reset() {
 		turn = Side.WHITE;
-		ChessGameGenerator.placePieces(world, a8, gameId);
+		piecesToPlace = ChessGameGenerator.genPieces(world, a8, gameId);
 	}
 
 	public void clearBoard() {
 		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
 				new ChessPieceSearchPredicate(gameId));
 
-		for (EntityChessPiece piece : pieces) {
-			piece.setDead();
+		for (EntityChessPiece chessPiece : pieces) {
+			chessPiece.setAttackAllMode();
 		}
+
+		if (pieces.size() < 1 && resetOnClear) {
+			reset();
+		}
+
+		clearBoardTimer = 100;
+
 	}
 
 	public boolean castlePiece(BlockPos a8, Position to) {
@@ -371,7 +400,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		for (ChessPieceState chessPieceState : CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8)) {
 			EntityChessPiece chessPiece = CheckerBoardUtil.getPiece(world, chessPieceState.position, a8, gameId);
 			if (chessPiece != null && !chessPiece.getSide().equals(losingSide)) {
-				chessPiece.initiateWinCondition();
+				chessPiece.setAttackAllMode();
 			}
 		}
 		startFireworkDisplay();
@@ -525,6 +554,73 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	public void update() {
 		updateFireworks();
 		updateTurnBell();
+		updateBoardClear();
+		updatePlacePieces();
+	}
+
+	
+	private int placePiecesTimer = 0;
+	
+	private void updatePlacePieces() {
+		if(piecesToPlace == null || piecesToPlace.size() < 1){
+			placePiecesTimer = 0;
+			return;
+		}
+		
+		placePiecesTimer++;
+		
+		if(placePiecesTimer > 100){
+			//TODO handle this -- place all
+			
+			
+		}
+		
+		for (Iterator<EntityChessPiece> iterator = piecesToPlace.iterator(); iterator.hasNext();) {
+			EntityChessPiece e = iterator.next();
+		    if (world.rand.nextInt(10) == 0) {
+		    	
+		    	//this.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d16, d19, d22, d24, d26, d27, new int[0]);
+		    	
+		    	world.spawnEntity(e);
+		        iterator.remove();
+		        return;
+		    }
+		}
+	}
+
+	private void updateBoardClear() {
+		if (clearBoardTimer < 0) {
+			return;
+		}
+
+		clearBoardTimer--;
+
+		if (clearBoardTimer > 2) {
+			return;
+		}
+
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+				new ChessPieceSearchPredicate(gameId));
+
+		if (pieces.size() < 1) {
+
+			if (resetOnClear) {
+				reset();
+				resetOnClear = false;
+			}
+
+			clearBoardTimer = -1;
+			return;
+		}
+
+		clearBoardTimer = 4;
+
+		for (EntityChessPiece piece : pieces) {
+			if (world.rand.nextInt(8) == 0) {
+				piece.attackEntityFrom(DamageSource.FALL, 10);
+			}
+		}
+
 	}
 
 	private void updateTurnBell() {
@@ -535,12 +631,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		turnBellCounter--;
 
 		if (turnBellCounter < 2) {
-
-			// SoundEvent sound = SoundEvents.BLOCK_NOTE_BASS;
 			SoundEvent sound = SoundEvents.BLOCK_NOTE_HARP;
-
 			world.playSound((EntityPlayer) null, a8.getX() + 4, a8.getY() + 2, a8.getZ() + 4, sound, SoundCategory.NEUTRAL, 1f, 1f);
-
 			if (turnBellTimes > 1) {
 				turnBellTimes--;
 				turnBellCounter = 5;
