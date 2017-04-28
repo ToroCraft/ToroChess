@@ -1,7 +1,7 @@
 
 # ToroChess
 
-Play chess in Minecraft with ToroChess!  The ToroChess mod adds chess in a minecrafty way that is fun to play in both creative and survival mode.  The chess pieces are made out of standard Minecraft entities which move and attack like normal mobs.  The chess board can be destroyed and recreated however the player would like allowing it to become part of the players builds.  The chess pieces are controlled with eight provided chess control wands, four for each side.
+Play chess in Minecraft with ToroChess!  The ToroChess mod adds chess in a minecrafty way that is fun to play in both creative and survival mode.  The chess pieces are made out of standard Minecraft entities which move and attack like normal mobs.  The chess board can be destroyed and recreated however the player would like, allowing it to become part of the player's builds.  The chess pieces are controlled with eight provided chess control wands, four for each side.
 
 ![Screen Shot](http://i.imgur.com/yN4Agb1.png)
 
@@ -16,7 +16,7 @@ A new chess board will be created when you place the control block for the first
 
 <a href="http://i.imgur.com/M7egWqR.gifv" target="_blank"><img src="http://i.imgur.com/c0nBYmU.png/"></a>
 
-To reset or clear the board the player will need to gain access to the chess control block.  The control block is not consumed when placed, instead the boards is constructed around it.  The control can be found under the center of the board by digging under the board.  Right clicking the control block will display a GUI allowing players to control the game. The control block can be mined and placed in a more convenient nearby location.  The control block will not regenerate a board when places subsequent times. 
+To reset or clear the board the player will need to gain access to the chess control block.  The control block is not consumed when placed, instead the board is constructed around it.  The control can be found under the center of the board by digging under the board.  Right clicking the control block will display a GUI allowing players to control the game. The control block can be mined and placed in a more convenient nearby location.  The control block will not regenerate a board when placed subsequent times. 
 
 All chess game information is stored in the control block. To remove the board and chess game, all the player needs to do is mine the control block and board. 
 
