@@ -1,5 +1,7 @@
 package net.torocraft.chess.gen;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.BlockStandingSign;
@@ -77,6 +79,7 @@ public class ChessGameGenerator {
 		board.getWhiteChest().setInventorySlotContents(6, BookCreator.createBook("chess_instructions"));
 	}
 
+	@Deprecated
 	public static void placePieces(World world, BlockPos a8, UUID gameId) {
 		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.A, Rank.TWO);
 		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.B, Rank.TWO);
@@ -115,8 +118,48 @@ public class ChessGameGenerator {
 		placeEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);
 	}
 
+	public static List<EntityChessPiece> genPieces(World world, BlockPos a8, UUID gameId) {
+		List<EntityChessPiece> pieces = new ArrayList<>();
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.A, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.B, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.C, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.D, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.E, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.F, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.G, Rank.TWO));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.H, Rank.TWO));
+
+		pieces.add(genEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.A, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.B, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.C, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityKing(world), Side.WHITE, File.E, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityQueen(world), Side.WHITE, File.D, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.F, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.G, Rank.ONE));
+		pieces.add(genEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.H, Rank.ONE));
+
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.A, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.B, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.C, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.D, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.E, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.F, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.G, Rank.SEVEN));
+		pieces.add(genEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.H, Rank.SEVEN));
+
+		pieces.add(genEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityKing(world), Side.BLACK, File.E, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityQueen(world), Side.BLACK, File.D, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.G, Rank.EIGHT));
+		pieces.add(genEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT));
+
+		return pieces;
+	}
+
 	private void addWand() {
-		// TODO fix bug where if chest can not be created game crashes
 		for (int i = 0; i < 4; i++) {
 			board.getWhiteChest().setInventorySlotContents(i, createWand(Side.WHITE));
 			board.getBlackChest().setInventorySlotContents(i, createWand(Side.BLACK));
@@ -134,12 +177,18 @@ public class ChessGameGenerator {
 		return wand;
 	}
 
-	public static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
+	public static EntityChessPiece genEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
+		//TODO this method should take in ChessPieceState.Type instead of EntityChessPiece
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
 		e.setPosition(x, a8.getY() + 1, z);
 		setGameDataToEntity(world, a8, gameId, e, side, file, rank);
-		world.spawnEntity(e);
+		return e;
+	}
+
+	@Deprecated
+	public static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
+		world.spawnEntity(genEntity(world, a8, gameId, e, side, file, rank));
 	}
 
 	public static void setGameDataToEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
@@ -181,7 +230,7 @@ public class ChessGameGenerator {
 		ItemStack itemstack = new ItemStack(Items.BANNER);
 
 		int color = Side.BLACK.equals(side) ? 0 : 15;
-		
+
 		NBTTagCompound blockEntityTag = new NBTTagCompound();
 		blockEntityTag.setInteger("Base", color);
 
