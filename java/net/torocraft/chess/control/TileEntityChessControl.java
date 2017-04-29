@@ -103,7 +103,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		clearBoard();
 
 	}
-	
+
 	private List<EntityChessPiece> piecesToPlace;
 
 	private void reset() {
@@ -557,25 +557,24 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		updatePlacePieces();
 	}
 
-	
 	private int placePiecesTimer = 0;
-	
+
 	private void updatePlacePieces() {
-		if(piecesToPlace == null || piecesToPlace.size() < 1){
+		if (piecesToPlace == null || piecesToPlace.size() < 1) {
 			placePiecesTimer = 0;
 			return;
 		}
-		
+
 		placePiecesTimer++;
-		
+
 		for (Iterator<EntityChessPiece> iterator = piecesToPlace.iterator(); iterator.hasNext();) {
 			EntityChessPiece e = iterator.next();
-		    if (world.rand.nextInt(5) == 0 || placePiecesTimer > 50) {
-		    	world.spawnEntity(e);
-		    	playSound(SoundEvents.BLOCK_NOTE_HARP);
-		        iterator.remove();
-		        return;
-		    }
+			if (world.rand.nextInt(5) == 0 || placePiecesTimer > 50) {
+				world.spawnEntity(e);
+				playSound(SoundEvents.BLOCK_SNOW_HIT);
+				iterator.remove();
+				return;
+			}
 		}
 	}
 

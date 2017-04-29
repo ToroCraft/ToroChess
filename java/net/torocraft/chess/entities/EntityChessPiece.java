@@ -125,7 +125,6 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 	}
 
 	private boolean canBeAttackedBy(DamageSource source) {
-
 		if (clearCondition) {
 			return true;
 		}
@@ -133,8 +132,9 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		if (source.getEntity() == null || !(source.getEntity() instanceof EntityChessPiece)) {
 			return false;
 		}
-		Side attackerSide = ((EntityChessPiece) source.getEntity()).getSide();
-		return !attackerSide.equals(getSide());
+		
+		EntityChessPiece attacker = (EntityChessPiece) source.getEntity();
+		return isEnemy(attacker);
 	}
 
 	@Override
@@ -219,7 +219,7 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 		Predicate<EntityChessPiece> isOtherSide = new Predicate<EntityChessPiece>() {
 			@Override
 			public boolean apply(EntityChessPiece e) {
-				return !getSide().equals(e.getSide());
+				return isEnemy(e);
 			}
 		};
 
@@ -227,6 +227,13 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
 				new EntityAINearestAttackableTarget<EntityChessPiece>(this, EntityChessPiece.class, 2, false, false, isOtherSide));
 
 		clearCondition = true;
+	}
+	
+	public boolean isEnemy(EntityChessPiece e) {
+		if(e == null || e.getGameId() == null || e.getSide() == null){
+			return false;
+		}
+		return !getSide().equals(e.getSide()) && e.getGameId().equals(gameId);
 	}
 	
 	public void setClearCondition() {
