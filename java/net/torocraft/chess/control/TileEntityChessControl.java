@@ -19,7 +19,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -569,19 +568,11 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		
 		placePiecesTimer++;
 		
-		if(placePiecesTimer > 100){
-			//TODO handle this -- place all
-			
-			
-		}
-		
 		for (Iterator<EntityChessPiece> iterator = piecesToPlace.iterator(); iterator.hasNext();) {
 			EntityChessPiece e = iterator.next();
-		    if (world.rand.nextInt(10) == 0) {
-		    	
-		    	//this.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d16, d19, d22, d24, d26, d27, new int[0]);
-		    	
+		    if (world.rand.nextInt(5) == 0 || placePiecesTimer > 50) {
 		    	world.spawnEntity(e);
+		    	playSound(SoundEvents.BLOCK_NOTE_HARP);
 		        iterator.remove();
 		        return;
 		    }
@@ -631,8 +622,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		turnBellCounter--;
 
 		if (turnBellCounter < 2) {
-			SoundEvent sound = SoundEvents.BLOCK_NOTE_HARP;
-			world.playSound((EntityPlayer) null, a8.getX() + 4, a8.getY() + 2, a8.getZ() + 4, sound, SoundCategory.NEUTRAL, 1f, 1f);
+			playSound(SoundEvents.BLOCK_NOTE_HARP);
 			if (turnBellTimes > 1) {
 				turnBellTimes--;
 				turnBellCounter = 5;
@@ -640,6 +630,10 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 				turnBellCounter = -1;
 			}
 		}
+	}
+
+	private void playSound(SoundEvent sound) {
+		world.playSound((EntityPlayer) null, a8.getX() + 4, a8.getY() + 2, a8.getZ() + 4, sound, SoundCategory.NEUTRAL, 1f, 1f);
 	}
 
 	private void updateFireworks() {
