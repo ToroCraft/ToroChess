@@ -79,43 +79,11 @@ public class ChessGameGenerator {
 		board.getWhiteChest().setInventorySlotContents(6, BookCreator.createBook("chess_instructions"));
 	}
 
-	@Deprecated
 	public static void placePieces(World world, BlockPos a8, UUID gameId) {
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.A, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.B, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.C, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.D, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.E, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.F, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.G, Rank.TWO);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.WHITE, File.H, Rank.TWO);
-
-		placeEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.A, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.B, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.C, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityKing(world), Side.WHITE, File.E, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityQueen(world), Side.WHITE, File.D, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityBishop(world), Side.WHITE, File.F, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityKnight(world), Side.WHITE, File.G, Rank.ONE);
-		placeEntity(world, a8, gameId, new EntityRook(world), Side.WHITE, File.H, Rank.ONE);
-
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.A, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.B, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.C, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.D, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.E, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.F, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.G, Rank.SEVEN);
-		placeEntity(world, a8, gameId, new EntityPawn(world), Side.BLACK, File.H, Rank.SEVEN);
-
-		placeEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.A, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.B, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.C, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityKing(world), Side.BLACK, File.E, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityQueen(world), Side.BLACK, File.D, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityBishop(world), Side.BLACK, File.F, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityKnight(world), Side.BLACK, File.G, Rank.EIGHT);
-		placeEntity(world, a8, gameId, new EntityRook(world), Side.BLACK, File.H, Rank.EIGHT);
+		List<EntityChessPiece> pieces = genPieces(world, a8, gameId);
+		for (EntityChessPiece piece : pieces) {
+			world.spawnEntity(piece);
+		}
 	}
 
 	public static List<EntityChessPiece> genPieces(World world, BlockPos a8, UUID gameId) {
@@ -178,17 +146,13 @@ public class ChessGameGenerator {
 	}
 
 	public static EntityChessPiece genEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
-		//TODO this method should take in ChessPieceState.Type instead of EntityChessPiece
+		// TODO this method should take in ChessPieceState.Type instead of
+		// EntityChessPiece
 		int x = a8.getX() + world.rand.nextInt(8);
 		int z = a8.getZ() + world.rand.nextInt(8);
 		e.setPosition(x, a8.getY() + 1, z);
 		setGameDataToEntity(world, a8, gameId, e, side, file, rank);
 		return e;
-	}
-
-	@Deprecated
-	public static void placeEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {
-		world.spawnEntity(genEntity(world, a8, gameId, e, side, file, rank));
 	}
 
 	public static void setGameDataToEntity(World world, BlockPos a8, UUID gameId, EntityChessPiece e, Side side, File file, Rank rank) {

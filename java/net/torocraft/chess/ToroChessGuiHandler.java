@@ -23,7 +23,7 @@ public class ToroChessGuiHandler implements IGuiHandler {
 	@Override
 	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
 		if (id == CHESS_CONTROL_GUI) {
-			return new ChessControlGui(new BlockPos(x, y, z));
+			return new ChessControlGui(world, new BlockPos(x, y, z));
 		}
 		return null;
 	}

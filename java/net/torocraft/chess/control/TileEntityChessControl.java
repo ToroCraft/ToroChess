@@ -1,5 +1,6 @@
 package net.torocraft.chess.control;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -32,14 +33,17 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.torocraft.chess.ToroChess;
 import net.torocraft.chess.ToroChessEvent.MoveEvent;
 import net.torocraft.chess.engine.GamePieceState.File;
+import net.torocraft.chess.engine.GamePieceState.Move;
 import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.engine.chess.CastleMove;
 import net.torocraft.chess.engine.chess.ChessMoveResult;
 import net.torocraft.chess.engine.chess.ChessPieceState;
+import net.torocraft.chess.engine.chess.IChessAIEngine;
 import net.torocraft.chess.engine.chess.IChessRuleEngine;
 import net.torocraft.chess.engine.chess.impl.ChessRuleEngine;
+import net.torocraft.chess.engine.chess.impl.RandomAIEngine;
 import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.king.EntityKing;
 import net.torocraft.chess.entities.rook.EntityRook;
@@ -54,17 +58,29 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	private static final String NBT_GAME_ID = "chessgameid";
 	private static final String NBT_TURN = "chessturn";
 	private static final String NBT_A8 = "chessa8";
+	private static final String NBT_WHITE_MODE = "whitemode";
+	private static final String NBT_BLACK_MODE = "blackmode";
 
 	private UUID gameId;
 	private Position selectedPiece;
 	private Side turn = Side.WHITE;
 	private IChessRuleEngine ruleEngine;
+	private IChessAIEngine aiEngine;
 	private BlockPos a8;
 	private ChessMoveResult moves;
 	private int fireworksRunCounter = -1;
 	private int turnBellCounter = -1;
 	private int turnBellTimes = 0;
 	private boolean resetOnClear = false;
+	private PlayMode whitePlayMode = PlayMode.PLAYER;
+	private PlayMode blackPlayMode = PlayMode.EASY;
+	private boolean caslteInProgress = false;
+
+	private List<ITask> runQueue = new ArrayList<>();
+
+	public static enum PlayMode {
+		PLAYER, EASY
+	};
 
 	private int clearBoardTimer = -1;
 
@@ -83,6 +99,13 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		return ruleEngine;
 	}
 
+	public IChessAIEngine getAiEngine() {
+		if (aiEngine == null) {
+			aiEngine = new RandomAIEngine();
+		}
+		return aiEngine;
+	}
+
 	public void resetBoard() {
 		if (gameId == null) {
 			throw new NullPointerException("gameId is null");
@@ -99,9 +122,10 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 
 		resetOnClear = true;
+		winCondition = false;
+		aiInProgress = false;
 
 		clearBoard();
-
 	}
 
 	private List<EntityChessPiece> piecesToPlace;
@@ -123,7 +147,9 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 			reset();
 		}
 
-		clearBoardTimer = 100;
+		clearBoardTimer = 50;
+		winCondition = false;
+		aiInProgress = false;
 
 	}
 
@@ -187,16 +213,22 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	};
 
 	private void startCastle(CastleMove castleMove, EntityChessPiece rook, EntityChessPiece king) {
+		caslteInProgress = true;
 		deselectEntity();
 		rook.setChessPosition(castleMove.positionToMoveRookTo);
 		king.setChessPosition(castleMove.positionToMoveKingTo);
 		switchTurns();
 	}
 
+	private boolean moveInProgress = false;
+
 	public boolean movePiece(BlockPos a8, Position to) {
 
+		if (moveInProgress) {
+			return false;
+		}
+
 		if (selectedPiece == null) {
-			// System.out.println("No piece has been selected");
 			return false;
 		}
 
@@ -217,7 +249,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		// System.out.println("Request Move: " + from + " -> " + to);
 
 		if (isInvalidMove(gameId, a8, from, to)) {
-			// System.out.println("INVALID MOVE");
+			//System.out.println("INVALID MOVE");
 			return false;
 		}
 
@@ -229,6 +261,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 		deselectEntity();
 		switchTurns();
+
+		moveInProgress = true;
 
 		attacker.setAttackTarget(victim);
 		attacker.setChessPosition(to);
@@ -258,6 +292,17 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (gameId == null || !gameId.equals(event.getGameId())) {
 			return;
 		}
+
+		if (caslteInProgress && event.getPiece() instanceof EntityRook) {
+			/*
+			 * ignore the move finish event from the rook during a castle
+			 */
+			caslteInProgress = false;
+			return;
+		}
+
+		moveInProgress = false;
+
 		Side thisSide = event.getPiece().getSide();
 		Side otherSide = otherSide(thisSide);
 		List<ChessPieceState> boardState = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
@@ -265,7 +310,17 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		moves = getRuleEngine().getBoardConditionForSide(boardState, otherSide);
 		handleBoardCondition();
 
-		playTurnSwitchBell();
+		if (isPlayerMode()) {
+			playTurnSwitchBell();
+		}
+	}
+
+	private boolean isPlayerMode() {
+		if (Side.WHITE.equals(turn)) {
+			return PlayMode.PLAYER.equals(whitePlayMode) || whitePlayMode == null;
+		} else {
+			return PlayMode.PLAYER.equals(blackPlayMode) || blackPlayMode == null;
+		}
 	}
 
 	private void playTurnSwitchBell() {
@@ -305,7 +360,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 	public boolean selectEntity(EntityChessPiece target) {
 		if (target == null) {
-			throw new NullPointerException("target is null");
+			return false;
 		}
 
 		if (target.getChessPosition().equals(selectedPiece)) {
@@ -364,16 +419,30 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		handleBoardCondition();
 	}
 
+	private boolean winCondition = false;
+
 	private void handleBoardCondition() {
 		if (moves == null || moves.blackCondition == null || moves.whiteCondition == null) {
 			return;
 		}
 
 		if (moves.blackCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
+			winCondition = true;
 			initiateCheckmate(Side.BLACK);
 			return;
 		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.CHECKMATE)) {
 			initiateCheckmate(Side.WHITE);
+			winCondition = true;
+			return;
+		}
+
+		if (moves.blackCondition.equals(ChessMoveResult.Condition.STALEMATE)) {
+			winCondition = true;
+			initiateStalemate(Side.BLACK);
+			return;
+		} else if (moves.whiteCondition.equals(ChessMoveResult.Condition.STALEMATE)) {
+			initiateStalemate(Side.WHITE);
+			winCondition = true;
 			return;
 		}
 
@@ -388,11 +457,34 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		}
 	}
 
+	private void initiateStalemate(Side black) {
+		// TODO Auto-generated method stub
+		System.out.println("Stalemate!");
+	}
+
 	private EntityKing getKing(Side side) {
-		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).expand(80, 20, 80),
 				Predicates.and(new ChessPieceSearchPredicate(gameId), new KingSelector(side)));
 
 		return pieces == null || pieces.size() < 1 ? null : (EntityKing) pieces.get(0);
+	}
+
+	private EntityChessPiece getPieceEntityAt(Side side, Position position) {
+		if (position == null) {
+			throw new NullPointerException("position is null");
+		}
+		if (side == null) {
+			throw new NullPointerException("side is null");
+		}
+		List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).expand(80, 20, 80),
+				Predicates.and(new ChessPieceSearchPredicate(gameId), new Predicate<EntityChessPiece>() {
+					@Override
+					public boolean apply(EntityChessPiece p) {
+						return position.equals(p.getChessPosition()) && side.equals(p.getSide());
+					}
+				}));
+
+		return pieces == null || pieces.size() < 1 ? null : pieces.get(0);
 	}
 
 	private void initiateCheckmate(Side losingSide) {
@@ -416,6 +508,8 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		gameId = c.getUniqueId(NBT_GAME_ID);
 		turn = CheckerBoardUtil.castSide(c.getBoolean(NBT_TURN));
 		a8 = BlockPos.fromLong(c.getLong(NBT_A8));
+		whitePlayMode = PlayMode.values()[c.getInteger(NBT_WHITE_MODE)];
+		blackPlayMode = PlayMode.values()[c.getInteger(NBT_BLACK_MODE)];
 	}
 
 	@Override
@@ -438,6 +532,9 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		if (a8 != null) {
 			c.setLong(NBT_A8, a8.toLong());
 		}
+
+		c.setInteger(NBT_WHITE_MODE, whitePlayMode.ordinal());
+		c.setInteger(NBT_BLACK_MODE, blackPlayMode.ordinal());
 
 		return c;
 	}
@@ -555,6 +652,77 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		updateTurnBell();
 		updateBoardClear();
 		updatePlacePieces();
+		updateRunQueue();
+		updateAi();
+	}
+
+	private boolean aiInProgress = false;
+
+	private void updateAi() {
+		if (world.getTotalWorldTime() % 20 != 0 || isPlayerMode() || moveInProgress || winCondition || aiInProgress) {
+			return;
+		}
+
+		if ((piecesToPlace != null && piecesToPlace.size() > 0) || clearBoardTimer > -1) {
+			return;
+		}
+
+		aiInProgress = true;
+
+		final List<ChessPieceState> state = CheckerBoardUtil.loadPiecesFromWorld(world, gameId, a8);
+
+		final Move move = getAiEngine().getAIMove(state, turn);
+
+		if (move == null) {
+			/*
+			 * if no move was returned select the king to check for a win
+			 * condition
+			 */
+			selectEntity(getKing(turn));
+			aiInProgress = false;
+			return;
+		}
+
+		final EntityChessPiece pieceToMove = getPieceEntityAt(turn, move.currentPosition);
+
+		if (pieceToMove == null) {
+			selectEntity(getKing(turn));
+			aiInProgress = false;
+			return;
+		}
+
+		runQueue.add(new TimedTask(10) {
+			@Override
+			public void run() {
+				selectEntity(pieceToMove);
+				runQueue.add(new TimedTask(10) {
+					@Override
+					public void run() {
+						moves = new ChessMoveResult();
+						moves.legalPositions = new ArrayList<>();
+						moves.legalPositions.add(move.requestedMoveToPosition);
+						movePiece(a8, move.requestedMoveToPosition);
+						markDirty();
+						aiInProgress = false;
+					}
+				});
+			}
+		});
+	}
+
+	private void updateRunQueue() {
+		if (runQueue.size() < 1) {
+			return;
+		}
+
+		for (Iterator<ITask> iterator = runQueue.iterator(); iterator.hasNext();) {
+			ITask e = iterator.next();
+			if (e.isReady()) {
+				iterator.remove();
+				e.run();
+				return;
+			}
+		}
 	}
 
 	private int placePiecesTimer = 0;
@@ -576,6 +744,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 				return;
 			}
 		}
+
 	}
 
 	private void updateBoardClear() {
@@ -655,6 +824,43 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 
 	public ChessMoveResult getMoves() {
 		return moves;
+	}
+
+	private static interface ITask extends Runnable {
+		boolean isReady();
+	}
+
+	private abstract static class TimedTask implements ITask {
+
+		private int delay;
+
+		public TimedTask(int delay) {
+			this.delay = delay;
+		}
+
+		@Override
+		public boolean isReady() {
+			return delay-- < 1;
+		}
+
+	}
+
+	public PlayMode getWhitePlayMode() {
+		return whitePlayMode;
+	}
+
+	public void setWhitePlayMode(PlayMode whitePlayMode) {
+		this.whitePlayMode = whitePlayMode;
+		markDirty();
+	}
+
+	public PlayMode getBlackPlayMode() {
+		return blackPlayMode;
+	}
+
+	public void setBlackPlayMode(PlayMode blackPlayMode) {
+		this.blackPlayMode = blackPlayMode;
+		markDirty();
 	}
 
 }
