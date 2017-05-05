@@ -52,7 +52,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 	public static void registerRenders() {
 		final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
 		final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
-		
+
 		ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
 			@Override
 			public ModelResourceLocation getModelLocation(ItemStack stack) {
@@ -201,20 +201,25 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 		return control;
 	}
 
-	public static TileEntityChessControl getChessControlAt(World world, BlockPos pos, UUID gameId) {
-
+	public static TileEntityChessControl getChessControlAt(World world, BlockPos pos) {
 		if (world.getBlockState(pos).getBlock() != BlockChessControl.INSTANCE) {
 			return null;
 		}
 
 		TileEntity te = world.getTileEntity(pos);
+		
 		if (te == null || !(te instanceof TileEntityChessControl)) {
 			return null;
 		}
 
-		TileEntityChessControl control = (TileEntityChessControl) te;
+		return (TileEntityChessControl) te;
+	}
 
-		if (control.getGameId() == null || !control.getGameId().equals(gameId)) {
+	public static TileEntityChessControl getChessControlAt(World world, BlockPos pos, UUID gameId) {
+			
+		TileEntityChessControl control = getChessControlAt(world, pos);
+
+		if (control == null || control.getGameId() == null || !control.getGameId().equals(gameId)) {
 			return null;
 		}
 

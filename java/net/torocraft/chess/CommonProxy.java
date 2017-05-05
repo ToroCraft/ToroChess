@@ -9,6 +9,7 @@ import net.torocraft.chess.control.MessageChessSetPlayMode;
 import net.torocraft.chess.control.MessageLegalMovesRequest;
 import net.torocraft.chess.control.MessageLegalMovesResponse;
 import net.torocraft.chess.control.MessageTurnChangeEvent;
+import net.torocraft.chess.control.MessageUpdateControlBlock;
 import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.entities.bishop.EntityBishop;
 import net.torocraft.chess.entities.king.EntityKing;
@@ -30,6 +31,7 @@ public class CommonProxy {
 		MessageLegalMovesResponse.init(packetId++);
 		MessageTurnChangeEvent.init(packetId++);
 		MessageChessSetPlayMode.init(packetId++);
+		MessageUpdateControlBlock.init(packetId++);
 
 		ExtendedReachHandler.init();
 		ToroChessGuiHandler.init();

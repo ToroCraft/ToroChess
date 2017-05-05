@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
@@ -17,6 +19,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
@@ -249,7 +252,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 		// System.out.println("Request Move: " + from + " -> " + to);
 
 		if (isInvalidMove(gameId, a8, from, to)) {
-			//System.out.println("INVALID MOVE");
+			// System.out.println("INVALID MOVE");
 			return false;
 		}
 
@@ -500,6 +503,10 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	@Override
 	public void readFromNBT(NBTTagCompound c) {
 		super.readFromNBT(c);
+		readFromNBTLocal(c);
+	}
+
+	public void readFromNBTLocal(NBTTagCompound c) {
 		if (c.hasKey(NBT_SELECTED_FILE) && c.hasKey(NBT_SELECTED_RANK)) {
 			selectedPiece = new Position(File.values()[c.getInteger(NBT_SELECTED_FILE)], Rank.values()[c.getInteger(NBT_SELECTED_RANK)]);
 		} else {
@@ -515,6 +522,11 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound cIn) {
 		NBTTagCompound c = super.writeToNBT(cIn);
+		writeToNBTLocal(c);
+		return c;
+	}
+
+	public NBTTagCompound writeToNBTLocal(NBTTagCompound c) {
 		if (selectedPiece == null) {
 			c.removeTag(NBT_SELECTED_FILE);
 			c.removeTag(NBT_SELECTED_RANK);
@@ -852,6 +864,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	public void setWhitePlayMode(PlayMode whitePlayMode) {
 		this.whitePlayMode = whitePlayMode;
 		markDirty();
+		sendControlBlockUpdatePacket();
 	}
 
 	public PlayMode getBlackPlayMode() {
@@ -861,6 +874,21 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
 	public void setBlackPlayMode(PlayMode blackPlayMode) {
 		this.blackPlayMode = blackPlayMode;
 		markDirty();
+		sendControlBlockUpdatePacket();
+	}
+
+	private void sendControlBlockUpdatePacket() {
+		TargetPoint p = new TargetPoint(world.provider.getDimension(), a8.getX() + 4, a8.getY(), a8.getZ() + 4, 100);
+		ToroChess.NETWORK.sendToAllAround(new MessageUpdateControlBlock(pos, writeToNBT(new NBTTagCompound())), p);
+	}
+
+	@Nullable
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return null;
+	}
+
+	public NBTTagCompound getUpdateTag() {
+		return writeToNBTLocal(super.getUpdateTag());
 	}
 
 }

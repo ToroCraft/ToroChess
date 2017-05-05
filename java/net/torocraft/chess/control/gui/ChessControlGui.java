@@ -35,6 +35,10 @@ public class ChessControlGui extends GuiScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		drawDefaultBackground();
+		int wCenter = width / 2;
+		int hCenter = height / 2;
+		drawString(fontRendererObj, I18n.format("gui.chesscontrol.white_mode", (Object) null), wCenter - 100, hCenter + 35, 0xffffff);
+		drawString(fontRendererObj, I18n.format("gui.chesscontrol.black_mode", (Object) null), wCenter - 100, hCenter + 55, 0xffffff);
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
@@ -61,10 +65,12 @@ public class ChessControlGui extends GuiScreen {
 				.add(buttonResetGame = new GuiButton(buttonId++, wCenter - 100, hCenter - 24, I18n.format("gui.chesscontrol.reset", (Object) null)));
 		buttonList.add(buttonClearGame = new GuiButton(buttonId++, wCenter - 100, hCenter + 4, I18n.format("gui.chesscontrol.clear", (Object) null)));
 
-		whitePlayerMode = new PlayModeButton(buttonId++, wCenter - 100, hCenter + 30, Side.WHITE, controlBlockPos);
+		whitePlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 30, Side.WHITE, controlBlockPos);
+
 		whitePlayerMode.setMode(control.getWhitePlayMode());
 
-		blackPlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 30, Side.BLACK, controlBlockPos);
+		blackPlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 50, Side.BLACK, controlBlockPos);
+
 		blackPlayerMode.setMode(control.getBlackPlayMode());
 
 		buttonList.add(whitePlayerMode);
