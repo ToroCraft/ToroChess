@@ -1,0 +1,14 @@
+commands.checkerboardcreate.usage=/checkerboardcreate
+commands.chesscreate.usage=/chesscreate
+item.chess_control_wand.name=象棋指挥棒
+gui.chesscontrol.clear=清空棋盘
+gui.chesscontrol.reset=重置棋盘
+gui.chesscontrol.white_mode=白方模式
+gui.chesscontrol.black_mode=黑方模式
+tile.chess_control.name=棋局控制方块
+entity.torochess_rook.name=车
+entity.torochess_queen.name=后
+entity.torochess_king.name=王
+entity.torochess_bishop.name=象
+entity.torochess_pawn.name=兵
+entity.torochess_knight.name=马
