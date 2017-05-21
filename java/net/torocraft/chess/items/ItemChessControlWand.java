@@ -2,7 +2,6 @@ package net.torocraft.chess.items;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,260 +32,260 @@ import net.torocraft.chess.items.extendedreach.IExtendedReach;
 
 public class ItemChessControlWand extends Item implements IExtendedReach {
 
-	public static final float REACH_DISTANCE = 40;
+  public static final float REACH_DISTANCE = 40;
 
-	public static final String NBT_SIDE = "chessside";
-	public static final String NBT_A8_POS = "chessa8";
-	public static final String NBT_CONTROL_POS = "chesscontrol";
-	public static final String NBT_GAME_ID = "chessgameid";
-	public static final String NAME = "chess_control_wand";
+  public static final String NBT_SIDE = "chessside";
+  public static final String NBT_A8_POS = "chessa8";
+  public static final String NBT_CONTROL_POS = "chesscontrol";
+  public static final String NBT_GAME_ID = "chessgameid";
+  public static final String NAME = "chess_control_wand";
 
-	public static ItemChessControlWand INSTANCE;
+  public static ItemChessControlWand INSTANCE;
 
-	public static void init() {
-		INSTANCE = new ItemChessControlWand();
-		GameRegistry.register(INSTANCE, new ResourceLocation(ToroChess.MODID, NAME));
-	}
+  public ItemChessControlWand() {
+    setUnlocalizedName(NAME);
+    setMaxDamage(1);
+    setMaxStackSize(1);
+  }
 
-	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
-	public static void registerRenders() {
-		final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
-		final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
+  public static void init() {
+    INSTANCE = new ItemChessControlWand();
+    GameRegistry.register(INSTANCE, new ResourceLocation(ToroChess.MODID, NAME));
+  }
 
-		ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
-			@Override
-			public ModelResourceLocation getModelLocation(ItemStack stack) {
-				if (Side.WHITE.equals(getSide(stack))) {
-					return MODEL_WHITE;
-				} else {
-					return MODEL_BLACK;
-				}
-			}
-		});
-		ModelLoader.registerItemVariants(INSTANCE, new ModelResourceLocation[] { MODEL_WHITE, MODEL_BLACK });
-	}
+  @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+  public static void registerRenders() {
+    final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
+    final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
 
-	public ItemChessControlWand() {
-		setUnlocalizedName(NAME);
-		setMaxDamage(1);
-		setMaxStackSize(1);
-	}
+    ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
+      @Override
+      public ModelResourceLocation getModelLocation(ItemStack stack) {
+        if (Side.WHITE.equals(getSide(stack))) {
+          return MODEL_WHITE;
+        } else {
+          return MODEL_BLACK;
+        }
+      }
+    });
+    ModelLoader.registerItemVariants(INSTANCE, new ModelResourceLocation[]{MODEL_WHITE, MODEL_BLACK});
+  }
 
-	@Override
-	public EnumActionResult onItemUseExtended(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
-			float hitY, float hitZ) {
+  public static TileEntityChessControl getChessControlAt(World world, ItemStack wand) {
 
-		ItemStack wand = player.getHeldItem(hand);
+    BlockPos a8 = getA8(wand);
+    BlockPos lastKnownControlPos = getChessControlPos(wand);
+    UUID gameId = getGameId(wand);
 
-		if (wand == null || !wand.hasTagCompound() || !(wand.getItem() instanceof ItemChessControlWand)) {
-			return EnumActionResult.PASS;
-		}
+    TileEntityChessControl control = getChessControlAt(world, lastKnownControlPos, gameId);
 
-		BlockPos a8 = getA8(wand);
-		TileEntityChessControl control = getChessControlAt(world, wand);
+    if (control != null) {
+      return control;
+    }
 
-		if (world.isRemote) {
-			return EnumActionResult.PASS;
-		}
+    control = searchForChessControl(world, a8, gameId);
 
-		if (control == null) {
-			return EnumActionResult.PASS;
-		}
+    if (control != null) {
+      wand.getTagCompound().setLong(ItemChessControlWand.NBT_CONTROL_POS, control.getPos().toLong());
+    }
 
-		Position to = CheckerBoardUtil.getChessPosition(a8, pos);
+    return control;
+  }
 
-		if (control.movePiece(a8, to)) {
-			yupSound(player);
-		} else {
-			nopeSound(player);
-		}
+  private static TileEntityChessControl searchForChessControl(World world, BlockPos a8, UUID gameId) {
+    BlockPos searchCenter = a8.subtract(BlockChessControl.A8_CENTER_OFFSET);
 
-		return EnumActionResult.SUCCESS;
-	}
+    int SEARCH_RADIUS = 40;
+    TileEntityChessControl control = null;
 
-	@Override
-	public boolean itemInteractionForEntityExtended(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
-		if (!(target instanceof EntityChessPiece)) {
-			return false;
-		}
+    for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
+      for (int y = -SEARCH_RADIUS; y <= SEARCH_RADIUS; y++) {
+        for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
+          control = getChessControlAt(world, searchCenter.add(x, y, z), gameId);
+          if (control != null) {
+            return control;
+          }
+        }
+      }
+    }
 
-		ItemStack wand = player.getHeldItem(hand);
+    return control;
+  }
 
-		if (wand == null || !(wand.getItem() instanceof ItemChessControlWand)) {
-			return false;
-		}
+  public static TileEntityChessControl getChessControlAt(World world, BlockPos pos) {
+    if (world.getBlockState(pos).getBlock() != BlockChessControl.INSTANCE) {
+      return null;
+    }
 
-		EntityChessPiece piece = (EntityChessPiece) target;
-		BlockPos a8 = getA8(wand);
+    TileEntity te = world.getTileEntity(pos);
 
-		TileEntityChessControl control = getChessControlAt(player.world, wand);
+    if (te == null || !(te instanceof TileEntityChessControl)) {
+      return null;
+    }
 
-		if (player.world.isRemote) {
-			ToroChess.NETWORK.sendToServer(new MessageLegalMovesRequest(getChessControlPos(wand)));
-			return false;
-		}
+    return (TileEntityChessControl) te;
+  }
 
-		if (control == null) {
-			return false;
-		}
+  public static TileEntityChessControl getChessControlAt(World world, BlockPos pos, UUID gameId) {
 
-		if (player.isSneaking()) {
-			if (control.castlePiece(a8, piece.getChessPosition())) {
-				yupSound(player);
-			} else {
-				nopeSound(player);
-			}
-			return true;
-		}
+    TileEntityChessControl control = getChessControlAt(world, pos);
 
-		if (canAttack(wand, piece)) {
-			if (control.movePiece(a8, piece.getChessPosition())) {
-				yupSound(player);
-			} else {
-				nopeSound(player);
-			}
-			return true;
-		}
+    if (control == null || control.getGameId() == null || !control.getGameId().equals(gameId)) {
+      return null;
+    }
 
-		if (canSelect(wand, piece)) {
-			if (control.selectEntity(piece)) {
-				selectSound(player);
-			} else {
-				nopeSound(player);
-			}
-			return true;
-		}
+    return control;
+  }
 
-		return false;
-	}
+  public static BlockPos getChessControlPos(ItemStack stack) {
+    return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_CONTROL_POS));
+  }
 
-	public static TileEntityChessControl getChessControlAt(World world, ItemStack wand) {
+  public static BlockPos getA8(ItemStack stack) {
+    return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_A8_POS));
+  }
 
-		BlockPos a8 = getA8(wand);
-		BlockPos lastKnownControlPos = getChessControlPos(wand);
-		UUID gameId = getGameId(wand);
+  public static UUID getGameId(ItemStack stack) {
+    if (stack == null || stack.isEmpty() || stack.getTagCompound() == null) {
+      return null;
+    }
+    return stack.getTagCompound().getUniqueId(ItemChessControlWand.NBT_GAME_ID);
+  }
 
-		TileEntityChessControl control = getChessControlAt(world, lastKnownControlPos, gameId);
+  public static Side getSide(ItemStack stack) {
+    return CheckerBoardUtil.castSide(stack.getTagCompound().getBoolean(NBT_SIDE));
+  }
 
-		if (control != null) {
-			return control;
-		}
+  @Override
+  public EnumActionResult onItemUseExtended(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
+      float hitY, float hitZ) {
 
-		control = searchForChessControl(world, a8, gameId);
+    ItemStack wand = player.getHeldItem(hand);
 
-		if (control != null) {
-			wand.getTagCompound().setLong(ItemChessControlWand.NBT_CONTROL_POS, control.getPos().toLong());
-		}
+    if (wand == null || !wand.hasTagCompound() || !(wand.getItem() instanceof ItemChessControlWand)) {
+      return EnumActionResult.PASS;
+    }
 
-		return control;
-	}
+    BlockPos a8 = getA8(wand);
+    TileEntityChessControl control = getChessControlAt(world, wand);
 
-	private static TileEntityChessControl searchForChessControl(World world, BlockPos a8, UUID gameId) {
-		BlockPos searchCenter = a8.subtract(BlockChessControl.A8_CENTER_OFFSET);
+    if (world.isRemote) {
+      return EnumActionResult.PASS;
+    }
 
-		int SEARCH_RADIUS = 40;
-		TileEntityChessControl control = null;
+    if (control == null) {
+      return EnumActionResult.PASS;
+    }
 
-		for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
-			for (int y = -SEARCH_RADIUS; y <= SEARCH_RADIUS; y++) {
-				for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
-					control = getChessControlAt(world, searchCenter.add(x, y, z), gameId);
-					if (control != null) {
-						return control;
-					}
-				}
-			}
-		}
+    Position to = CheckerBoardUtil.getChessPosition(a8, pos);
 
-		return control;
-	}
+    if (control.movePiece(a8, to)) {
+      yupSound(player);
+    } else {
+      nopeSound(player);
+    }
 
-	public static TileEntityChessControl getChessControlAt(World world, BlockPos pos) {
-		if (world.getBlockState(pos).getBlock() != BlockChessControl.INSTANCE) {
-			return null;
-		}
+    return EnumActionResult.SUCCESS;
+  }
 
-		TileEntity te = world.getTileEntity(pos);
-		
-		if (te == null || !(te instanceof TileEntityChessControl)) {
-			return null;
-		}
+  @Override
+  public boolean itemInteractionForEntityExtended(ItemStack s, EntityPlayer player, EntityLivingBase target, EnumHand hand) {
+    if (!(target instanceof EntityChessPiece)) {
+      return false;
+    }
 
-		return (TileEntityChessControl) te;
-	}
+    ItemStack wand = player.getHeldItem(hand);
 
-	public static TileEntityChessControl getChessControlAt(World world, BlockPos pos, UUID gameId) {
-			
-		TileEntityChessControl control = getChessControlAt(world, pos);
+    if (wand == null || !(wand.getItem() instanceof ItemChessControlWand)) {
+      return false;
+    }
 
-		if (control == null || control.getGameId() == null || !control.getGameId().equals(gameId)) {
-			return null;
-		}
+    EntityChessPiece piece = (EntityChessPiece) target;
+    BlockPos a8 = getA8(wand);
 
-		return control;
-	}
+    TileEntityChessControl control = getChessControlAt(player.world, wand);
 
-	private void nopeSound(EntityPlayer player) {
-		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.NEUTRAL, 1f,
-				1f);
-	}
+    if (player.world.isRemote) {
+      ToroChess.NETWORK.sendToServer(new MessageLegalMovesRequest(getChessControlPos(wand)));
+      return false;
+    }
 
-	private void yupSound(EntityPlayer player) {
-		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_YES, SoundCategory.NEUTRAL, 1f,
-				1f);
-	}
+    if (control == null) {
+      return false;
+    }
 
-	private void selectSound(EntityPlayer player) {
-		player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT,
-				SoundCategory.NEUTRAL, 0.5f, 1f);
-	}
+    if (player.isSneaking()) {
+      if (control.castlePiece(a8, piece.getChessPosition())) {
+        yupSound(player);
+      } else {
+        nopeSound(player);
+      }
+      return true;
+    }
 
-	private boolean canSelect(ItemStack wand, EntityChessPiece piece) {
-		if (piece == null) {
-			return false;
-		}
-		return getSide(wand).equals(piece.getSide()) && getGameId(wand).equals(piece.getGameId());
-	}
+    if (canAttack(wand, piece)) {
+      if (control.movePiece(a8, piece.getChessPosition())) {
+        yupSound(player);
+      } else {
+        nopeSound(player);
+      }
+      return true;
+    }
 
-	private boolean canAttack(ItemStack wand, EntityChessPiece target) {
-		if (target == null) {
-			return false;
-		}
-		return !getSide(wand).equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
-	}
+    if (canSelect(wand, piece)) {
+      if (control.selectEntity(piece)) {
+        selectSound(player);
+      } else {
+        nopeSound(player);
+      }
+      return true;
+    }
 
-	public static BlockPos getChessControlPos(ItemStack stack) {
-		return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_CONTROL_POS));
-	}
+    return false;
+  }
 
-	public static BlockPos getA8(ItemStack stack) {
-		return BlockPos.fromLong(stack.getTagCompound().getLong(ItemChessControlWand.NBT_A8_POS));
-	}
+  private void nopeSound(EntityPlayer player) {
+    player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.NEUTRAL, 1f,
+        1f);
+  }
 
-	public static UUID getGameId(ItemStack stack) {
-		if (stack == null || stack.isEmpty() || stack.getTagCompound() == null) {
-			return null;
-		}
-		return stack.getTagCompound().getUniqueId(ItemChessControlWand.NBT_GAME_ID);
-	}
+  private void yupSound(EntityPlayer player) {
+    player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_YES, SoundCategory.NEUTRAL, 1f,
+        1f);
+  }
 
-	public static Side getSide(ItemStack stack) {
-		return CheckerBoardUtil.castSide(stack.getTagCompound().getBoolean(NBT_SIDE));
-	}
+  private void selectSound(EntityPlayer player) {
+    player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT,
+        SoundCategory.NEUTRAL, 0.5f, 1f);
+  }
 
-	@Override
-	public float getReach() {
-		return REACH_DISTANCE;
-	}
+  private boolean canSelect(ItemStack wand, EntityChessPiece piece) {
+    if (piece == null) {
+      return false;
+    }
+    return getSide(wand).equals(piece.getSide()) && getGameId(wand).equals(piece.getGameId());
+  }
 
-	@SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_A8_POS)) {
-			tooltip.add("Already Placed:");
-			tooltip.add(BlockPos.fromLong(stack.getTagCompound().getLong(NBT_A8_POS)).toString());
-			tooltip.add(stack.getTagCompound().getUniqueId(NBT_GAME_ID).toString());
-		}
-	}
+  private boolean canAttack(ItemStack wand, EntityChessPiece target) {
+    if (target == null) {
+      return false;
+    }
+    return !getSide(wand).equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
+  }
+
+  @Override
+  public float getReach() {
+    return REACH_DISTANCE;
+  }
+
+  @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+  @Override
+  public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+    if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_A8_POS)) {
+      tooltip.add("Already Placed:");
+      tooltip.add(BlockPos.fromLong(stack.getTagCompound().getLong(NBT_A8_POS)).toString());
+      tooltip.add(stack.getTagCompound().getUniqueId(NBT_GAME_ID).toString());
+    }
+  }
 
 }

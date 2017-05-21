@@ -22,70 +22,71 @@ import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
 public class EntityPawn extends EntityChessPiece implements IChessPiece {
-	public static String NAME = ToroChess.MODID + "_pawn";
 
-	public static void init(int entityId) {
-		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityPawn.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
-				true);
-	}
+  public static String NAME = ToroChess.MODID + "_pawn";
 
-	public static void registerRenders() {
-		RenderingRegistry.registerEntityRenderingHandler(EntityPawn.class, new IRenderFactory<EntityPawn>() {
-			@Override
-			public Render<EntityPawn> createRenderFor(RenderManager manager) {
-				return new RenderPawn(manager);
-			}
-		});
-	}
+  public EntityPawn(World worldIn) {
+    super(worldIn);
+    super.setSize(0.4F, 1.1F);
 
-	public EntityPawn(World worldIn) {
-		super(worldIn);
-		super.setSize(0.4F, 1.1F);
+  }
 
-	}
+  public static void init(int entityId) {
+    EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityPawn.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
+        true);
+  }
 
-	@Override
-	public boolean isChild() {
-		return true;
-	}
+  public static void registerRenders() {
+    RenderingRegistry.registerEntityRenderingHandler(EntityPawn.class, new IRenderFactory<EntityPawn>() {
+      @Override
+      public Render<EntityPawn> createRenderFor(RenderManager manager) {
+        return new RenderPawn(manager);
+      }
+    });
+  }
 
-	@Override
-	protected SoundEvent getAmbientSound() {
-		return null;
-	}
+  @Override
+  public boolean isChild() {
+    return true;
+  }
 
-	@Override
-	public float getEyeHeight() {
-		float f = 1.74F;
+  @Override
+  protected SoundEvent getAmbientSound() {
+    return null;
+  }
 
-		if (this.isChild()) {
-			f = (float) ((double) f - 0.81D);
-		}
+  @Override
+  public float getEyeHeight() {
+    float f = 1.74F;
 
-		return f;
-	}
+    if (this.isChild()) {
+      f = (float) ((double) f - 0.81D);
+    }
 
-	@Override
-	public void onMoveComplete() {
-		super.onMoveComplete();
-		checkPawnConverion();
-	}
+    return f;
+  }
 
-	private void checkPawnConverion() {
-		if (Side.WHITE.equals(getSide()) && Rank.EIGHT.equals(getChessPosition().rank)) {
-			convertToQueen();
-		} else if (Side.BLACK.equals(getSide()) && Rank.ONE.equals(getChessPosition().rank)) {
-			convertToQueen();
-		}
-	}
+  @Override
+  public void onMoveComplete() {
+    super.onMoveComplete();
+    checkPawnConverion();
+  }
 
-	private void convertToQueen() {
-		world.playSound((EntityPlayer) null, posX, posY, posZ, SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, SoundCategory.NEUTRAL, 1f, 1f);
-		EntityQueen queen = new EntityQueen(world);
-		ChessGameGenerator.setGameDataToEntity(world, getA8(), getGameId(), queen, getSide(), getChessPosition().file, getChessPosition().rank);
-		BlockPos pos = CheckerBoardUtil.toWorldCoords(getA8(), getChessPosition());
-		queen.setPosition(pos.getX() + 0.5, getA8().getY() + 1, pos.getZ() + 0.5);
-		setDead();
-		world.spawnEntity(queen);
-	}
+  private void checkPawnConverion() {
+    if (Side.WHITE.equals(getSide()) && Rank.EIGHT.equals(getChessPosition().rank)) {
+      convertToQueen();
+    } else if (Side.BLACK.equals(getSide()) && Rank.ONE.equals(getChessPosition().rank)) {
+      convertToQueen();
+    }
+  }
+
+  private void convertToQueen() {
+    world.playSound((EntityPlayer) null, posX, posY, posZ, SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, SoundCategory.NEUTRAL, 1f, 1f);
+    EntityQueen queen = new EntityQueen(world);
+    ChessGameGenerator.setGameDataToEntity(world, getA8(), getGameId(), queen, getSide(), getChessPosition().file, getChessPosition().rank);
+    BlockPos pos = CheckerBoardUtil.toWorldCoords(getA8(), getChessPosition());
+    queen.setPosition(pos.getX() + 0.5, getA8().getY() + 1, pos.getZ() + 0.5);
+    setDead();
+    world.spawnEntity(queen);
+  }
 }

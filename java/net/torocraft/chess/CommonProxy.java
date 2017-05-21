@@ -23,35 +23,35 @@ import net.torocraft.chess.items.extendedreach.MessageExtendedReachInteract;
 
 public class CommonProxy {
 
-	public void preInit(FMLPreInitializationEvent e) {
-		int packetId = 0;
-		MessageExtendedReachInteract.init(packetId++);
-		MessageChessControl.init(packetId++);
-		MessageLegalMovesRequest.init(packetId++);
-		MessageLegalMovesResponse.init(packetId++);
-		MessageTurnChangeEvent.init(packetId++);
-		MessageChessSetPlayMode.init(packetId++);
-		MessageUpdateControlBlock.init(packetId++);
+  public void preInit(FMLPreInitializationEvent e) {
+    int packetId = 0;
+    MessageExtendedReachInteract.init(packetId++);
+    MessageChessControl.init(packetId++);
+    MessageLegalMovesRequest.init(packetId++);
+    MessageLegalMovesResponse.init(packetId++);
+    MessageTurnChangeEvent.init(packetId++);
+    MessageChessSetPlayMode.init(packetId++);
+    MessageUpdateControlBlock.init(packetId++);
 
-		ExtendedReachHandler.init();
-		ToroChessGuiHandler.init();
-		ItemChessControlWand.init();
-		BlockChessControl.init();
-	}
+    ExtendedReachHandler.init();
+    ToroChessGuiHandler.init();
+    ItemChessControlWand.init();
+    BlockChessControl.init();
+  }
 
-	public void init(FMLInitializationEvent e) {
-		int entityId = 0;
-		EntityBishop.init(entityId++);
-		EntityKing.init(entityId++);
-		EntityKnight.init(entityId++);
-		EntityPawn.init(entityId++);
-		EntityQueen.init(entityId++);
-		EntityRook.init(entityId++);
-		TileEntityChessControl.init();
+  public void init(FMLInitializationEvent e) {
+    int entityId = 0;
+    EntityBishop.init(entityId++);
+    EntityKing.init(entityId++);
+    EntityKnight.init(entityId++);
+    EntityPawn.init(entityId++);
+    EntityQueen.init(entityId++);
+    EntityRook.init(entityId++);
+    TileEntityChessControl.init();
 
-	}
+  }
 
-	public void postInit(FMLPostInitializationEvent e) {
+  public void postInit(FMLPostInitializationEvent e) {
 
-	}
+  }
 }

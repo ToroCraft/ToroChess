@@ -16,59 +16,60 @@ import net.torocraft.chess.items.ItemChessControlWand;
 
 public class MessageUpdateControlBlock implements IMessage {
 
-	public BlockPos controlBlockPos;
-	public NBTTagCompound data;
+  public BlockPos controlBlockPos;
+  public NBTTagCompound data;
 
-	public static void init(int packetId) {
-		ToroChess.NETWORK.registerMessage(MessageUpdateControlBlock.Handler.class, MessageUpdateControlBlock.class, packetId, Side.CLIENT);
-	}
+  public MessageUpdateControlBlock() {
 
-	public MessageUpdateControlBlock() {
+  }
 
-	}
+  public MessageUpdateControlBlock(BlockPos controlBlockPos, NBTTagCompound data) {
+    this.controlBlockPos = controlBlockPos;
+    this.data = data;
+  }
 
-	public MessageUpdateControlBlock(BlockPos controlBlockPos, NBTTagCompound data) {
-		this.controlBlockPos = controlBlockPos;
-		this.data = data;
-	}
+  public static void init(int packetId) {
+    ToroChess.NETWORK.registerMessage(MessageUpdateControlBlock.Handler.class, MessageUpdateControlBlock.class, packetId, Side.CLIENT);
+  }
 
-	@Override
-	public void fromBytes(ByteBuf buf) {
-		controlBlockPos = BlockPos.fromLong(buf.readLong());
-		data = ByteBufUtils.readTag(buf);
-	}
+  @Override
+  public void fromBytes(ByteBuf buf) {
+    controlBlockPos = BlockPos.fromLong(buf.readLong());
+    data = ByteBufUtils.readTag(buf);
+  }
 
-	@Override
-	public void toBytes(ByteBuf buf) {
-		buf.writeLong(controlBlockPos.toLong());
-		ByteBufUtils.writeTag(buf, data);
-	}
+  @Override
+  public void toBytes(ByteBuf buf) {
+    buf.writeLong(controlBlockPos.toLong());
+    ByteBufUtils.writeTag(buf, data);
+  }
 
-	public static class Handler implements IMessageHandler<MessageUpdateControlBlock, IMessage> {
-		@Override
-		public IMessage onMessage(final MessageUpdateControlBlock message, MessageContext ctx) {
+  public static class Handler implements IMessageHandler<MessageUpdateControlBlock, IMessage> {
 
-			if (message.controlBlockPos == null) {
-				return null;
-			}
+    @Override
+    public IMessage onMessage(final MessageUpdateControlBlock message, MessageContext ctx) {
 
-			final IThreadListener mainThread = Minecraft.getMinecraft();
-			final EntityPlayerSP player = Minecraft.getMinecraft().player;
+      if (message.controlBlockPos == null) {
+        return null;
+      }
 
-			mainThread.addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					TileEntityChessControl control = ItemChessControlWand.getChessControlAt(player.world, message.controlBlockPos);
-					if (control == null) {
-						System.out.println("control block not found");
-						return;
-					}
-					control.readFromNBT(message.data);
-				}
-			});
+      final IThreadListener mainThread = Minecraft.getMinecraft();
+      final EntityPlayerSP player = Minecraft.getMinecraft().player;
 
-			return null;
-		}
-	}
+      mainThread.addScheduledTask(new Runnable() {
+        @Override
+        public void run() {
+          TileEntityChessControl control = ItemChessControlWand.getChessControlAt(player.world, message.controlBlockPos);
+          if (control == null) {
+            System.out.println("control block not found");
+            return;
+          }
+          control.readFromNBT(message.data);
+        }
+      });
+
+      return null;
+    }
+  }
 
 }

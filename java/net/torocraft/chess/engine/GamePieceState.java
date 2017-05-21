@@ -1,99 +1,102 @@
 package net.torocraft.chess.engine;
 
 public abstract class GamePieceState {
-	public Position position;
-	public Side side;
-	public boolean isInitialMove;
 
-	public enum Side {
-		WHITE, BLACK
-	}
+  public Position position;
+  public Side side;
+  public boolean isInitialMove;
 
-	public enum File {
-		A, B, C, D, E, F, G, H
-	}
+  public enum Side {
+    WHITE, BLACK
+  }
 
-	public enum Rank {
-		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
-	}
+  public enum File {
+    A, B, C, D, E, F, G, H
+  }
 
-	public static class Position {
-		public File file;
-		public Rank rank;
+  public enum Rank {
+    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT
+  }
 
-		public Position(File file, Rank rank) {
-			if (file == null) {
-				throw new NullPointerException("file is null");
-			}
-			if (rank == null) {
-				throw new NullPointerException("rank is null");
-			}
-			this.file = file;
-			this.rank = rank;
-		}
+  public static class Position {
 
-		public Position(Position position) {
-			this.file = position.file;
-			this.rank = position.rank;
-		}
+    public File file;
+    public Rank rank;
 
-		@Override
-		public String toString() {
-			return file.toString().toLowerCase() + (rank.ordinal() + 1);
-		}
+    public Position(File file, Rank rank) {
+      if (file == null) {
+        throw new NullPointerException("file is null");
+      }
+      if (rank == null) {
+        throw new NullPointerException("rank is null");
+      }
+      this.file = file;
+      this.rank = rank;
+    }
 
-		public static Position unpack(byte b) {
-			int high = (b & 0xf0) >>> 4;
-			int low = b & 0x0f;
-			return new Position(File.values()[low], Rank.values()[high]);
-		}
+    public Position(Position position) {
+      this.file = position.file;
+      this.rank = position.rank;
+    }
 
-		public byte pack() {
-			int high = (byte) rank.ordinal();
-			int low = (byte) file.ordinal();
-			return (byte) ((high << 4) | low);
-		}
+    public static Position unpack(byte b) {
+      int high = (b & 0xf0) >>> 4;
+      int low = b & 0x0f;
+      return new Position(File.values()[low], Rank.values()[high]);
+    }
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((file == null) ? 0 : file.hashCode());
-			result = prime * result + ((rank == null) ? 0 : rank.hashCode());
-			return result;
-		}
+    @Override
+    public String toString() {
+      return file.toString().toLowerCase() + (rank.ordinal() + 1);
+    }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			Position other = (Position) obj;
-			if (file != other.file) {
-				return false;
-			}
-			if (rank != other.rank) {
-				return false;
-			}
-			return true;
-		}
+    public byte pack() {
+      int high = (byte) rank.ordinal();
+      int low = (byte) file.ordinal();
+      return (byte) ((high << 4) | low);
+    }
 
-	}
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((file == null) ? 0 : file.hashCode());
+      result = prime * result + ((rank == null) ? 0 : rank.hashCode());
+      return result;
+    }
 
-	public static class Move {
-		public Position currentPosition;
-		public Position requestedMoveToPosition;
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      Position other = (Position) obj;
+      if (file != other.file) {
+        return false;
+      }
+      if (rank != other.rank) {
+        return false;
+      }
+      return true;
+    }
 
-		public Move(Position currentPosition, Position requestedMoveToPosition) {
-			this.currentPosition = currentPosition;
-			this.requestedMoveToPosition = requestedMoveToPosition;
-		}
-	}
+  }
+
+  public static class Move {
+
+    public Position currentPosition;
+    public Position requestedMoveToPosition;
+
+    public Move(Position currentPosition, Position requestedMoveToPosition) {
+      this.currentPosition = currentPosition;
+      this.requestedMoveToPosition = requestedMoveToPosition;
+    }
+  }
 
 }

@@ -8,8 +8,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ModelRook extends ModelEnderman {
 
-	public ModelRook(float scale) {
-		super(scale);
-	}
+  public ModelRook(float scale) {
+    super(scale);
+  }
 
 }

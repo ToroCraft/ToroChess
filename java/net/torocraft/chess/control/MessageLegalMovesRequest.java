@@ -12,75 +12,76 @@ import net.torocraft.chess.engine.chess.ChessMoveResult;
 
 public class MessageLegalMovesRequest implements IMessage {
 
-	public BlockPos controlBlockPos;
+  public BlockPos controlBlockPos;
 
-	public static void init(int packetId) {
-		ToroChess.NETWORK.registerMessage(MessageLegalMovesRequest.Handler.class, MessageLegalMovesRequest.class, packetId, Side.SERVER);
-	}
+  public MessageLegalMovesRequest() {
 
-	public MessageLegalMovesRequest() {
+  }
 
-	}
+  public MessageLegalMovesRequest(BlockPos controlBlockPos) {
+    this.controlBlockPos = controlBlockPos;
+  }
 
-	public MessageLegalMovesRequest(BlockPos controlBlockPos) {
-		this.controlBlockPos = controlBlockPos;
-	}
+  public static void init(int packetId) {
+    ToroChess.NETWORK.registerMessage(MessageLegalMovesRequest.Handler.class, MessageLegalMovesRequest.class, packetId, Side.SERVER);
+  }
 
-	@Override
-	public void fromBytes(ByteBuf buf) {
-		try {
-			controlBlockPos = BlockPos.fromLong(buf.readLong());
-		} catch (Exception e) {
-			controlBlockPos = null;
-		}
-	}
+  @Override
+  public void fromBytes(ByteBuf buf) {
+    try {
+      controlBlockPos = BlockPos.fromLong(buf.readLong());
+    } catch (Exception e) {
+      controlBlockPos = null;
+    }
+  }
 
-	@Override
-	public void toBytes(ByteBuf buf) {
-		if (controlBlockPos == null) {
-			throw new NullPointerException("control block is null");
-		}
-		buf.writeLong(controlBlockPos.toLong());
-	}
+  @Override
+  public void toBytes(ByteBuf buf) {
+    if (controlBlockPos == null) {
+      throw new NullPointerException("control block is null");
+    }
+    buf.writeLong(controlBlockPos.toLong());
+  }
 
-	public static class Handler implements IMessageHandler<MessageLegalMovesRequest, IMessage> {
-		@Override
-		public IMessage onMessage(final MessageLegalMovesRequest message, MessageContext ctx) {
-			if (message.controlBlockPos == null) {
-				return null;
-			}
-			final EntityPlayerMP payer = ctx.getServerHandler().playerEntity;
-			payer.getServerWorld().addScheduledTask(new Worker(payer, message));
-			return null;
-		}
-	}
+  public static class Handler implements IMessageHandler<MessageLegalMovesRequest, IMessage> {
 
-	private static class Worker implements Runnable {
+    @Override
+    public IMessage onMessage(final MessageLegalMovesRequest message, MessageContext ctx) {
+      if (message.controlBlockPos == null) {
+        return null;
+      }
+      final EntityPlayerMP payer = ctx.getServerHandler().playerEntity;
+      payer.getServerWorld().addScheduledTask(new Worker(payer, message));
+      return null;
+    }
+  }
 
-		private final EntityPlayerMP player;
-		private final MessageLegalMovesRequest message;
+  private static class Worker implements Runnable {
 
-		public Worker(EntityPlayerMP player, MessageLegalMovesRequest message) {
-			this.player = player;
-			this.message = message;
-		}
+    private final EntityPlayerMP player;
+    private final MessageLegalMovesRequest message;
 
-		@Override
-		public void run() {
-			TileEntityChessControl te = (TileEntityChessControl) player.world.getTileEntity(message.controlBlockPos);
+    public Worker(EntityPlayerMP player, MessageLegalMovesRequest message) {
+      this.player = player;
+      this.message = message;
+    }
 
-			if (te == null) {
-				return;
-			}
+    @Override
+    public void run() {
+      TileEntityChessControl te = (TileEntityChessControl) player.world.getTileEntity(message.controlBlockPos);
 
-			ChessMoveResult moves = te.getMoves();
+      if (te == null) {
+        return;
+      }
 
-			if (moves == null || moves.legalPositions == null || moves.legalPositions.size() < 1) {
-				return;
-			}
-			ToroChess.NETWORK.sendTo(new MessageLegalMovesResponse(te.getPos(), moves.legalPositions), player);
-		}
+      ChessMoveResult moves = te.getMoves();
 
-	}
+      if (moves == null || moves.legalPositions == null || moves.legalPositions.size() < 1) {
+        return;
+      }
+      ToroChess.NETWORK.sendTo(new MessageLegalMovesResponse(te.getPos(), moves.legalPositions), player);
+    }
+
+  }
 
 }

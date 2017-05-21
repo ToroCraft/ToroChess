@@ -9,23 +9,23 @@ import net.torocraft.chess.control.gui.ChessControlGui;
 
 public class ToroChessGuiHandler implements IGuiHandler {
 
-	public static final int CHESS_CONTROL_GUI = 0;
+  public static final int CHESS_CONTROL_GUI = 0;
 
-	public static void init() {
-		NetworkRegistry.INSTANCE.registerGuiHandler(ToroChess.INSTANCE, new ToroChessGuiHandler());
-	}
+  public static void init() {
+    NetworkRegistry.INSTANCE.registerGuiHandler(ToroChess.INSTANCE, new ToroChessGuiHandler());
+  }
 
-	@Override
-	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-		return null;
-	}
+  @Override
+  public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+    return null;
+  }
 
-	@Override
-	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-		if (id == CHESS_CONTROL_GUI) {
-			return new ChessControlGui(world, new BlockPos(x, y, z));
-		}
-		return null;
-	}
+  @Override
+  public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+    if (id == CHESS_CONTROL_GUI) {
+      return new ChessControlGui(world, new BlockPos(x, y, z));
+    }
+    return null;
+  }
 
 }

@@ -12,19 +12,19 @@ import net.torocraft.chess.ToroChess;
 @SideOnly(Side.CLIENT)
 public class RenderBishop extends RenderLiving<EntityBishop> {
 
-	private static final ResourceLocation WHITE_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/bishop_white.png");
-	private static final ResourceLocation BLACK_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/bishop_black.png");
+  private static final ResourceLocation WHITE_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/bishop_white.png");
+  private static final ResourceLocation BLACK_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/bishop_black.png");
 
-	public RenderBishop(RenderManager renderManagerIn) {
-		super(renderManagerIn, new ModelBishop(0.0F), 0.5F);
-	}
+  public RenderBishop(RenderManager renderManagerIn) {
+    super(renderManagerIn, new ModelBishop(0.0F), 0.5F);
+  }
 
-	protected ResourceLocation getEntityTexture(EntityBishop entity) {
-		if (BLACK.equals(entity.getSide())) {
-			return BLACK_TEXTURES;
-		} else {
-			return WHITE_TEXTURES;
-		}
-	}
+  protected ResourceLocation getEntityTexture(EntityBishop entity) {
+    if (BLACK.equals(entity.getSide())) {
+      return BLACK_TEXTURES;
+    } else {
+      return WHITE_TEXTURES;
+    }
+  }
 
 }

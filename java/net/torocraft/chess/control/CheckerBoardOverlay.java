@@ -3,9 +3,6 @@ package net.torocraft.chess.control;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,188 +24,188 @@ import net.torocraft.chess.engine.GamePieceState.Position;
 import net.torocraft.chess.engine.GamePieceState.Rank;
 import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.items.ItemChessControlWand;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 public class CheckerBoardOverlay {
 
-	public static CheckerBoardOverlay INSTANCE;
+  private static final double T = 0.125f;
+  private static final double[] TEXTURE_OFFSETS = new double[8];
+  private static final ResourceLocation LOCATIONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/overlay.png");
+  private static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/icons.png");
+  public static CheckerBoardOverlay INSTANCE;
+  private final List<Overlay> overlays = new ArrayList<>();
+  private List<Position> moves;
 
-	private static final double T = 0.125f;
-	private static final double[] TEXTURE_OFFSETS = new double[8];
-	private static final ResourceLocation LOCATIONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/overlay.png");
-	private static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ToroChess.MODID, "textures/icons.png");
+  public static void init() {
+    INSTANCE = new CheckerBoardOverlay();
+    for (int i = 0; i < 8; i++) {
+      TEXTURE_OFFSETS[i] = ((double) i) / 8;
+    }
+    MinecraftForge.EVENT_BUS.register(INSTANCE);
+  }
 
-	private final List<Overlay> overlays = new ArrayList<>();
-	private List<Position> moves;
+  public List<Position> getValidMoves() {
+    return moves;
+  }
 
-	public static void init() {
-		INSTANCE = new CheckerBoardOverlay();
-		for (int i = 0; i < 8; i++) {
-			TEXTURE_OFFSETS[i] = ((double) i) / 8;
-		}
-		MinecraftForge.EVENT_BUS.register(INSTANCE);
-	}
+  public void setValidMoves(List<Position> moves) {
+    this.moves = moves;
+  }
 
-	public void setValidMoves(List<Position> moves) {
-		this.moves = moves;
-	}
+  @SubscribeEvent
+  public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
+    removeOldOverlays();
+    addBlockUnderCrosshairs(event);
+  }
 
-	public List<Position> getValidMoves() {
-		return moves;
-	}
+  private void removeOldOverlays() {
+    if (overlays.size() < 1) {
+      return;
+    }
+    for (Iterator<Overlay> iter = overlays.iterator(); iter.hasNext(); ) {
+      Overlay overlay = iter.next();
+      overlay.life--;
+      if (overlay.life < 0) {
+        iter.remove();
+      }
+    }
+  }
 
-	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
-		removeOldOverlays();
-		addBlockUnderCrosshairs(event);
-	}
+  private void addBlockUnderCrosshairs(RenderWorldLastEvent event) {
+    EntityPlayerSP player = Minecraft.getMinecraft().player;
 
-	private void removeOldOverlays() {
-		if (overlays.size() < 1) {
-			return;
-		}
-		for (Iterator<Overlay> iter = overlays.iterator(); iter.hasNext();) {
-			Overlay overlay = iter.next();
-			overlay.life--;
-			if (overlay.life < 0) {
-				iter.remove();
-			}
-		}
-	}
+    if (player == null) {
+      return;
+    }
 
-	private void addBlockUnderCrosshairs(RenderWorldLastEvent event) {
-		EntityPlayerSP player = Minecraft.getMinecraft().player;
+    ItemStack wand = player.getHeldItemMainhand();
 
-		if (player == null) {
-			return;
-		}
+    if (wand == null || wand.getItem() != ItemChessControlWand.INSTANCE || !wand.hasTagCompound()) {
+      return;
+    }
 
-		ItemStack wand = player.getHeldItemMainhand();
+    BlockPos a8 = ItemChessControlWand.getA8(wand);
+    Side side = ItemChessControlWand.getSide(wand);
 
-		if (wand == null || wand.getItem() != ItemChessControlWand.INSTANCE || !wand.hasTagCompound()) {
-			return;
-		}
+    if (a8 == null) {
+      return;
+    }
 
-		BlockPos a8 = ItemChessControlWand.getA8(wand);
-		Side side = ItemChessControlWand.getSide(wand);
+    RayTraceResult r = player.rayTrace(ItemChessControlWand.REACH_DISTANCE, 1);
+    if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
+      addCursorOverlay(a8, r);
+    }
 
-		if (a8 == null) {
-			return;
-		}
+    if (overlays.size() < 1) {
+      return;
+    }
 
-		RayTraceResult r = player.rayTrace(ItemChessControlWand.REACH_DISTANCE, 1);
-		if (r.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
-			addCursorOverlay(a8, r);
-		}
+    double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+    double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+    double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
+    render(x, y, z, side);
+  }
 
-		if (overlays.size() < 1) {
-			return;
-		}
+  private void addCursorOverlay(BlockPos a8, RayTraceResult r) {
+    Overlay overlay = new Overlay();
+    BlockPos offset = r.getBlockPos().subtract(a8);
 
-		double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
-		double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
-		double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-		render(x, y, z, side);
-	}
+    if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
+      return;
+    }
 
-	private void addCursorOverlay(BlockPos a8, RayTraceResult r) {
-		Overlay overlay = new Overlay();
-		BlockPos offset = r.getBlockPos().subtract(a8);
+    if (moves != null && moves.size() > 0) {
+      Position p = new Position(File.values()[7 - offset.getX()], Rank.values()[offset.getZ()]);
+      for (Position move : moves) {
+        if (move.file.equals(p.file) && move.rank.equals(p.rank)) {
+          overlay.valid = true;
+          break;
+        }
+      }
+    }
 
-		if (offset.getX() > 7 || offset.getX() < 0 || offset.getZ() > 7 || offset.getZ() < 0 || offset.getY() != 0) {
-			return;
-		}
+    overlay.u = 7 - offset.getX();
+    overlay.v = offset.getZ();
+    overlay.pos = r.getBlockPos();
+    overlays.add(overlay);
+  }
 
-		if (moves != null && moves.size() > 0) {
-			Position p = new Position(File.values()[7 - offset.getX()], Rank.values()[offset.getZ()]);
-			for (Position move : moves) {
-				if (move.file.equals(p.file) && move.rank.equals(p.rank)) {
-					overlay.valid = true;
-					break;
-				}
-			}
-		}
+  public void render(double x, double y, double z, Side side) {
+    if (overlays.size() < 1) {
+      return;
+    }
+    TextureManager tm = Minecraft.getMinecraft().renderEngine;
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+    GL11.glPushMatrix();
+    GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    GL11.glEnable(GL11.GL_BLEND);
+    GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-		overlay.u = 7 - offset.getX();
-		overlay.v = offset.getZ();
-		overlay.pos = r.getBlockPos();
-		overlays.add(overlay);
-	}
+    drawLocationVectors(x, y, z, side, tm);
+    drawIconVectors(x, y, z, side, tm);
 
-	public void render(double x, double y, double z, Side side) {
-		if (overlays.size() < 1) {
-			return;
-		}
-		TextureManager tm = Minecraft.getMinecraft().renderEngine;
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		GL11.glPushMatrix();
-		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		GL11.glEnable(GL11.GL_BLEND);
-		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+    GL11.glPopMatrix();
+    GL11.glPopAttrib();
+  }
 
-		drawLocationVectors(x, y, z, side, tm);
-		drawIconVectors(x, y, z, side, tm);
+  private void drawLocationVectors(double x, double y, double z, Side side, TextureManager tm) {
+    tm.bindTexture(LOCATIONS_TEXTURE);
+    VertexBuffer vb = Tessellator.getInstance().getBuffer();
+    vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+    vb.setTranslation(-x, -y, -z);
+    for (Overlay select : overlays) {
+      renderVectors(vb, select.pos, TEXTURE_OFFSETS[select.u], TEXTURE_OFFSETS[select.v], side, 1.002);
+    }
+    vb.setTranslation(0, 0, 0);
+    Tessellator.getInstance().draw();
+  }
 
-		GL11.glPopMatrix();
-		GL11.glPopAttrib();
-	}
+  private void drawIconVectors(double x, double y, double z, Side side, TextureManager tm) {
+    VertexBuffer vb;
+    tm.bindTexture(ICONS_TEXTURE);
+    vb = Tessellator.getInstance().getBuffer();
+    vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+    vb.setTranslation(-x, -y, -z);
+    for (Overlay select : overlays) {
+      if (select.valid) {
+        renderVectors(vb, select.pos, TEXTURE_OFFSETS[0], TEXTURE_OFFSETS[0], side, 1.001);
+      }
+    }
+    vb.setTranslation(0, 0, 0);
+    Tessellator.getInstance().draw();
+  }
 
-	private void drawLocationVectors(double x, double y, double z, Side side, TextureManager tm) {
-		tm.bindTexture(LOCATIONS_TEXTURE);
-		VertexBuffer vb = Tessellator.getInstance().getBuffer();
-		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-		vb.setTranslation(-x, -y, -z);
-		for (Overlay select : overlays) {
-			renderVectors(vb, select.pos, TEXTURE_OFFSETS[select.u], TEXTURE_OFFSETS[select.v], side, 1.002);
-		}
-		vb.setTranslation(0, 0, 0);
-		Tessellator.getInstance().draw();
-	}
+  private void renderVectors(VertexBuffer vb, BlockPos pos, double u, double v, Side side, double yOffset) {
+    double x = pos.getX();
+    double y = pos.getY() + yOffset;
+    double z = pos.getZ();
 
-	private void drawIconVectors(double x, double y, double z, Side side, TextureManager tm) {
-		VertexBuffer vb;
-		tm.bindTexture(ICONS_TEXTURE);
-		vb = Tessellator.getInstance().getBuffer();
-		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-		vb.setTranslation(-x, -y, -z);
-		for (Overlay select : overlays) {
-			if (select.valid) {
-				renderVectors(vb, select.pos, TEXTURE_OFFSETS[0], TEXTURE_OFFSETS[0], side, 1.001);
-			}
-		}
-		vb.setTranslation(0, 0, 0);
-		Tessellator.getInstance().draw();
-	}
+    if (Side.WHITE.equals(side)) {
+      vector(vb, x, y, z, u, v, 0, 0, T, T);
+      vector(vb, x, y, z, u, v, 0, 1, T, 0);
+      vector(vb, x, y, z, u, v, 1, 1, 0, 0);
+      vector(vb, x, y, z, u, v, 1, 0, 0, T);
+    } else {
+      vector(vb, x, y, z, u, v, 0, 0, 0, 0);
+      vector(vb, x, y, z, u, v, 0, 1, 0, T);
+      vector(vb, x, y, z, u, v, 1, 1, T, T);
+      vector(vb, x, y, z, u, v, 1, 0, T, 0);
+    }
+  }
 
-	private void renderVectors(VertexBuffer vb, BlockPos pos, double u, double v, Side side, double yOffset) {
-		double x = pos.getX();
-		double y = pos.getY() + yOffset;
-		double z = pos.getZ();
+  private void vector(VertexBuffer vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
+    vb.pos(x + oX, y, z + oZ);
+    vb.tex(u + oU, v + oV);
+    vb.color(255, 255, 255, 255);
+    vb.endVertex();
+  }
 
-		if (Side.WHITE.equals(side)) {
-			vector(vb, x, y, z, u, v, 0, 0, T, T);
-			vector(vb, x, y, z, u, v, 0, 1, T, 0);
-			vector(vb, x, y, z, u, v, 1, 1, 0, 0);
-			vector(vb, x, y, z, u, v, 1, 0, 0, T);
-		} else {
-			vector(vb, x, y, z, u, v, 0, 0, 0, 0);
-			vector(vb, x, y, z, u, v, 0, 1, 0, T);
-			vector(vb, x, y, z, u, v, 1, 1, T, T);
-			vector(vb, x, y, z, u, v, 1, 0, T, 0);
-		}
-	}
+  public static class Overlay {
 
-	private void vector(VertexBuffer vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
-		vb.pos(x + oX, y, z + oZ);
-		vb.tex(u + oU, v + oV);
-		vb.color(255, 255, 255, 255);
-		vb.endVertex();
-	}
-
-	public static class Overlay {
-		public int u, v;
-		public BlockPos pos;
-		public boolean valid;
-		public int life;
-	}
+    public int u, v;
+    public BlockPos pos;
+    public boolean valid;
+    public int life;
+  }
 }

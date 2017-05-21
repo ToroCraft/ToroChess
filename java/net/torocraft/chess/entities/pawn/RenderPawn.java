@@ -12,19 +12,19 @@ import net.torocraft.chess.ToroChess;
 @SideOnly(Side.CLIENT)
 public class RenderPawn extends RenderLiving<EntityPawn> {
 
-	private static final ResourceLocation WHITE_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/pawn_white.png");
-	private static final ResourceLocation BLACK_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/pawn_black.png");
+  private static final ResourceLocation WHITE_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/pawn_white.png");
+  private static final ResourceLocation BLACK_TEXTURES = new ResourceLocation(ToroChess.MODID, "textures/entity/pawn_black.png");
 
-	public RenderPawn(RenderManager renderManagerIn) {
-		super(renderManagerIn, new ModelPawn(), 0.5F);
-	}
+  public RenderPawn(RenderManager renderManagerIn) {
+    super(renderManagerIn, new ModelPawn(), 0.5F);
+  }
 
-	protected ResourceLocation getEntityTexture(EntityPawn entity) {
-		if (BLACK.equals(entity.getSide())) {
-			return BLACK_TEXTURES;
-		} else {
-			return WHITE_TEXTURES;
-		}
-	}
+  protected ResourceLocation getEntityTexture(EntityPawn entity) {
+    if (BLACK.equals(entity.getSide())) {
+      return BLACK_TEXTURES;
+    } else {
+      return WHITE_TEXTURES;
+    }
+  }
 
 }

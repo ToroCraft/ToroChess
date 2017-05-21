@@ -14,42 +14,43 @@ import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.entities.IChessPiece;
 
 public class EntityQueen extends EntityChessPiece implements IChessPiece {
-	public static String NAME = ToroChess.MODID + "_queen";
 
-	public static void init(int entityId) {
-		EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityQueen.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
-				true);
-	}
+  public static String NAME = ToroChess.MODID + "_queen";
 
-	public static void registerRenders() {
-		RenderingRegistry.registerEntityRenderingHandler(EntityQueen.class, new IRenderFactory<EntityQueen>() {
-			@Override
-			public Render<EntityQueen> createRenderFor(RenderManager manager) {
-				return new RenderQueen(manager);
-			}
-		});
-	}
+  public EntityQueen(World worldIn) {
+    super(worldIn);
+    this.setSize(0.7F, 2.4F);
+  }
 
-	public EntityQueen(World worldIn) {
-		super(worldIn);
-		this.setSize(0.7F, 2.4F);
-	}
+  public static void init(int entityId) {
+    EntityRegistry.registerModEntity(new ResourceLocation(ToroChess.MODID, NAME), EntityQueen.class, NAME, entityId, ToroChess.INSTANCE, 60, 2,
+        true);
+  }
 
-	public float getEyeHeight() {
-		return 2.1F;
-	}
+  public static void registerRenders() {
+    RenderingRegistry.registerEntityRenderingHandler(EntityQueen.class, new IRenderFactory<EntityQueen>() {
+      @Override
+      public Render<EntityQueen> createRenderFor(RenderManager manager) {
+        return new RenderQueen(manager);
+      }
+    });
+  }
 
-	@Override
-	protected SoundEvent getAmbientSound() {
-		return null;
-	}
+  public float getEyeHeight() {
+    return 2.1F;
+  }
 
-	protected SoundEvent getHurtSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
-	}
+  @Override
+  protected SoundEvent getAmbientSound() {
+    return null;
+  }
 
-	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
-	}
+  protected SoundEvent getHurtSound() {
+    return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+  }
+
+  protected SoundEvent getDeathSound() {
+    return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+  }
 
 }

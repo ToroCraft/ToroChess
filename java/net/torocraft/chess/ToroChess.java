@@ -13,36 +13,36 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 @Mod(modid = ToroChess.MODID, name = ToroChess.MODNAME, version = ToroChess.VERSION)
 public class ToroChess {
 
-	public static final String MODID = "torochess";
-	public static final String MODNAME = "ToroChess";
-	public static final String VERSION = "1.11.2-1";
+  public static final String MODID = "torochess";
+  public static final String MODNAME = "ToroChess";
+  public static final String VERSION = "1.11.2-1";
 
-	@Mod.Instance(MODID)
-	public static ToroChess INSTANCE;
+  @Mod.Instance(MODID)
+  public static ToroChess INSTANCE;
 
-	public static SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(ToroChess.MODID);
+  public static SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(ToroChess.MODID);
 
-	@SidedProxy(clientSide = "net.torocraft.chess.ClientProxy", serverSide = "net.torocraft.chess.ServerProxy")
-	public static CommonProxy proxy;
+  @SidedProxy(clientSide = "net.torocraft.chess.ClientProxy", serverSide = "net.torocraft.chess.ServerProxy")
+  public static CommonProxy proxy;
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent e) {
-		proxy.preInit(e);
-	}
+  @EventHandler
+  public void preInit(FMLPreInitializationEvent e) {
+    proxy.preInit(e);
+  }
 
-	@EventHandler
-	public void init(FMLInitializationEvent e) {
-		proxy.init(e);
-	}
+  @EventHandler
+  public void init(FMLInitializationEvent e) {
+    proxy.init(e);
+  }
 
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent e) {
-		proxy.postInit(e);
-	}
+  @EventHandler
+  public void postInit(FMLPostInitializationEvent e) {
+    proxy.postInit(e);
+  }
 
-	@EventHandler
-	public void serverLoad(FMLServerStartingEvent e) {
+  @EventHandler
+  public void serverLoad(FMLServerStartingEvent e) {
 
-	}
+  }
 
 }

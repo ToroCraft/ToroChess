@@ -6,115 +6,116 @@ import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 
 public class EntityAIMoveToPosition extends EntityAIBase {
-	private static final double SPEED = 0.5;
 
-	private final EntityChessPiece entity;
-	private int timeoutCounter;
-	private String chessPosition;
-	private BlockPos destination;
-	private double targetX;
-	private double targetY;
-	private double targetZ;
-	private boolean isAboveDestination;
-	private boolean moving = false;
+  private static final double SPEED = 0.5;
 
-	public EntityAIMoveToPosition(EntityChessPiece creature) {
-		this.entity = creature;
-		this.setMutexBits(3);
-	}
+  private final EntityChessPiece entity;
+  private int timeoutCounter;
+  private String chessPosition;
+  private BlockPos destination;
+  private double targetX;
+  private double targetY;
+  private double targetZ;
+  private boolean isAboveDestination;
+  private boolean moving = false;
 
-	private void determineDestination() {
-		destination = CheckerBoardUtil.toWorldCoords(entity.getA8(), entity.getChessPosition());
-		targetX = (double) this.destination.getX() + 0.5d;
-		targetY = (double) this.destination.getY() + 1;
-		targetZ = (double) this.destination.getZ() + 0.5d;
-	}
+  public EntityAIMoveToPosition(EntityChessPiece creature) {
+    this.entity = creature;
+    this.setMutexBits(3);
+  }
 
-	@Override
-	public boolean shouldExecute() {
-		if (entity.hasMoved()) {
-			entity.resetMovedFlag();
-			isAboveDestination = false;
-			moving = false;
-			return true;
-		}
-		return false;
-	}
+  private void determineDestination() {
+    destination = CheckerBoardUtil.toWorldCoords(entity.getA8(), entity.getChessPosition());
+    targetX = (double) this.destination.getX() + 0.5d;
+    targetY = (double) this.destination.getY() + 1;
+    targetZ = (double) this.destination.getZ() + 0.5d;
+  }
 
-	@Override
-	public boolean continueExecuting() {
+  @Override
+  public boolean shouldExecute() {
+    if (entity.hasMoved()) {
+      entity.resetMovedFlag();
+      isAboveDestination = false;
+      moving = false;
+      return true;
+    }
+    return false;
+  }
 
-		if (isAboveDestination && entity.isMoveInProgress()) {
-			entity.onMoveComplete();
-		}
+  @Override
+  public boolean continueExecuting() {
 
-		return !isAboveDestination;
-	}
+    if (isAboveDestination && entity.isMoveInProgress()) {
+      entity.onMoveComplete();
+    }
 
-	@Override
-	public void updateTask() {
+    return !isAboveDestination;
+  }
 
-		updateDestination();
+  @Override
+  public void updateTask() {
 
-		if (destination == null) {
-			isAboveDestination = true;
-			timeoutCounter = 0;
-			return;
-		}
+    updateDestination();
 
-		double distance = distanceFromDestination();
+    if (destination == null) {
+      isAboveDestination = true;
+      timeoutCounter = 0;
+      return;
+    }
 
-		if (distance <= 0.02) {
-			isAboveDestination = true;
-			timeoutCounter = 0;
-			return;
-		}
+    double distance = distanceFromDestination();
 
-		if (distance < 1) {
-			entity.setPosition(targetX, entity.posY, targetZ);
-			timeoutCounter = 0;
-			isAboveDestination = true;
-			return;
-		}
+    if (distance <= 0.02) {
+      isAboveDestination = true;
+      timeoutCounter = 0;
+      return;
+    }
 
-		timeoutCounter++;
-		if (moving && timeoutCounter < 40) {
-			return;
-		}
+    if (distance < 1) {
+      entity.setPosition(targetX, entity.posY, targetZ);
+      timeoutCounter = 0;
+      isAboveDestination = true;
+      return;
+    }
 
-		moving = entity.getNavigator().tryMoveToXYZ(targetX, targetY, targetZ, SPEED);
-		timeoutCounter = 0;
-	}
+    timeoutCounter++;
+    if (moving && timeoutCounter < 40) {
+      return;
+    }
 
-	private void updateDestination() {
-		if (entity.getChessPosition() == null) {
-			destination = null;
-			return;
-		}
+    moving = entity.getNavigator().tryMoveToXYZ(targetX, targetY, targetZ, SPEED);
+    timeoutCounter = 0;
+  }
 
-		if (entity.getChessPosition().equals(chessPosition)) {
-			return;
-		}
+  private void updateDestination() {
+    if (entity.getChessPosition() == null) {
+      destination = null;
+      return;
+    }
 
-		determineDestination();
-	}
+    if (entity.getChessPosition().equals(chessPosition)) {
+      return;
+    }
 
-	private double distanceFromXDesination() {
-		return entity.posX - targetX;
-	}
+    determineDestination();
+  }
 
-	private double distanceFromZDesination() {
-		return entity.posZ - targetZ;
-	}
+  private double distanceFromXDesination() {
+    return entity.posX - targetX;
+  }
 
-	private double distanceFromDestination() {
-		double x = distanceFromXDesination();
-		double z = distanceFromZDesination();
-		return Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
-	}
+  private double distanceFromZDesination() {
+    return entity.posZ - targetZ;
+  }
 
-	protected boolean getIsAboveDestination() {
-		return this.isAboveDestination;
-	}
+  private double distanceFromDestination() {
+    double x = distanceFromXDesination();
+    double z = distanceFromZDesination();
+    return Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
+  }
+
+  protected boolean getIsAboveDestination() {
+    return this.isAboveDestination;
+  }
 
 }
