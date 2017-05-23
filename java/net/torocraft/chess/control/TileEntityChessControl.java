@@ -472,7 +472,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
     return pieces == null || pieces.size() < 1 ? null : (EntityKing) pieces.get(0);
   }
 
-  private EntityChessPiece getPieceEntityAt(Side side, Position position) {
+  private EntityChessPiece getPieceEntityAt(final Side side, final Position position) {
     if (position == null) {
       throw new NullPointerException("position is null");
     }
