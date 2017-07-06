@@ -2,8 +2,12 @@ package net.torocraft.chess.items;
 
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -18,6 +22,9 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
@@ -30,45 +37,41 @@ import net.torocraft.chess.entities.EntityChessPiece;
 import net.torocraft.chess.gen.CheckerBoardUtil;
 import net.torocraft.chess.items.extendedreach.IExtendedReach;
 
+@Mod.EventBusSubscriber
 public class ItemChessControlWand extends Item implements IExtendedReach {
 
   public static final float REACH_DISTANCE = 40;
 
-  public static final String NBT_SIDE = "chessside";
   public static final String NBT_A8_POS = "chessa8";
   public static final String NBT_CONTROL_POS = "chesscontrol";
   public static final String NBT_GAME_ID = "chessgameid";
   public static final String NAME = "chess_control_wand";
 
-  public static ItemChessControlWand INSTANCE;
+  public static ItemChessControlWand INSTANCE_BLACK;
+  public static ItemChessControlWand INSTANCE_WHITE;
 
-  public ItemChessControlWand() {
+  private final Side side;
+
+  public ItemChessControlWand(Side side) {
     setUnlocalizedName(NAME);
     setMaxDamage(1);
     setMaxStackSize(1);
+    this.side = side;
   }
 
-  public static void init() {
-    INSTANCE = new ItemChessControlWand();
-    GameRegistry.register(INSTANCE, new ResourceLocation(ToroChess.MODID, NAME));
+  @SubscribeEvent
+  public static void init(Register<Item> event) {
+    INSTANCE_BLACK = new ItemChessControlWand(Side.BLACK);
+    INSTANCE_WHITE = new ItemChessControlWand(Side.WHITE);
+    event.getRegistry().register(INSTANCE_BLACK.setRegistryName(new ResourceLocation(ToroChess.MODID, NAME + "_black")));
+    event.getRegistry().register(INSTANCE_WHITE.setRegistryName(new ResourceLocation(ToroChess.MODID, NAME + "_white")));
   }
 
   @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
   public static void registerRenders() {
-    final ModelResourceLocation MODEL_BLACK = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory");
-    final ModelResourceLocation MODEL_WHITE = new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory");
-
-    ModelLoader.setCustomMeshDefinition(INSTANCE, new ItemMeshDefinition() {
-      @Override
-      public ModelResourceLocation getModelLocation(ItemStack stack) {
-        if (Side.WHITE.equals(getSide(stack))) {
-          return MODEL_WHITE;
-        } else {
-          return MODEL_BLACK;
-        }
-      }
-    });
-    ModelLoader.registerItemVariants(INSTANCE, new ModelResourceLocation[]{MODEL_WHITE, MODEL_BLACK});
+    RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+    renderItem.getItemModelMesher().register(INSTANCE_BLACK, 0, new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_black", "inventory"));
+    renderItem.getItemModelMesher().register(INSTANCE_WHITE, 0, new ModelResourceLocation(ToroChess.MODID + ":" + NAME + "_white", "inventory"));
   }
 
   public static TileEntityChessControl getChessControlAt(World world, ItemStack wand) {
@@ -150,10 +153,6 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
       return null;
     }
     return stack.getTagCompound().getUniqueId(ItemChessControlWand.NBT_GAME_ID);
-  }
-
-  public static Side getSide(ItemStack stack) {
-    return CheckerBoardUtil.castSide(stack.getTagCompound().getBoolean(NBT_SIDE));
   }
 
   @Override
@@ -263,14 +262,18 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
     if (piece == null) {
       return false;
     }
-    return getSide(wand).equals(piece.getSide()) && getGameId(wand).equals(piece.getGameId());
+    return side.equals(piece.getSide()) && getGameId(wand).equals(piece.getGameId());
   }
 
   private boolean canAttack(ItemStack wand, EntityChessPiece target) {
     if (target == null) {
       return false;
     }
-    return !getSide(wand).equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
+    return side.equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
+  }
+
+  public Side getSide() {
+    return side;
   }
 
   @Override
@@ -280,7 +283,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
 
   @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
   @Override
-  public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+  public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
     if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_A8_POS)) {
       tooltip.add("Already Placed:");
       tooltip.add(BlockPos.fromLong(stack.getTagCompound().getLong(NBT_A8_POS)).toString());

@@ -50,7 +50,7 @@ public class MessageChessControl implements IMessage {
 
     @Override
     public IMessage onMessage(final MessageChessControl message, MessageContext ctx) {
-      final EntityPlayerMP payer = ctx.getServerHandler().playerEntity;
+      final EntityPlayerMP payer = ctx.getServerHandler().player;
       payer.getServerWorld().addScheduledTask(new Worker(payer, message));
       return null;
     }

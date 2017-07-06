@@ -3,7 +3,6 @@ package net.torocraft.chess;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.torocraft.chess.blocks.BlockChessControl;
 import net.torocraft.chess.control.MessageChessControl;
 import net.torocraft.chess.control.MessageChessSetPlayMode;
 import net.torocraft.chess.control.MessageLegalMovesRequest;
@@ -17,7 +16,6 @@ import net.torocraft.chess.entities.knight.EntityKnight;
 import net.torocraft.chess.entities.pawn.EntityPawn;
 import net.torocraft.chess.entities.queen.EntityQueen;
 import net.torocraft.chess.entities.rook.EntityRook;
-import net.torocraft.chess.items.ItemChessControlWand;
 import net.torocraft.chess.items.extendedreach.ExtendedReachHandler;
 import net.torocraft.chess.items.extendedreach.MessageExtendedReachInteract;
 
@@ -25,6 +23,7 @@ public class CommonProxy {
 
   public void preInit(FMLPreInitializationEvent e) {
     int packetId = 0;
+    int entityId = 0;
     MessageExtendedReachInteract.init(packetId++);
     MessageChessControl.init(packetId++);
     MessageLegalMovesRequest.init(packetId++);
@@ -32,15 +31,8 @@ public class CommonProxy {
     MessageTurnChangeEvent.init(packetId++);
     MessageChessSetPlayMode.init(packetId++);
     MessageUpdateControlBlock.init(packetId++);
-
     ExtendedReachHandler.init();
     ToroChessGuiHandler.init();
-    ItemChessControlWand.init();
-    BlockChessControl.init();
-  }
-
-  public void init(FMLInitializationEvent e) {
-    int entityId = 0;
     EntityBishop.init(entityId++);
     EntityKing.init(entityId++);
     EntityKnight.init(entityId++);
@@ -48,6 +40,9 @@ public class CommonProxy {
     EntityQueen.init(entityId++);
     EntityRook.init(entityId++);
     TileEntityChessControl.init();
+  }
+
+  public void init(FMLInitializationEvent e) {
 
   }
 

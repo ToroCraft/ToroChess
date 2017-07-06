@@ -87,7 +87,7 @@ public class CheckerBoardUtil {
     List<ChessPieceState> pieces = new ArrayList<>();
 
     List<EntityChessPiece> entityPieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-        new AxisAlignedBB(a8.add(4, 0, 4)).expand(80, 20, 80), new ChessPieceSearchPredicate(gameId));
+        new AxisAlignedBB(a8.add(4, 0, 4)).grow(80, 20, 80), new ChessPieceSearchPredicate(gameId));
 
     for (EntityChessPiece entityPiece : entityPieces) {
       pieces.add(convertToState(entityPiece));
@@ -128,7 +128,7 @@ public class CheckerBoardUtil {
   @Deprecated
   public static EntityChessPiece getHighlightedPiece(World world, Position piecePos, BlockPos a8, UUID gameId) {
     List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-        new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).expand(80, 20, 80), new HighlightedChessPiecePredicate(gameId));
+        new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).grow(80, 20, 80), new HighlightedChessPiecePredicate(gameId));
 
     if (pieces == null || pieces.size() < 1) {
       return null;
@@ -149,7 +149,7 @@ public class CheckerBoardUtil {
     }
 
     List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class,
-        new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).expand(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
+        new AxisAlignedBB(CheckerBoardUtil.toWorldCoords(a8, piecePos)).grow(80, 20, 80), new ChessPieceAtPredicate(piecePos, gameId));
 
     if (pieces == null || pieces.size() < 1) {
       return null;

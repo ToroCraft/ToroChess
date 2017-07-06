@@ -33,8 +33,8 @@ public class ExtendedReachInteractWorker implements Runnable {
     if (reachSq >= distanceSq) {
       Vec3d vec = player.getPositionVector();
 
-      extendedReachItem.onItemUseExtended(player, player.getEntityWorld(), message.block, EnumHand.MAIN_HAND, null, (float) vec.xCoord,
-          (float) vec.yCoord, (float) vec.zCoord);
+      extendedReachItem.onItemUseExtended(player, player.getEntityWorld(), message.block, EnumHand.MAIN_HAND, null, (float) vec.x,
+          (float) vec.y, (float) vec.z);
 
       player.swingArm(EnumHand.MAIN_HAND);
     }

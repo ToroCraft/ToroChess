@@ -37,8 +37,8 @@ public class ChessControlGui extends GuiScreen {
     drawDefaultBackground();
     int wCenter = width / 2;
     int hCenter = height / 2;
-    drawString(fontRendererObj, I18n.format("gui.chesscontrol.white_mode", (Object) null), wCenter - 100, hCenter + 35, 0xffffff);
-    drawString(fontRendererObj, I18n.format("gui.chesscontrol.black_mode", (Object) null), wCenter - 100, hCenter + 55, 0xffffff);
+    drawString(fontRenderer, I18n.format("gui.chesscontrol.white_mode", (Object) null), wCenter - 100, hCenter + 35, 0xffffff);
+    drawString(fontRenderer, I18n.format("gui.chesscontrol.black_mode", (Object) null), wCenter - 100, hCenter + 55, 0xffffff);
     super.drawScreen(mouseX, mouseY, partialTicks);
   }
 

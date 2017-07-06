@@ -58,7 +58,7 @@ public class MessageExtendedReachInteract implements IMessage {
 
     @Override
     public IMessage onMessage(final MessageExtendedReachInteract message, MessageContext ctx) {
-      final EntityPlayerMP payer = ctx.getServerHandler().playerEntity;
+      final EntityPlayerMP payer = ctx.getServerHandler().player;
       payer.getServerWorld().addScheduledTask(new ExtendedReachInteractWorker(payer, message));
       return null;
     }

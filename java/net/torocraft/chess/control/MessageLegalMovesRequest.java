@@ -50,7 +50,7 @@ public class MessageLegalMovesRequest implements IMessage {
       if (message.controlBlockPos == null) {
         return null;
       }
-      final EntityPlayerMP payer = ctx.getServerHandler().playerEntity;
+      final EntityPlayerMP payer = ctx.getServerHandler().player;
       payer.getServerWorld().addScheduledTask(new Worker(payer, message));
       return null;
     }

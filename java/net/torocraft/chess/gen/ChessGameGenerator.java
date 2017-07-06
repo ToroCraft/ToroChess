@@ -152,10 +152,16 @@ public class ChessGameGenerator {
   }
 
   private ItemStack createWand(Side side) {
-    ItemStack wand = new ItemStack(ItemChessControlWand.INSTANCE, 1);
+    ItemStack wand;
+
+    if (Side.BLACK.equals(side)) {
+      wand = new ItemStack(ItemChessControlWand.INSTANCE_BLACK, 1);
+    }else{
+      wand = new ItemStack(ItemChessControlWand.INSTANCE_WHITE, 1);
+    }
+
     NBTTagCompound c = new NBTTagCompound();
     c.setLong(ItemChessControlWand.NBT_A8_POS, a8.toLong());
-    c.setBoolean(ItemChessControlWand.NBT_SIDE, castSide(side));
     c.setUniqueId(ItemChessControlWand.NBT_GAME_ID, gameId);
     c.setLong(ItemChessControlWand.NBT_CONTROL_POS, controlPos.toLong());
     wand.setTagCompound(c);

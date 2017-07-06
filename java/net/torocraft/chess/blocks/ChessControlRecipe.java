@@ -1,6 +1,7 @@
 package net.torocraft.chess.blocks;
 
 import java.util.Arrays;
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -11,9 +12,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public class ChessControlRecipe implements IRecipe {
+public class ChessControlRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe {
 
   public static final String NBT_WHITE_BLOCK_KEY = "white_checker_block";
   public static final String NBT_BLACK_BLOCK_KEY = "black_checker_block";
@@ -23,7 +26,7 @@ public class ChessControlRecipe implements IRecipe {
   private static final Block[] VALID_BOARD_BLOCKS = {Blocks.OBSIDIAN, Blocks.PLANKS, Blocks.PLANKS, Blocks.STAINED_GLASS,
       Blocks.STAINED_HARDENED_CLAY, Blocks.WOOL, Blocks.DIRT, Blocks.QUARTZ_BLOCK, Blocks.LOG, Blocks.LOG2, Blocks.OBSIDIAN, Blocks.STONE,
       Blocks.STONEBRICK, Blocks.COBBLESTONE, Blocks.BONE_BLOCK, Blocks.COAL_BLOCK, Blocks.NETHER_BRICK, Blocks.MELON_BLOCK, Blocks.SANDSTONE,
-      Blocks.MOSSY_COBBLESTONE};
+      Blocks.MOSSY_COBBLESTONE, Blocks.CONCRETE};
 
   private final ItemStack output = new ItemStack(BlockChessControl.INSTANCE);
 
@@ -125,7 +128,9 @@ public class ChessControlRecipe implements IRecipe {
     return output;
   }
 
-  public int getRecipeSize() {
-    return 9;
+  @Override
+  public boolean canFit(int width, int height) {
+    return width * height >= 9;
   }
+
 }

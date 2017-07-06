@@ -42,12 +42,12 @@ public class ExtendedReachHandler {
       }
 
       Vec3d lookvec = theRenderViewEntity.getLook(0);
-      Vec3d var8 = pos.addVector(lookvec.xCoord * var2, lookvec.yCoord * var2, lookvec.zCoord * var2);
+      Vec3d var8 = pos.addVector(lookvec.x * var2, lookvec.y * var2, lookvec.z * var2);
       Entity pointedEntity = null;
       float var9 = 1.0F;
 
       List<Entity> list = mc.world.getEntitiesWithinAABBExcludingEntity(theRenderViewEntity,
-          theViewBoundingBox.addCoord(lookvec.xCoord * var2, lookvec.yCoord * var2, lookvec.zCoord * var2).expand(var9, var9, var9));
+          theViewBoundingBox.grow(lookvec.x * var2, lookvec.y * var2, lookvec.z * var2).grow(var9, var9, var9));
       double d = calcdist;
 
       for (Entity entity : list) {
@@ -55,10 +55,10 @@ public class ExtendedReachHandler {
           float bordersize = entity.getCollisionBorderSize();
           AxisAlignedBB aabb = new AxisAlignedBB(entity.posX - entity.width / 2, entity.posY, entity.posZ - entity.width / 2,
               entity.posX + entity.width / 2, entity.posY + entity.height, entity.posZ + entity.width / 2);
-          aabb.expand(bordersize, bordersize, bordersize);
+          aabb.grow(bordersize, bordersize, bordersize);
           RayTraceResult mop0 = aabb.calculateIntercept(pos, var8);
 
-          if (aabb.isVecInside(pos)) {
+          if (aabb.contains(pos)) {
             if (0.0D < d || d == 0.0D) {
               pointedEntity = entity;
               d = 0.0D;
@@ -126,7 +126,7 @@ public class ExtendedReachHandler {
 			 */
       Vec3d vec = player.getPositionVector();
       ((IExtendedReach) (stack.getItem())).onItemUseExtended(player, player.world, raytrace.getBlockPos(), EnumHand.MAIN_HAND, null,
-          (float) vec.xCoord, (float) vec.yCoord, (float) vec.zCoord);
+          (float) vec.x, (float) vec.y, (float) vec.z);
 
     }
 

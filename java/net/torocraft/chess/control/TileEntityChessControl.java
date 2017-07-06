@@ -123,7 +123,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
       throw new NullPointerException("gameId is null");
     }
 
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).grow(80, 20, 80),
         new ChessPieceSearchPredicate(gameId));
 
     for (EntityChessPiece chessPiece : pieces) {
@@ -143,7 +143,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
   }
 
   public void clearBoard() {
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).grow(80, 20, 80),
         new ChessPieceSearchPredicate(gameId));
 
     for (EntityChessPiece chessPiece : pieces) {
@@ -399,7 +399,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
   }
 
   private void removeAllHighlights() {
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).grow(80, 20, 80),
         new HighlightedChessPiecePredicate(gameId));
     if (pieces == null) {
       return;
@@ -466,7 +466,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
   }
 
   private EntityKing getKing(Side side) {
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).grow(80, 20, 80),
         Predicates.and(new ChessPieceSearchPredicate(gameId), new KingSelector(side)));
 
     return pieces == null || pieces.size() < 1 ? null : (EntityKing) pieces.get(0);
@@ -479,7 +479,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
     if (side == null) {
       throw new NullPointerException("side is null");
     }
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos.add(4, 0, 4)).grow(80, 20, 80),
         Predicates.and(new ChessPieceSearchPredicate(gameId), new Predicate<EntityChessPiece>() {
           @Override
           public boolean apply(EntityChessPiece p) {
@@ -748,7 +748,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
       return;
     }
 
-    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).expand(80, 20, 80),
+    List<EntityChessPiece> pieces = world.getEntitiesWithinAABB(EntityChessPiece.class, new AxisAlignedBB(pos).grow(80, 20, 80),
         new ChessPieceSearchPredicate(gameId));
 
     if (pieces.size() < 1) {

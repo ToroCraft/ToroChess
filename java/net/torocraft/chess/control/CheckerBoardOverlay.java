@@ -1,13 +1,14 @@
 package net.torocraft.chess.control;
 
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
@@ -81,12 +82,12 @@ public class CheckerBoardOverlay {
 
     ItemStack wand = player.getHeldItemMainhand();
 
-    if (wand == null || wand.getItem() != ItemChessControlWand.INSTANCE || !wand.hasTagCompound()) {
+    if (wand == null || !(wand.getItem() instanceof ItemChessControlWand) || !wand.hasTagCompound()) {
       return;
     }
 
     BlockPos a8 = ItemChessControlWand.getA8(wand);
-    Side side = ItemChessControlWand.getSide(wand);
+    Side side = ((ItemChessControlWand)wand.getItem()).getSide();
 
     if (a8 == null) {
       return;
@@ -151,7 +152,7 @@ public class CheckerBoardOverlay {
 
   private void drawLocationVectors(double x, double y, double z, Side side, TextureManager tm) {
     tm.bindTexture(LOCATIONS_TEXTURE);
-    VertexBuffer vb = Tessellator.getInstance().getBuffer();
+    BufferBuilder vb = Tessellator.getInstance().getBuffer();
     vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
     vb.setTranslation(-x, -y, -z);
     for (Overlay select : overlays) {
@@ -162,7 +163,7 @@ public class CheckerBoardOverlay {
   }
 
   private void drawIconVectors(double x, double y, double z, Side side, TextureManager tm) {
-    VertexBuffer vb;
+    BufferBuilder vb;
     tm.bindTexture(ICONS_TEXTURE);
     vb = Tessellator.getInstance().getBuffer();
     vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -176,7 +177,7 @@ public class CheckerBoardOverlay {
     Tessellator.getInstance().draw();
   }
 
-  private void renderVectors(VertexBuffer vb, BlockPos pos, double u, double v, Side side, double yOffset) {
+  private void renderVectors(BufferBuilder vb, BlockPos pos, double u, double v, Side side, double yOffset) {
     double x = pos.getX();
     double y = pos.getY() + yOffset;
     double z = pos.getZ();
@@ -194,7 +195,7 @@ public class CheckerBoardOverlay {
     }
   }
 
-  private void vector(VertexBuffer vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
+  private void vector(BufferBuilder vb, double x, double y, double z, double u, double v, int oX, int oZ, double oU, double oV) {
     vb.pos(x + oX, y, z + oZ);
     vb.tex(u + oU, v + oV);
     vb.color(255, 255, 255, 255);

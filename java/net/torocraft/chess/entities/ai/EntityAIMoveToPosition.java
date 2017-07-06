@@ -43,7 +43,7 @@ public class EntityAIMoveToPosition extends EntityAIBase {
   }
 
   @Override
-  public boolean continueExecuting() {
+  public boolean shouldContinueExecuting() {
 
     if (isAboveDestination && entity.isMoveInProgress()) {
       entity.onMoveComplete();

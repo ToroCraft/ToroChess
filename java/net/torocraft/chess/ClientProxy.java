@@ -18,20 +18,20 @@ public class ClientProxy extends CommonProxy {
   @Override
   public void preInit(FMLPreInitializationEvent e) {
     super.preInit(e);
+    CheckerBoardOverlay.init();
     EntityBishop.registerRenders();
     EntityKing.registerRenders();
     EntityKnight.registerRenders();
     EntityPawn.registerRenders();
     EntityQueen.registerRenders();
     EntityRook.registerRenders();
-    ItemChessControlWand.registerRenders();
-    CheckerBoardOverlay.init();
   }
 
   @Override
   public void init(FMLInitializationEvent e) {
     super.init(e);
     BlockChessControl.registerRenders();
+    ItemChessControlWand.registerRenders();
   }
 
   @Override

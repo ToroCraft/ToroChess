@@ -126,11 +126,11 @@ public abstract class EntityChessPiece extends EntityCreature implements IChessP
       return true;
     }
 
-    if (source.getEntity() == null || !(source.getEntity() instanceof EntityChessPiece)) {
+    if (source.getTrueSource() == null || !(source.getTrueSource() instanceof EntityChessPiece)) {
       return false;
     }
 
-    EntityChessPiece attacker = (EntityChessPiece) source.getEntity();
+    EntityChessPiece attacker = (EntityChessPiece) source.getTrueSource();
     return isEnemy(attacker);
   }
 

@@ -3,11 +3,14 @@ package net.torocraft.chess.blocks;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
@@ -17,6 +20,7 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
@@ -27,6 +31,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.torocraft.chess.ToroChess;
@@ -35,6 +43,7 @@ import net.torocraft.chess.control.TileEntityChessControl;
 import net.torocraft.chess.engine.GamePieceState.Side;
 import net.torocraft.chess.gen.ChessGameGenerator;
 
+@Mod.EventBusSubscriber
 public class BlockChessControl extends BlockContainer {
 
   public static final String NBT_TYPE = "chesstype";
@@ -57,17 +66,27 @@ public class BlockChessControl extends BlockContainer {
     isBlockContainer = true;
   }
 
-  public static void init() {
+  public static ResourceLocation REGISTRY_NAME = new ResourceLocation(ToroChess.MODID, NAME);
+
+  @SubscribeEvent
+  public static void init(RegistryEvent.Register<Block> event) {
     INSTANCE = new BlockChessControl();
-    ResourceLocation resourceName = new ResourceLocation(ToroChess.MODID, NAME);
-    INSTANCE.setRegistryName(resourceName);
-    GameRegistry.register(INSTANCE);
+    INSTANCE.setRegistryName(REGISTRY_NAME);
+    event.getRegistry().register(INSTANCE);
+  }
 
+  @SubscribeEvent
+  public static void initItem(RegistryEvent.Register<Item> event) {
     ITEM_INSTANCE = new ItemBlock(INSTANCE);
-    ITEM_INSTANCE.setRegistryName(resourceName);
-    GameRegistry.register(ITEM_INSTANCE);
+    ITEM_INSTANCE.setRegistryName(REGISTRY_NAME);
+    event.getRegistry().register(ITEM_INSTANCE);
+  }
 
-    GameRegistry.addRecipe(new ChessControlRecipe());
+  @SubscribeEvent
+  public static void initRecipe(RegistryEvent.Register<IRecipe> event) {
+    IRecipe recipe = new ChessControlRecipe();
+    recipe.setRegistryName(new ResourceLocation(ToroChess.MODID, NAME + "_recipe"));
+    event.getRegistry().register(recipe);
   }
 
   public static void registerRenders() {
@@ -189,7 +208,7 @@ public class BlockChessControl extends BlockContainer {
 
   @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
   @Override
-  public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+  public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
     if (stack.hasTagCompound() && stack.getTagCompound().hasKey(NBT_A8_KEY)) {
       tooltip.add(BlockPos.fromLong(stack.getTagCompound().getLong(NBT_A8_KEY)).toString());
       tooltip.add(stack.getTagCompound().getUniqueId(NBT_GAME_ID_KEY).toString());
