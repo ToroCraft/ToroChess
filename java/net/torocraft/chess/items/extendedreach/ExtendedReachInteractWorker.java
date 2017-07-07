@@ -21,11 +21,11 @@ public class ExtendedReachInteractWorker implements Runnable {
     if (message.hitType == MessageExtendedReachInteract.HIT_TYPE_ENTITY) {
       interaceOnEntity(message, player);
     } else if (message.hitType == MessageExtendedReachInteract.HIT_TYPE_BLOCK) {
-      interaceOnBlock(message, player);
+      interactOnBlock(message, player);
     }
   }
 
-  private void interaceOnBlock(MessageExtendedReachInteract message, EntityPlayerMP player) {
+  private void interactOnBlock(MessageExtendedReachInteract message, EntityPlayerMP player) {
     IExtendedReach extendedReachItem = (IExtendedReach) player.getHeldItemMainhand().getItem();
     double distanceSq = player.getDistanceSq(message.block);
     double reachSq = extendedReachItem.getReach() * extendedReachItem.getReach();

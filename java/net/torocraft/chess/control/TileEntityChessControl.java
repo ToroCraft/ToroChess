@@ -73,7 +73,7 @@ public class TileEntityChessControl extends TileEntity implements ITickable {
   private int turnBellTimes = 0;
   private boolean resetOnClear = false;
   private PlayMode whitePlayMode = PlayMode.PLAYER;
-  private PlayMode blackPlayMode = PlayMode.EASY;
+  private PlayMode blackPlayMode = PlayMode.PLAYER;
   private boolean caslteInProgress = false;
 
   private List<ITask> runQueue = new ArrayList<>();

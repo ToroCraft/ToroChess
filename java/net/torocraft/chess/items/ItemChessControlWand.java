@@ -269,7 +269,7 @@ public class ItemChessControlWand extends Item implements IExtendedReach {
     if (target == null) {
       return false;
     }
-    return side.equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
+    return !side.equals(target.getSide()) && getGameId(wand).equals(target.getGameId());
   }
 
   public Side getSide() {

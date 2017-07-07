@@ -24,8 +24,8 @@ public class ChessControlGui extends GuiScreen {
   private GuiButton buttonResetGame;
   private GuiButton buttonClearGame;
 
-  private PlayModeButton whitePlayerMode;
-  private PlayModeButton blackPlayerMode;
+  //private PlayModeButton whitePlayerMode;
+  //private PlayModeButton blackPlayerMode;
 
   public ChessControlGui(World world, BlockPos controlBlockPos) {
     this.controlBlockPos = controlBlockPos;
@@ -37,8 +37,8 @@ public class ChessControlGui extends GuiScreen {
     drawDefaultBackground();
     int wCenter = width / 2;
     int hCenter = height / 2;
-    drawString(fontRenderer, I18n.format("gui.chesscontrol.white_mode", (Object) null), wCenter - 100, hCenter + 35, 0xffffff);
-    drawString(fontRenderer, I18n.format("gui.chesscontrol.black_mode", (Object) null), wCenter - 100, hCenter + 55, 0xffffff);
+   // drawString(fontRenderer, I18n.format("gui.chesscontrol.white_mode", (Object) null), wCenter - 100, hCenter + 35, 0xffffff);
+   // drawString(fontRenderer, I18n.format("gui.chesscontrol.black_mode", (Object) null), wCenter - 100, hCenter + 55, 0xffffff);
     super.drawScreen(mouseX, mouseY, partialTicks);
   }
 
@@ -65,16 +65,12 @@ public class ChessControlGui extends GuiScreen {
         .add(buttonResetGame = new GuiButton(buttonId++, wCenter - 100, hCenter - 24, I18n.format("gui.chesscontrol.reset", (Object) null)));
     buttonList.add(buttonClearGame = new GuiButton(buttonId++, wCenter - 100, hCenter + 4, I18n.format("gui.chesscontrol.clear", (Object) null)));
 
-    whitePlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 30, Side.WHITE, controlBlockPos);
-
-    whitePlayerMode.setMode(control.getWhitePlayMode());
-
-    blackPlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 50, Side.BLACK, controlBlockPos);
-
-    blackPlayerMode.setMode(control.getBlackPlayMode());
-
-    buttonList.add(whitePlayerMode);
-    buttonList.add(blackPlayerMode);
+    //whitePlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 30, Side.WHITE, controlBlockPos);
+    //whitePlayerMode.setMode(control.getWhitePlayMode());
+    //blackPlayerMode = new PlayModeButton(buttonId++, wCenter + 10, hCenter + 50, Side.BLACK, controlBlockPos);
+    //blackPlayerMode.setMode(control.getBlackPlayMode());
+    //buttonList.add(whitePlayerMode);
+    //buttonList.add(blackPlayerMode);
 
   }
 
@@ -105,13 +101,13 @@ public class ChessControlGui extends GuiScreen {
       closeGui();
     }
 
-    if (button == whitePlayerMode) {
-      whitePlayerMode.actionPerformed();
-    }
-
-    if (button == blackPlayerMode) {
-      blackPlayerMode.actionPerformed();
-    }
+//    if (button == whitePlayerMode) {
+//      whitePlayerMode.actionPerformed();
+//    }
+//
+//    if (button == blackPlayerMode) {
+//      blackPlayerMode.actionPerformed();
+//    }
   }
 
   private void closeGui() {
