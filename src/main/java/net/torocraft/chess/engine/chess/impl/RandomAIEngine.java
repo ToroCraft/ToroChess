@@ -21,6 +21,8 @@ public class RandomAIEngine implements IChessAIEngine {
   private Side sideToMove;
   private List<ChessPieceState> state;
   private ChessRuleEngine ruleEngine;
+  private Move currentMoveToMake;
+  private ChessPieceState currentPieceToEat;
 
   @Override
   public Move getAIMove(List<ChessPieceState> state, Side sideToMove) {
@@ -56,9 +58,9 @@ public class RandomAIEngine implements IChessAIEngine {
       return;
     }
 
-    Move moveResultToTakePieceIfExists = checkIfAnyMoveToTakePiece();
-    if (moveResultToTakePieceIfExists != null) {
-      aiMove = moveResultToTakePieceIfExists;
+    checkIfAnyMoveToTakePiece();
+    if (currentMoveToMake != null) {
+      aiMove = currentMoveToMake;
       return;
     }
 
@@ -75,17 +77,33 @@ public class RandomAIEngine implements IChessAIEngine {
     aiMove = new Move(randomChessPieceToMoveThatIsLegal.position, randomPositionToMoveToThatIsLegal);
   }
 
-  private Move checkIfAnyMoveToTakePiece() {
+  private void checkIfAnyMoveToTakePiece() {
+    currentMoveToMake = null;
+    currentPieceToEat = null;
     List<ChessPieceState> keys = new ArrayList<>(moveResultsMap.keySet());
     for (ChessPieceState key : keys) {
-      for (Position position : moveResultsMap.get(key).legalPositions) {
-        for (ChessPieceState statePiece : state) {
-          if (position.equals(statePiece.position)) {
-            return new Move(key.position, position);
-          }
+      checkLegalPositionsForKey(key);
+    }
+  }
+
+  private void checkLegalPositionsForKey(ChessPieceState key) {
+    for (Position position : moveResultsMap.get(key).legalPositions) {
+      checkStatePiecesAtPosition(position, key);
+    }
+  }
+
+  private void checkStatePiecesAtPosition(Position position, ChessPieceState key) {
+    for (ChessPieceState statePiece : state) {
+      if (position.equals(statePiece.position)) {
+        if (isCurrentPieceHigherRanked(statePiece)) {
+          currentPieceToEat = statePiece;
+          currentMoveToMake = new Move(key.position, position);
         }
       }
     }
-    return null;
+  }
+
+  private boolean isCurrentPieceHigherRanked(ChessPieceState statePiece) {
+    return currentMoveToMake == null || statePiece.getRanking() > currentPieceToEat.getRanking();
   }
 }
