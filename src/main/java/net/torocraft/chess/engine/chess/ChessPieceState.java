@@ -20,4 +20,23 @@ public class ChessPieceState extends GamePieceState {
   public enum Type {
     PAWN, BISHOP, KING, KNIGHT, QUEEN, ROOK
   }
+
+  public int getRanking() {
+    switch (type) {
+      case PAWN:
+        return 1;
+      case BISHOP:
+        return 2;
+      case KNIGHT:
+        return 2;
+      case ROOK:
+        return 3;
+      case QUEEN:
+        return 4;
+      case KING:
+        return 5;
+      default:
+        return 0;
+    }
+  }
 }
