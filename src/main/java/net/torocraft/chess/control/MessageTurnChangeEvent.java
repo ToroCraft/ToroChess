@@ -82,7 +82,6 @@ public class MessageTurnChangeEvent implements IMessage {
         public void run() {
           ItemStack wand = player.getHeldItemMainhand();
           if (wand == null || wand.isEmpty() || !(wand.getItem() instanceof ItemChessControlWand)) {
-            System.out.println("MessageTurnChangeEvent: not a wand");
             return;
           }
 

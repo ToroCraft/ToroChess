@@ -53,7 +53,7 @@ public class ExtendedReachInteractWorker implements Runnable {
 
     IExtendedReach extendedReachItem = (IExtendedReach) player.getHeldItemMainhand().getItem();
 
-    double distanceSq = player.getDistanceSqToEntity(entity);
+    double distanceSq = player.getDistanceSq(entity);
     double reachSq = extendedReachItem.getReach() * extendedReachItem.getReach();
 
     if (reachSq >= distanceSq) {

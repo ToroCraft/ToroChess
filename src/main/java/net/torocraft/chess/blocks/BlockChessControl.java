@@ -63,7 +63,6 @@ public class BlockChessControl extends BlockContainer {
     setHardness(0.5f);
     setLightLevel(0);
     setCreativeTab(CreativeTabs.MISC);
-    isBlockContainer = true;
   }
 
   public static ResourceLocation REGISTRY_NAME = new ResourceLocation(ToroChess.MODID, NAME);
